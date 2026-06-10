@@ -22,21 +22,32 @@ import androidx.compose.ui.Modifier
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.model.AppError
 import com.lizz.myapptemplate.model.Item
-import com.lizz.myapptemplate.network.ApiResult
 import com.lizz.myapptemplate.network.safeGet
+import com.lizz.myapptemplate.ui.ErrorContent
+import com.lizz.myapptemplate.ui.UiState
+import com.lizz.myapptemplate.ui.UiStateContent
+import com.lizz.myapptemplate.ui.toUiState
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 /**
  * Calls the template server using shared DTOs from core:model through the
- * typed core:network layer. Start the server with: ./gradlew :server:run
+ * typed core:network layer, rendered with the standard core:ui state
+ * components. Start the server with: ./gradlew :server:run
  */
 @Composable
 fun NetworkDemoScreen(onBack: () -> Unit) {
     val httpClient = koinInject<HttpClient>()
     val scope = rememberCoroutineScope()
-    var result by remember { mutableStateOf<ApiResult<List<Item>>?>(null) }
+    var state by remember { mutableStateOf<UiState<List<Item>>?>(null) }
+
+    fun load() {
+        scope.launch {
+            state = UiState.Loading
+            state = httpClient.safeGet<List<Item>>("/api/items").toUiState { it.isEmpty() }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -49,39 +60,42 @@ fun NetworkDemoScreen(onBack: () -> Unit) {
         Text("Network demo", style = MaterialTheme.typography.headlineMedium)
         Text(
             "GET /api/items from the template server, decoded into shared " +
-                "core:model DTOs. Failures map to typed AppError values.",
+                "core:model DTOs. Failures map to typed AppError values " +
+                "rendered by core:ui state components.",
             style = MaterialTheme.typography.bodyMedium,
         )
 
-        Button(onClick = {
-            scope.launch { result = httpClient.safeGet("/api/items") }
-        }) {
+        Button(onClick = ::load) {
             Text("Load items")
         }
 
-        when (val r = result) {
+        when (val s = state) {
             null -> Text("Not requested yet", style = MaterialTheme.typography.bodyMedium)
 
-            is ApiResult.Success -> r.data.forEach { item ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(Theme.spacing.md)) {
-                        Text(item.title, style = MaterialTheme.typography.titleMedium)
-                        Text(item.description, style = MaterialTheme.typography.bodyMedium)
+            else -> UiStateContent(
+                state = s,
+                onRetry = ::load,
+                error = { appError ->
+                    Column(verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
+                        ErrorContent(appError, onRetry = ::load)
+                        if (appError is AppError.Network || appError is AppError.Timeout) {
+                            Text(
+                                "Is the server running? Start it with: ./gradlew :server:run",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
                     }
-                }
-            }
-
-            is ApiResult.Failure -> {
-                Text(
-                    "Failed: ${r.error}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                )
-                if (r.error is AppError.Network || r.error is AppError.Timeout) {
-                    Text(
-                        "Is the server running? Start it with: ./gradlew :server:run",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                },
+            ) { items ->
+                Column(verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
+                    items.forEach { item ->
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(Theme.spacing.md)) {
+                                Text(item.title, style = MaterialTheme.typography.titleMedium)
+                                Text(item.description, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
                 }
             }
         }

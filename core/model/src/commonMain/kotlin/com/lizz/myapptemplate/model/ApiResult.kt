@@ -1,6 +1,4 @@
-package com.lizz.myapptemplate.network
-
-import com.lizz.myapptemplate.model.AppError
+package com.lizz.myapptemplate.model
 
 /**
  * Typed outcome of an API call. The network layer never throws (except

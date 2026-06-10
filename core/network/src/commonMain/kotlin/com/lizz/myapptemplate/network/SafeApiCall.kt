@@ -1,5 +1,6 @@
 package com.lizz.myapptemplate.network
 
+import com.lizz.myapptemplate.model.ApiResult
 import com.lizz.myapptemplate.model.AppError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
