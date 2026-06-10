@@ -6,18 +6,9 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.room3)
 }
 
 kotlin {
-    compilerOptions {
-        // Required by Room KMP's @ConstructedBy expect/actual pattern (the compiler
-        // generates the `actual` database constructor per platform). Keep this even
-        // after deleting DemoScreen.kt — any real Room database needs it too.
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
-
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -27,14 +18,14 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm()
-    
+
     androidLibrary {
        namespace = "com.lizz.myapptemplate.app.shared"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
-    
+
        compilerOptions {
            jvmTarget = JvmTarget.JVM_11
        }
@@ -45,7 +36,7 @@ kotlin {
            isIncludeAndroidResources = true
        }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
@@ -55,9 +46,11 @@ kotlin {
             api(projects.core.model)
             api(projects.core.common)
             api(projects.core.designsystem)
+            implementation(projects.core.database)
             implementation(projects.core.datastore)
             implementation(projects.core.navigation)
             api(projects.core.network)
+            implementation(projects.core.ui)
             implementation(projects.feature.settings)
             implementation(projects.feature.showcase)
             implementation(libs.compose.runtime)
@@ -79,17 +72,10 @@ kotlin {
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.androidx.lifecycle.viewmodelNavigation3)
 
-            // Storage
-            implementation(libs.androidx.datastore)
-            implementation(libs.androidx.datastore.preferences)
-            implementation(libs.room3.runtime)
-            implementation(libs.sqlite.bundled)
-
-            // Images
+            // Baseline libs ready for app code (image loading, file pickers) —
+            // not yet exercised by the showcase.
             implementation(libs.coil.compose)
             implementation(libs.coil.networkKtor3)
-
-            // Files
             implementation(libs.filekit.core)
             implementation(libs.filekit.dialogs)
             implementation(libs.filekit.dialogsCompose)
@@ -110,15 +96,6 @@ kotlin {
     }
 }
 
-room3 {
-    schemaDirectory("$projectDir/schemas")
-}
-
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
-
-    add("kspAndroid", libs.room3.compiler)
-    add("kspJvm", libs.room3.compiler)
-    add("kspIosArm64", libs.room3.compiler)
-    add("kspIosSimulatorArm64", libs.room3.compiler)
 }

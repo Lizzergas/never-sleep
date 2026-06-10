@@ -27,12 +27,19 @@ object ShowcaseFeature : FeatureRegistration {
             description = "Typed API call to the template server via core:network",
             startRoute = NetworkDemoRoute,
         ),
+        FeatureDescriptor(
+            id = "database-demo",
+            title = "Database demo",
+            description = "Room 3 KMP insert + observe via core:database",
+            startRoute = DatabaseDemoRoute,
+        ),
     )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(ShowcaseHomeRoute::class)
         builder.subclass(DesignsystemGalleryRoute::class)
         builder.subclass(NetworkDemoRoute::class)
+        builder.subclass(DatabaseDemoRoute::class)
     }
 
     override fun registerEntries(scope: EntryProviderScope<NavKey>, navigator: Navigator) {
@@ -44,6 +51,9 @@ object ShowcaseFeature : FeatureRegistration {
         }
         scope.entry<NetworkDemoRoute> {
             NetworkDemoScreen(onBack = navigator::goBack)
+        }
+        scope.entry<DatabaseDemoRoute> {
+            DatabaseDemoScreen(onBack = navigator::goBack)
         }
     }
 }

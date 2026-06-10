@@ -1,42 +1,46 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM), Server.
+# MyAppTemplate
 
-* [/app/iosApp](./app/iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+A Kotlin/Compose Multiplatform template targeting **Android, iOS, Desktop (JVM)
+and Server**, with a plug-in module architecture: the infrastructure every app
+needs ships pre-built and wired, and each feature is removable in three
+documented lines.
 
-* [/app/shared](./app/shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./app/shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./app/shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./app/shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+**Read [docs/MODULES.md](./docs/MODULES.md)** for the module map, dependency
+rules, and the add/remove-a-feature contract. The PRD and phased plan behind
+the architecture live in [docs/prd](./docs/prd) and [plans](./plans).
 
-* [/core](./core/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./core/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+## What's inside
 
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
+- **Baseline stack** (all verified on every target): Koin DI, Ktor client +
+  server, kotlinx-serialization/datetime, Navigation3, Room 3 (KMP), DataStore,
+  Coil 3, FileKit, Kermit — versions in `gradle/libs.versions.toml`.
+- **Convention plugins** (`build-logic/`): a new module's build file is a few
+  lines (`template.kmp.library`, `template.kmp.feature`, `template.compose`).
+- **core:*** modules: model (shared DTOs + AppError + ApiResult), network
+  (typed error-mapped client), database (Room 3), datastore, designsystem
+  (AppTheme + tokens), navigation (feature registry contract), ui (UiState +
+  state components), common.
+- **feature:settings**: the reference feature — persisted theme mode driving
+  AppTheme live.
+- **feature:showcase**: the start destination — lists installed features and
+  demos the designsystem, network (against the local server), and database.
 
-### Running the apps
-
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+## Running
 
 - Android app: `./gradlew :app:androidApp:assembleDebug`
-- Desktop app:
-  - Hot reload: `./gradlew :app:desktopApp:hotRun --auto`
-  - Standard run: `./gradlew :app:desktopApp:run`
-- Server: `./gradlew :server:run`
-- iOS app: open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
+- Desktop app: `./gradlew :app:desktopApp:run` (hot reload: `:app:desktopApp:hotRun --auto`)
+- Server: `./gradlew :server:run` (the showcase network demo talks to it)
+- iOS app: open [/app/iosApp](./app/iosApp) in Xcode and run.
 
-### Running tests
+## Tests
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
-
-- Android tests: `./gradlew :app:shared:testAndroidHostTest`
-- Desktop tests: `./gradlew :app:shared:jvmTest`
-- Server tests: `./gradlew :server:test`
-- iOS tests: `./gradlew :app:shared:iosSimulatorArm64Test`
+- Everything JVM-side: `./gradlew jvmTest :server:test`
+- Highlights: Ktor error-mapping table (`core:network`), DataStore persistence
+  (`feature:settings`), state components (`core:ui`), Room round-trip
+  (`core:database`), and full client↔server e2e through the composed UI
+  (`app:shared`'s NetworkDemoE2eTest, which boots the real server in-process).
+- Android host tests: `./gradlew :app:shared:testAndroidHostTest`
+- iOS: `./gradlew :app:shared:iosSimulatorArm64Test`
 
 ---
 

@@ -26,8 +26,6 @@ import kotlinx.serialization.modules.polymorphic
 val featureRegistrations: List<FeatureRegistration> = listOf(
     ShowcaseFeature,
     SettingsFeature,
-    // TEMPORARY: dependency-verification demo — remove together with DemoScreen.kt
-    DemoFeature,
 )
 
 @Composable

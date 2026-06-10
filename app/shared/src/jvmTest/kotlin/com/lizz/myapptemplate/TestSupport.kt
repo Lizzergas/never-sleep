@@ -3,6 +3,10 @@ package com.lizz.myapptemplate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.room3.Room
+import com.lizz.myapptemplate.database.AppDatabase
+import com.lizz.myapptemplate.database.NoteDao
+import com.lizz.myapptemplate.database.buildAppDatabase
 import java.nio.file.Files
 import kotlinx.coroutines.CoroutineScope
 import okio.Path.Companion.toPath
@@ -20,4 +24,13 @@ fun testDataStoreModule(scope: CoroutineScope): Module = module {
             Files.createTempDirectory("test-ds").resolve("test.preferences_pb").toString().toPath()
         }
     }
+}
+
+/** Overrides the app database with a throwaway temp-file instance. */
+fun testDatabaseModule(): Module = module {
+    single<AppDatabase> {
+        val file = Files.createTempDirectory("test-db").resolve("test.db").toString()
+        buildAppDatabase(Room.databaseBuilder<AppDatabase>(file))
+    }
+    single<NoteDao> { get<AppDatabase>().noteDao() }
 }

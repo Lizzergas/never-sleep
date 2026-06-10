@@ -11,3 +11,6 @@ data object DesignsystemGalleryRoute : NavKey
 
 @Serializable
 data object NetworkDemoRoute : NavKey
+
+@Serializable
+data object DatabaseDemoRoute : NavKey
