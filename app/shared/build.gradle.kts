@@ -12,7 +12,9 @@ plugins {
 
 kotlin {
     compilerOptions {
-        // Room generates the `actual` database constructor per platform
+        // Required by Room KMP's @ConstructedBy expect/actual pattern (the compiler
+        // generates the `actual` database constructor per platform). Keep this even
+        // after deleting DemoScreen.kt — any real Room database needs it too.
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
@@ -69,8 +71,12 @@ kotlin {
 
             // DI
             implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.composeViewmodel)
+
+            // Logging
+            implementation(libs.kermit)
 
             // Navigation
             implementation(libs.jetbrains.navigation3.ui)

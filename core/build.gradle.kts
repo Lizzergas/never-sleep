@@ -30,12 +30,11 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            api(project.dependencies.platform(libs.koin.bom))
+            // api() only what shared DTOs/types expose in public signatures;
+            // app- and server-specific stacks (Koin, Kermit, Ktor) live in their modules.
             api(libs.kotlinx.coroutinesCore)
             api(libs.kotlinx.serializationJson)
             api(libs.kotlinx.datetime)
-            api(libs.kermit)
-            api(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -1,9 +1,18 @@
 // ============================================================================
-// TEMPORARY DEPENDENCY-VERIFICATION SCREEN — DELETE THIS FILE
-// (and restore App.kt) once real app code lands. Its only purpose is to prove
-// every baseline dependency compiles on all targets and works at runtime:
-// Koin, Navigation3, Room3 (KSP), DataStore, Coil 3, Ktor client, FileKit,
-// kotlinx-serialization, kotlinx-datetime, Kermit.
+// TEMPORARY DEPENDENCY-VERIFICATION SCREEN — DELETE once real app code lands.
+// Its only purpose is to prove every baseline dependency compiles on all
+// targets and works at runtime: Koin, Navigation3, Room3 (KSP), DataStore,
+// Coil 3, Ktor client, FileKit, kotlinx-serialization/datetime, Kermit.
+//
+// Deletion checklist:
+//   DELETE this file
+//   DELETE the DemoScreen() call in App.kt (put real content there)
+//   DELETE the demoKoinModule registration in di/Koin.kt
+//   DELETE app/shared/schemas/ (the DemoDatabase schema export)
+//   KEEP   the room3/KSP wiring and -Xexpect-actual-classes flag in
+//          app/shared/build.gradle.kts (any real Room database needs them)
+//   KEEP   di/Koin.kt and the platform initKoin() calls (MainApplication,
+//          desktop main(), iOSApp.init)
 // ============================================================================
 @file:OptIn(kotlin.time.ExperimentalTime::class)
 
@@ -13,6 +22,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -25,15 +35,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.room3.ConstructedBy
@@ -53,6 +66,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,11 +81,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.module.dsl.onClose
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.module.dsl.withOptions
 import org.koin.dsl.module
 
 // --- kotlinx-serialization ---------------------------------------------------
@@ -131,6 +146,14 @@ class DemoViewModel(private val service: DemoService) : ViewModel() {
 val demoKoinModule = module {
     singleOf(::DemoService)
     viewModelOf(::DemoViewModel)
+    // One HttpClient per app, closed when Koin stops — never build clients per screen.
+    single {
+        HttpClient {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+    } withOptions {
+        onClose { it?.close() }
+    }
 }
 
 // --- Navigation3 routes ---------------------------------------------------------
@@ -156,21 +179,25 @@ private val demoNavConfiguration = SavedStateConfiguration {
 
 @Composable
 fun DemoScreen() {
-    KoinApplication(application = { modules(demoKoinModule) }) {
-        val backStack = rememberNavBackStack(demoNavConfiguration, DemoHomeRoute)
-        NavDisplay(
-            backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            entryProvider = entryProvider {
-                entry<DemoHomeRoute> {
-                    DemoHomePage(onOpenDetail = { backStack.add(DemoDetailRoute) })
-                }
-                entry<DemoDetailRoute> {
-                    DemoDetailPage(onBack = { backStack.removeLastOrNull() })
-                }
-            },
-        )
-    }
+    // Koin itself is started by each platform entry point via di/initKoin().
+    val backStack = rememberNavBackStack(demoNavConfiguration, DemoHomeRoute)
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            // Scopes ViewModels to the nav entry, cleared when the entry is popped.
+            rememberViewModelStoreNavEntryDecorator(),
+        ),
+        entryProvider = entryProvider {
+            entry<DemoHomeRoute> {
+                DemoHomePage(onOpenDetail = { backStack.add(DemoDetailRoute) })
+            }
+            entry<DemoDetailRoute> {
+                DemoDetailPage(onBack = { backStack.removeLastOrNull() })
+            }
+        },
+    )
 }
 
 @Composable
@@ -180,14 +207,10 @@ private fun DemoHomePage(onOpenDetail: () -> Unit) {
     val count by viewModel.count.collectAsState()
     val scope = rememberCoroutineScope()
 
-    var httpStatus by remember { mutableStateOf("not requested") }
-    var pickedFile by remember { mutableStateOf("none") }
+    var httpStatus by rememberSaveable { mutableStateOf("not requested") }
+    var pickedFile by rememberSaveable { mutableStateOf("none") }
 
-    val httpClient = remember {
-        HttpClient {
-            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
-        }
-    }
+    val httpClient = koinInject<HttpClient>()
     val filePicker = rememberFilePickerLauncher { file ->
         pickedFile = file?.name ?: "cancelled"
     }
@@ -200,6 +223,7 @@ private fun DemoHomePage(onOpenDetail: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeContentPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -220,6 +244,8 @@ private fun DemoHomePage(onOpenDetail: () -> Unit) {
                 httpStatus = try {
                     Logger.i { "Ktor GET https://ktor.io" }
                     httpClient.get("https://ktor.io").status.toString()
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     "failed: ${e.message}"
                 }
@@ -246,7 +272,7 @@ private fun DemoHomePage(onOpenDetail: () -> Unit) {
 @Composable
 private fun DemoDetailPage(onBack: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().safeContentPadding().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
