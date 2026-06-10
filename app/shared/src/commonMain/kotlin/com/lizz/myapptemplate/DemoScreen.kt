@@ -61,9 +61,7 @@ import coil3.compose.AsyncImage
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.name
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.serialization.kotlinx.json.json
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
@@ -80,10 +78,8 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.module.dsl.onClose
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.module.dsl.withOptions
 import org.koin.dsl.module
 
 // --- kotlinx-serialization ---------------------------------------------------
@@ -143,14 +139,6 @@ class DemoViewModel(private val service: DemoService) : ViewModel() {
 val demoKoinModule = module {
     singleOf(::DemoService)
     viewModelOf(::DemoViewModel)
-    // One HttpClient per app, closed when Koin stops — never build clients per screen.
-    single {
-        HttpClient {
-            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
-        }
-    } withOptions {
-        onClose { it?.close() }
-    }
 }
 
 // --- Navigation3 routes ---------------------------------------------------------

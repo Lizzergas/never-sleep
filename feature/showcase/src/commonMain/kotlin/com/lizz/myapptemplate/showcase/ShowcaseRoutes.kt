@@ -8,3 +8,6 @@ data object ShowcaseHomeRoute : NavKey
 
 @Serializable
 data object DesignsystemGalleryRoute : NavKey
+
+@Serializable
+data object NetworkDemoRoute : NavKey

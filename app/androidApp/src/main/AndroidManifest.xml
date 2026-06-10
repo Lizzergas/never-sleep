@@ -3,8 +3,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- usesCleartextTraffic: only for the template's local http demo server.
+         Remove it (or use a network security config) once you talk to a real https API. -->
     <application
         android:name=".MainApplication"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

@@ -21,11 +21,18 @@ object ShowcaseFeature : FeatureRegistration {
             description = "Colors, typography and spacing tokens rendered live",
             startRoute = DesignsystemGalleryRoute,
         ),
+        FeatureDescriptor(
+            id = "network-demo",
+            title = "Network demo",
+            description = "Typed API call to the template server via core:network",
+            startRoute = NetworkDemoRoute,
+        ),
     )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(ShowcaseHomeRoute::class)
         builder.subclass(DesignsystemGalleryRoute::class)
+        builder.subclass(NetworkDemoRoute::class)
     }
 
     override fun registerEntries(scope: EntryProviderScope<NavKey>, navigator: Navigator) {
@@ -34,6 +41,9 @@ object ShowcaseFeature : FeatureRegistration {
         }
         scope.entry<DesignsystemGalleryRoute> {
             DesignsystemGalleryScreen(onBack = navigator::goBack)
+        }
+        scope.entry<NetworkDemoRoute> {
+            NetworkDemoScreen(onBack = navigator::goBack)
         }
     }
 }

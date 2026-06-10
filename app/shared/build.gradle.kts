@@ -50,19 +50,13 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.kotlinx.coroutinesAndroid)
-            implementation(libs.ktor.clientOkhttp)
-        }
-        iosMain.dependencies {
-            implementation(libs.ktor.clientDarwin)
-        }
-        jvmMain.dependencies {
-            implementation(libs.ktor.clientOkhttp)
         }
         commonMain.dependencies {
             api(projects.core.model)
             api(projects.core.common)
             api(projects.core.designsystem)
             implementation(projects.core.navigation)
+            api(projects.core.network)
             implementation(projects.feature.showcase)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -82,12 +76,6 @@ kotlin {
             // Navigation
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.androidx.lifecycle.viewmodelNavigation3)
-
-            // Networking
-            implementation(libs.ktor.clientCore)
-            implementation(libs.ktor.clientContentNegotiation)
-            implementation(libs.ktor.clientLogging)
-            implementation(libs.ktor.serializationKotlinxJson)
 
             // Storage
             implementation(libs.androidx.datastore)
@@ -113,6 +101,9 @@ kotlin {
             implementation(libs.kotlin.testJunit)
             implementation(compose.desktop.uiTestJUnit4)
             implementation(compose.desktop.currentOs)
+            // Real client <-> server e2e test spins up the template server in-process.
+            implementation(projects.server)
+            implementation(libs.ktor.serverNetty)
         }
     }
 }
