@@ -1,7 +1,0 @@
-package com.lizz.myapptemplate
-
-interface Platform {
-    val name: String
-}
-
-expect fun getPlatform(): Platform
