@@ -17,8 +17,8 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
  */
 interface FeatureRegistration {
 
-    /** Listed in the showcase feature catalog; null hides the feature from it. */
-    val descriptor: FeatureDescriptor?
+    /** Listed in the showcase feature catalog; empty hides the feature from it. */
+    val descriptors: List<FeatureDescriptor> get() = emptyList()
 
     /** Register every route type this feature owns (serializer registration). */
     fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>)

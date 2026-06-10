@@ -6,7 +6,7 @@
 //
 // Deletion checklist:
 //   DELETE this file
-//   DELETE the DemoScreen() call in App.kt (put real content there)
+//   DELETE the DemoFeature entry in AppNavHost.kt's featureRegistrations
 //   DELETE the demoKoinModule registration in di/Koin.kt
 //   DELETE app/shared/schemas/ (the DemoDatabase schema export)
 //   KEEP   the room3/KSP wiring and -Xexpect-actual-classes flag in
@@ -42,13 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.navigation3.ui.NavDisplay
-import androidx.savedstate.serialization.SavedStateConfiguration
+import com.lizz.myapptemplate.navigation.FeatureDescriptor
+import com.lizz.myapptemplate.navigation.FeatureRegistration
+import com.lizz.myapptemplate.navigation.Navigator
 import androidx.room3.ConstructedBy
 import androidx.room3.Dao
 import androidx.room3.Database
@@ -78,8 +76,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -164,40 +161,31 @@ data object DemoHomeRoute : NavKey
 @Serializable
 data object DemoDetailRoute : NavKey
 
-// NavKey routes are restored polymorphically from saved state, so every route
-// type must be registered in the configuration's serializers module.
-private val demoNavConfiguration = SavedStateConfiguration {
-    serializersModule = SerializersModule {
-        polymorphic(NavKey::class) {
-            subclass(DemoHomeRoute::class)
-            subclass(DemoDetailRoute::class)
+/** TEMPORARY feature registration — remove with this file (see header checklist). */
+object DemoFeature : FeatureRegistration {
+
+    override val descriptors = listOf(
+        FeatureDescriptor(
+            id = "dependency-demo",
+            title = "Dependency demo",
+            description = "Runtime checks for every baseline dependency",
+            startRoute = DemoHomeRoute,
+        ),
+    )
+
+    override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
+        builder.subclass(DemoHomeRoute::class)
+        builder.subclass(DemoDetailRoute::class)
+    }
+
+    override fun registerEntries(scope: EntryProviderScope<NavKey>, navigator: Navigator) {
+        scope.entry<DemoHomeRoute> {
+            DemoHomePage(onOpenDetail = { navigator.navigate(DemoDetailRoute) })
+        }
+        scope.entry<DemoDetailRoute> {
+            DemoDetailPage(onBack = navigator::goBack)
         }
     }
-}
-
-// --- UI -------------------------------------------------------------------------
-
-@Composable
-fun DemoScreen() {
-    // Koin itself is started by each platform entry point via di/initKoin().
-    val backStack = rememberNavBackStack(demoNavConfiguration, DemoHomeRoute)
-    NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            // Scopes ViewModels to the nav entry, cleared when the entry is popped.
-            rememberViewModelStoreNavEntryDecorator(),
-        ),
-        entryProvider = entryProvider {
-            entry<DemoHomeRoute> {
-                DemoHomePage(onOpenDetail = { backStack.add(DemoDetailRoute) })
-            }
-            entry<DemoDetailRoute> {
-                DemoDetailPage(onBack = { backStack.removeLastOrNull() })
-            }
-        },
-    )
 }
 
 @Composable

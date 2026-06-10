@@ -12,9 +12,7 @@ import com.lizz.myapptemplate.designsystem.AppTheme
 fun App() {
     AppTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-            // TEMPORARY: dependency-verification screen.
-            // Delete DemoScreen.kt and put real app content here.
-            DemoScreen()
+            AppNavHost()
         }
     }
 }

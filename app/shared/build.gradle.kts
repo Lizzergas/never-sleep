@@ -62,6 +62,8 @@ kotlin {
             api(projects.core.model)
             api(projects.core.common)
             api(projects.core.designsystem)
+            implementation(projects.core.navigation)
+            implementation(projects.feature.showcase)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -105,6 +107,12 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutinesTest)
+        }
+        jvmTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.kotlin.testJunit)
+            implementation(compose.desktop.uiTestJUnit4)
+            implementation(compose.desktop.currentOs)
         }
     }
 }
