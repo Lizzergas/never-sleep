@@ -2,6 +2,7 @@ rootProject.name = "MyAppTemplate"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             mavenContent {
@@ -35,5 +36,7 @@ plugins {
 include(":app:androidApp")
 include(":app:desktopApp")
 include(":app:shared")
-include(":core")
+include(":core:common")
+include(":core:designsystem")
+include(":core:model")
 include(":server")

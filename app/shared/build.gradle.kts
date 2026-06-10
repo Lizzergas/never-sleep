@@ -59,7 +59,9 @@ kotlin {
             implementation(libs.ktor.clientOkhttp)
         }
         commonMain.dependencies {
-            api(projects.core)
+            api(projects.core.model)
+            api(projects.core.common)
+            api(projects.core.designsystem)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -74,9 +76,6 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.composeViewmodel)
-
-            // Logging
-            implementation(libs.kermit)
 
             // Navigation
             implementation(libs.jetbrains.navigation3.ui)
