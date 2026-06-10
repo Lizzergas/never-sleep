@@ -7,7 +7,18 @@ documented lines.
 
 **Read [docs/MODULES.md](./docs/MODULES.md)** for the module map, dependency
 rules, and the add/remove-a-feature contract. The PRD and phased plan behind
-the architecture live in [docs/prd](./docs/prd) and [plans](./plans).
+the architecture live in [docs/prd](./docs/prd) and [plans](docs/plans).
+
+## Make it yours
+
+```
+./rename.sh MyCoolApp                 # package becomes com.lizz.mycoolapp
+./rename.sh MyCoolApp org.acme.cool   # custom package id
+```
+
+One script renames everything — packages, namespaces, bundle ids, app display
+name, source directories. Run it on a clean working tree, review `git diff`,
+run the tests, commit, then delete `rename.sh`.
 
 ## What's inside
 

@@ -19,7 +19,7 @@ kotlin {
 
     jvm()
 
-    androidLibrary {
+    android {
         namespace = "com.lizz.myapptemplate" +
             project.path.replace(":", ".").replace("-", "")
         compileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
