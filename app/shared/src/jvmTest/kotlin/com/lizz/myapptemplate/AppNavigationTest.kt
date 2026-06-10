@@ -2,6 +2,7 @@ package com.lizz.myapptemplate
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -9,11 +10,16 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.lizz.myapptemplate.di.initKoin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.core.context.GlobalContext
+import org.koin.core.context.loadKoinModules
 import org.koin.core.context.stopKoin
 
 /**
@@ -25,14 +31,18 @@ class AppNavigationTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val dataStoreScope = CoroutineScope(Job() + Dispatchers.Default)
+
     @Before
     fun setUp() {
         if (GlobalContext.getOrNull() == null) initKoin()
+        loadKoinModules(testDataStoreModule(dataStoreScope))
     }
 
     @After
     fun tearDown() {
         stopKoin()
+        dataStoreScope.cancel()
     }
 
     @Test
@@ -58,6 +68,25 @@ class AppNavigationTest {
         rule.onNodeWithText("Back").performClick()
         rule.waitForIdle()
         rule.onNodeWithText("Installed features").assertIsDisplayed()
+    }
+
+    @Test
+    fun settingsThemeSelectionPersistsThroughTheRealChain() {
+        rule.setContent {
+            TestViewModelStoreOwner {
+                App()
+            }
+        }
+
+        rule.onNodeWithText("Settings").performClick()
+        rule.waitForIdle()
+
+        // Default is System; selecting Dark goes UI -> ViewModel -> repository
+        // -> DataStore -> Flow -> UI.
+        rule.onNodeWithText("Dark").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            runCatching { rule.onNodeWithText("Dark").assertIsSelected() }.isSuccess
+        }
     }
 }
 

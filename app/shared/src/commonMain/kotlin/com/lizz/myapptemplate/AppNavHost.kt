@@ -11,6 +11,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
+import com.lizz.myapptemplate.settings.SettingsFeature
 import com.lizz.myapptemplate.showcase.ShowcaseFeature
 import com.lizz.myapptemplate.showcase.ShowcaseHomeRoute
 import kotlinx.serialization.modules.SerializersModule
@@ -24,6 +25,7 @@ import kotlinx.serialization.modules.polymorphic
  */
 val featureRegistrations: List<FeatureRegistration> = listOf(
     ShowcaseFeature,
+    SettingsFeature,
     // TEMPORARY: dependency-verification demo — remove together with DemoScreen.kt
     DemoFeature,
 )

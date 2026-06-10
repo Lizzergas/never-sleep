@@ -16,6 +16,10 @@ import com.lizz.myapptemplate.network.NetworkConfig
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -37,6 +41,7 @@ class NetworkDemoE2eTest {
     val rule = createComposeRule()
 
     private lateinit var server: EmbeddedServer<*, *>
+    private val dataStoreScope = CoroutineScope(Job() + Dispatchers.Default)
 
     @Before
     fun setUp() {
@@ -45,15 +50,19 @@ class NetworkDemoE2eTest {
 
         if (GlobalContext.getOrNull() == null) initKoin()
         loadKoinModules(
-            module {
-                single { NetworkConfig(baseUrl = "http://localhost:$port") }
-            },
+            listOf(
+                testDataStoreModule(dataStoreScope),
+                module {
+                    single { NetworkConfig(baseUrl = "http://localhost:$port") }
+                },
+            ),
         )
     }
 
     @After
     fun tearDown() {
         stopKoin()
+        dataStoreScope.cancel()
         server.stop(gracePeriodMillis = 0, timeoutMillis = 1000)
     }
 

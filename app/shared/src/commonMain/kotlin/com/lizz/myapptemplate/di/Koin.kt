@@ -1,15 +1,17 @@
 package com.lizz.myapptemplate.di
 
+import com.lizz.myapptemplate.datastore.datastorePlatformKoinModule
 import com.lizz.myapptemplate.defaultServerBaseUrl
 import com.lizz.myapptemplate.demoKoinModule
 import com.lizz.myapptemplate.featureRegistrations
 import com.lizz.myapptemplate.navigation.FeatureCatalog
 import com.lizz.myapptemplate.network.NetworkConfig
 import com.lizz.myapptemplate.network.networkKoinModule
+import com.lizz.myapptemplate.settings.settingsKoinModule
+import com.lizz.myapptemplate.showcase.showcaseKoinModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
-import com.lizz.myapptemplate.showcase.showcaseKoinModule
 
 /** Permanent app-level DI definitions live here. */
 val appModule = module {
@@ -31,7 +33,9 @@ fun initKoin(config: KoinAppDeclaration? = null) {
         config?.invoke(this)
         modules(
             appModule,
+            datastorePlatformKoinModule,
             networkKoinModule,
+            settingsKoinModule,
             showcaseKoinModule,
             // TEMPORARY: dependency-verification demo module — remove together with DemoScreen.kt
             demoKoinModule,

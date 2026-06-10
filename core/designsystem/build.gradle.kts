@@ -9,6 +9,8 @@ kotlin {
         api(libs.compose.foundation)
         api(libs.compose.material3)
         api(libs.compose.ui)
+        // ThemeModeProvider exposes a Flow
+        api(libs.kotlinx.coroutinesCore)
     }
     sourceSets.jvmTest.dependencies {
         implementation(libs.junit)
