@@ -28,11 +28,12 @@ fun ShowcaseHomeScreen(onOpenFeature: (NavKey) -> Unit) {
     val catalog = koinInject<FeatureCatalog>()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(Theme.spacing.md),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(Theme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("MyAppTemplate", style = MaterialTheme.typography.headlineMedium)

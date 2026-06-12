@@ -16,14 +16,22 @@ sealed interface AppError {
     data object Unauthorized : AppError
 
     /** Any other 4xx — the request itself is wrong. */
-    data class Validation(val code: Int) : AppError
+    data class Validation(
+        val code: Int,
+    ) : AppError
 
     /** 5xx — the server failed. */
-    data class Server(val code: Int) : AppError
+    data class Server(
+        val code: Int,
+    ) : AppError
 
     /** The body could not be decoded into the expected type. */
-    data class Serialization(val message: String? = null) : AppError
+    data class Serialization(
+        val message: String? = null,
+    ) : AppError
 
     /** Anything unclassified. */
-    data class Unknown(val message: String? = null) : AppError
+    data class Unknown(
+        val message: String? = null,
+    ) : AppError
 }

@@ -17,11 +17,12 @@ fun createPreferencesDataStore(context: Context): DataStore<Preferences> =
 private val instanceLock = Any()
 private var instance: DataStore<Preferences>? = null
 
-actual val datastorePlatformKoinModule: Module = module {
-    single<DataStore<Preferences>> {
-        synchronized(instanceLock) {
-            instance ?: createPreferencesDataStore(androidContext().applicationContext)
-                .also { instance = it }
+actual val datastorePlatformKoinModule: Module =
+    module {
+        single<DataStore<Preferences>> {
+            synchronized(instanceLock) {
+                instance ?: createPreferencesDataStore(androidContext().applicationContext)
+                    .also { instance = it }
+            }
         }
     }
-}

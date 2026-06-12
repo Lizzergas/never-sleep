@@ -30,7 +30,6 @@ import org.koin.core.context.stopKoin
  * from the catalog and Navigation3 routes between registered entries.
  */
 class AppNavigationTest {
-
     @get:Rule
     val rule = createComposeRule()
 
@@ -117,11 +116,12 @@ class AppNavigationTest {
 
 @androidx.compose.runtime.Composable
 private fun TestViewModelStoreOwner(content: @androidx.compose.runtime.Composable () -> Unit) {
-    val owner = androidx.compose.runtime.remember {
-        object : ViewModelStoreOwner {
-            override val viewModelStore = ViewModelStore()
+    val owner =
+        androidx.compose.runtime.remember {
+            object : ViewModelStoreOwner {
+                override val viewModelStore = ViewModelStore()
+            }
         }
-    }
     CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
         content()
     }

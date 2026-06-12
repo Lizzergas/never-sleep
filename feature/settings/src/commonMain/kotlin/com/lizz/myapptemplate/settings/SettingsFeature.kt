@@ -19,28 +19,32 @@ import org.koin.dsl.module
 data object SettingsRoute : NavKey
 
 object SettingsFeature : FeatureRegistration {
-
-    override val descriptors = listOf(
-        FeatureDescriptor(
-            id = "settings",
-            title = "Settings",
-            description = "Theme mode persisted via core:datastore",
-            startRoute = SettingsRoute,
-        ),
-    )
+    override val descriptors =
+        listOf(
+            FeatureDescriptor(
+                id = "settings",
+                title = "Settings",
+                description = "Theme mode persisted via core:datastore",
+                startRoute = SettingsRoute,
+            ),
+        )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(SettingsRoute::class)
     }
 
-    override fun registerEntries(scope: EntryProviderScope<NavKey>, navigator: Navigator) {
+    override fun registerEntries(
+        scope: EntryProviderScope<NavKey>,
+        navigator: Navigator,
+    ) {
         scope.entry<SettingsRoute> {
             SettingsScreen(onBack = navigator::goBack)
         }
     }
 }
 
-val settingsKoinModule: Module = module {
-    singleOf(::SettingsRepository) bind ThemeModeProvider::class
-    viewModelOf(::SettingsViewModel)
-}
+val settingsKoinModule: Module =
+    module {
+        singleOf(::SettingsRepository) bind ThemeModeProvider::class
+        viewModelOf(::SettingsViewModel)
+    }

@@ -12,18 +12,20 @@ import platform.Foundation.NSUserDomainMask
 
 @OptIn(ExperimentalForeignApi::class)
 fun databaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
-        directory = NSDocumentDirectory,
-        inDomain = NSUserDomainMask,
-        appropriateForURL = null,
-        create = false,
-        error = null,
-    )
+    val documentDirectory: NSURL? =
+        NSFileManager.defaultManager.URLForDirectory(
+            directory = NSDocumentDirectory,
+            inDomain = NSUserDomainMask,
+            appropriateForURL = null,
+            create = false,
+            error = null,
+        )
     val dbFilePath = requireNotNull(documentDirectory).path + "/$DATABASE_FILE_NAME"
     return Room.databaseBuilder<AppDatabase>(dbFilePath)
 }
 
-actual val databasePlatformKoinModule: Module = module {
-    single<AppDatabase> { buildAppDatabase(databaseBuilder()) }
-    single<NoteDao> { get<AppDatabase>().noteDao() }
-}
+actual val databasePlatformKoinModule: Module =
+    module {
+        single<AppDatabase> { buildAppDatabase(databaseBuilder()) }
+        single<NoteDao> { get<AppDatabase>().noteDao() }
+    }

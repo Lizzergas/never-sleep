@@ -14,12 +14,13 @@ import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 /** Permanent app-level DI definitions live here. */
-val appModule = module {
-    // The showcase home screen lists features from this catalog.
-    single { FeatureCatalog(featureRegistrations.flatMap { it.descriptors }) }
-    // Point this at your API; the template default is the local sample server.
-    single { NetworkConfig(baseUrl = defaultServerBaseUrl()) }
-}
+val appModule =
+    module {
+        // The showcase home screen lists features from this catalog.
+        single { FeatureCatalog(featureRegistrations.flatMap { it.descriptors }) }
+        // Point this at your API; the template default is the local sample server.
+        single { NetworkConfig(baseUrl = defaultServerBaseUrl()) }
+    }
 
 /**
  * THE feature plug-in point for DI. Each feature contributes one Koin module.

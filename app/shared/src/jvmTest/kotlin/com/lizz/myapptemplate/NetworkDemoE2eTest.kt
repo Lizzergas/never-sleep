@@ -36,7 +36,6 @@ import org.koin.dsl.module
  * showcase UI driven through Navigation3.
  */
 class NetworkDemoE2eTest {
-
     @get:Rule
     val rule = createComposeRule()
 
@@ -46,7 +45,13 @@ class NetworkDemoE2eTest {
     @Before
     fun setUp() {
         server = embeddedServer(Netty, port = 0) { module() }.start(wait = false)
-        val port = runBlocking { server.engine.resolvedConnectors().first().port }
+        val port =
+            runBlocking {
+                server.engine
+                    .resolvedConnectors()
+                    .first()
+                    .port
+            }
 
         if (GlobalContext.getOrNull() == null) initKoin()
         loadKoinModules(
@@ -101,19 +106,22 @@ class NetworkDemoE2eTest {
         rule.onNodeWithText("Load items").performClick()
 
         rule.waitUntil(timeoutMillis = 15_000) {
-            rule.onAllNodesWithText("Is the server running? Start it with: ./gradlew :server:run")
-                .fetchSemanticsNodes().isNotEmpty()
+            rule
+                .onAllNodesWithText("Is the server running? Start it with: ./gradlew :server:run")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
         }
     }
 }
 
 @Composable
 private fun TestOwner(content: @Composable () -> Unit) {
-    val owner = remember {
-        object : ViewModelStoreOwner {
-            override val viewModelStore = ViewModelStore()
+    val owner =
+        remember {
+            object : ViewModelStoreOwner {
+                override val viewModelStore = ViewModelStore()
+            }
         }
-    }
     CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
         content()
     }

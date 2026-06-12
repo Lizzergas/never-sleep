@@ -12,7 +12,8 @@ fun databaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
     return Room.databaseBuilder<AppDatabase>(context, dbFile.absolutePath)
 }
 
-actual val databasePlatformKoinModule: Module = module {
-    single<AppDatabase> { buildAppDatabase(databaseBuilder(androidContext())) }
-    single<NoteDao> { get<AppDatabase>().noteDao() }
-}
+actual val databasePlatformKoinModule: Module =
+    module {
+        single<AppDatabase> { buildAppDatabase(databaseBuilder(androidContext())) }
+        single<NoteDao> { get<AppDatabase>().noteDao() }
+    }

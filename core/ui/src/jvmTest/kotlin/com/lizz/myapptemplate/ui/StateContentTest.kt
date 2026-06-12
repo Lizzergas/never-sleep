@@ -14,7 +14,6 @@ import org.junit.Test
 import kotlin.test.assertTrue
 
 class StateContentTest {
-
     @get:Rule
     val rule = createComposeRule()
 
@@ -57,11 +56,12 @@ class StateContentTest {
             UiStateContent(UiState.Loading) { Text("never") }
         }
 
-        rule.onNode(
-            SemanticsMatcher.expectValue(
-                SemanticsProperties.ProgressBarRangeInfo,
-                ProgressBarRangeInfo.Indeterminate,
-            ),
-        ).assertIsDisplayed()
+        rule
+            .onNode(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ProgressBarRangeInfo,
+                    ProgressBarRangeInfo.Indeterminate,
+                ),
+            ).assertIsDisplayed()
     }
 }

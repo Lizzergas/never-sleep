@@ -14,43 +14,47 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ApplicationTest {
-
     @Test
-    fun rootRespondsWithGreeting() = testApplication {
-        application { module() }
+    fun rootRespondsWithGreeting() =
+        testApplication {
+            application { module() }
 
-        val response = client.get("/")
+            val response = client.get("/")
 
-        assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("Hello, Ktor!", response.bodyAsText())
-    }
-
-    @Test
-    fun helloEndpointReturnsTypedDto() = testApplication {
-        application { module() }
-        val client = createClient {
-            install(ContentNegotiation) { json() }
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("Hello, Ktor!", response.bodyAsText())
         }
 
-        val response = client.get("/api/hello")
-
-        assertEquals(HttpStatusCode.OK, response.status)
-        val hello: HelloResponse = response.body()
-        assertTrue(hello.message.isNotBlank())
-        assertTrue(hello.serverTime.isNotBlank())
-    }
-
     @Test
-    fun itemsEndpointReturnsTypedList() = testApplication {
-        application { module() }
-        val client = createClient {
-            install(ContentNegotiation) { json() }
+    fun helloEndpointReturnsTypedDto() =
+        testApplication {
+            application { module() }
+            val client =
+                createClient {
+                    install(ContentNegotiation) { json() }
+                }
+
+            val response = client.get("/api/hello")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val hello: HelloResponse = response.body()
+            assertTrue(hello.message.isNotBlank())
+            assertTrue(hello.serverTime.isNotBlank())
         }
 
-        val response = client.get("/api/items")
+    @Test
+    fun itemsEndpointReturnsTypedList() =
+        testApplication {
+            application { module() }
+            val client =
+                createClient {
+                    install(ContentNegotiation) { json() }
+                }
 
-        assertEquals(HttpStatusCode.OK, response.status)
-        val items: List<Item> = response.body()
-        assertTrue(items.isNotEmpty())
-    }
+            val response = client.get("/api/items")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val items: List<Item> = response.body()
+            assertTrue(items.isNotEmpty())
+        }
 }

@@ -16,7 +16,6 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
  * registration, and its entry in the app shell's registration list.
  */
 interface FeatureRegistration {
-
     /** Listed in the showcase feature catalog; empty hides the feature from it. */
     val descriptors: List<FeatureDescriptor> get() = emptyList()
 
@@ -24,7 +23,10 @@ interface FeatureRegistration {
     fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>)
 
     /** Register a Navigation3 entry for every route this feature owns. */
-    fun registerEntries(scope: EntryProviderScope<NavKey>, navigator: Navigator)
+    fun registerEntries(
+        scope: EntryProviderScope<NavKey>,
+        navigator: Navigator,
+    )
 }
 
 /** A feature as shown in the showcase catalog. */
@@ -36,4 +38,6 @@ data class FeatureDescriptor(
 )
 
 /** All listed features, provided via DI by the app shell. */
-data class FeatureCatalog(val features: List<FeatureDescriptor>)
+data class FeatureCatalog(
+    val features: List<FeatureDescriptor>,
+)

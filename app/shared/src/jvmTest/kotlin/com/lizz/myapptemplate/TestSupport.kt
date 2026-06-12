@@ -7,30 +7,36 @@ import androidx.room3.Room
 import com.lizz.myapptemplate.database.AppDatabase
 import com.lizz.myapptemplate.database.NoteDao
 import com.lizz.myapptemplate.database.buildAppDatabase
-import java.nio.file.Files
 import kotlinx.coroutines.CoroutineScope
 import okio.Path.Companion.toPath
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import java.nio.file.Files
 
 /**
  * Overrides the app's DataStore with a throwaway temp-file instance so tests
  * never touch (or collide on) the real user preferences file. Cancel [scope]
  * in teardown to release the file.
  */
-fun testDataStoreModule(scope: CoroutineScope): Module = module {
-    single<DataStore<Preferences>> {
-        PreferenceDataStoreFactory.createWithPath(scope = scope) {
-            Files.createTempDirectory("test-ds").resolve("test.preferences_pb").toString().toPath()
+fun testDataStoreModule(scope: CoroutineScope): Module =
+    module {
+        single<DataStore<Preferences>> {
+            PreferenceDataStoreFactory.createWithPath(scope = scope) {
+                Files
+                    .createTempDirectory("test-ds")
+                    .resolve("test.preferences_pb")
+                    .toString()
+                    .toPath()
+            }
         }
     }
-}
 
 /** Overrides the app database with a throwaway temp-file instance. */
-fun testDatabaseModule(): Module = module {
-    single<AppDatabase> {
-        val file = Files.createTempDirectory("test-db").resolve("test.db").toString()
-        buildAppDatabase(Room.databaseBuilder<AppDatabase>(file))
+fun testDatabaseModule(): Module =
+    module {
+        single<AppDatabase> {
+            val file = Files.createTempDirectory("test-db").resolve("test.db").toString()
+            buildAppDatabase(Room.databaseBuilder<AppDatabase>(file))
+        }
+        single<NoteDao> { get<AppDatabase>().noteDao() }
     }
-    single<NoteDao> { get<AppDatabase>().noteDao() }
-}

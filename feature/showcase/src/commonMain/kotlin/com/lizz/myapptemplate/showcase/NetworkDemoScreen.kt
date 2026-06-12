@@ -50,11 +50,12 @@ fun NetworkDemoScreen(onBack: () -> Unit) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(Theme.spacing.md),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(Theme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Network demo", style = MaterialTheme.typography.headlineMedium)
@@ -72,32 +73,33 @@ fun NetworkDemoScreen(onBack: () -> Unit) {
         when (val s = state) {
             null -> Text("Not requested yet", style = MaterialTheme.typography.bodyMedium)
 
-            else -> UiStateContent(
-                state = s,
-                onRetry = ::load,
-                error = { appError ->
-                    Column(verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
-                        ErrorContent(appError, onRetry = ::load)
-                        if (appError is AppError.Network || appError is AppError.Timeout) {
-                            Text(
-                                "Is the server running? Start it with: ./gradlew :server:run",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
+            else ->
+                UiStateContent(
+                    state = s,
+                    onRetry = ::load,
+                    error = { appError ->
+                        Column(verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
+                            ErrorContent(appError, onRetry = ::load)
+                            if (appError is AppError.Network || appError is AppError.Timeout) {
+                                Text(
+                                    "Is the server running? Start it with: ./gradlew :server:run",
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
                         }
-                    }
-                },
-            ) { items ->
-                Column(verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
-                    items.forEach { item ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Column(modifier = Modifier.padding(Theme.spacing.md)) {
-                                Text(item.title, style = MaterialTheme.typography.titleMedium)
-                                Text(item.description, style = MaterialTheme.typography.bodyMedium)
+                    },
+                ) { items ->
+                    Column(verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
+                        items.forEach { item ->
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                Column(modifier = Modifier.padding(Theme.spacing.md)) {
+                                    Text(item.title, style = MaterialTheme.typography.titleMedium)
+                                    Text(item.description, style = MaterialTheme.typography.bodyMedium)
+                                }
                             }
                         }
                     }
                 }
-            }
         }
 
         Button(onClick = onBack) { Text("Back") }

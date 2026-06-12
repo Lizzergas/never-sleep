@@ -29,11 +29,12 @@ import com.lizz.myapptemplate.designsystem.Theme
 @Composable
 fun DesignsystemGalleryScreen(onBack: () -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(Theme.spacing.md),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(Theme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.md),
     ) {
         Text("Design system", style = MaterialTheme.typography.headlineMedium)
@@ -62,31 +63,39 @@ fun DesignsystemGalleryScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun ColorRow(name: String, color: Color) {
+private fun ColorRow(
+    name: String,
+    color: Color,
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .size(Theme.spacing.lg)
-                .background(color, RoundedCornerShape(4.dp)),
+            modifier =
+                Modifier
+                    .size(Theme.spacing.lg)
+                    .background(color, RoundedCornerShape(4.dp)),
         )
         Text(name, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
 @Composable
-private fun SpacingBar(name: String, width: Dp) {
+private fun SpacingBar(
+    name: String,
+    width: Dp,
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .width(width)
-                .height(Theme.spacing.sm)
-                .background(MaterialTheme.colorScheme.primary),
+            modifier =
+                Modifier
+                    .width(width)
+                    .height(Theme.spacing.sm)
+                    .background(MaterialTheme.colorScheme.primary),
         )
         Text("$name ($width)", style = MaterialTheme.typography.labelSmall)
     }

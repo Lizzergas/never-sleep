@@ -27,10 +27,11 @@ fun SettingsScreen(onBack: () -> Unit) {
     val themeMode by viewModel.themeMode.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-            .padding(Theme.spacing.md),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+                .padding(Theme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Settings", style = MaterialTheme.typography.headlineMedium)
@@ -38,13 +39,13 @@ fun SettingsScreen(onBack: () -> Unit) {
         Text("Theme", style = MaterialTheme.typography.titleMedium)
         ThemeMode.entries.forEach { mode ->
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .selectable(
-                        selected = themeMode == mode,
-                        onClick = { viewModel.setThemeMode(mode) },
-                    )
-                    .padding(Theme.spacing.xs),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = themeMode == mode,
+                            onClick = { viewModel.setThemeMode(mode) },
+                        ).padding(Theme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(

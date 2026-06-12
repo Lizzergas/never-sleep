@@ -2,7 +2,6 @@ package com.lizz.myapptemplate.designsystem
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -12,7 +11,6 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class AppThemeTest {
-
     @get:Rule
     val rule = createComposeRule()
 

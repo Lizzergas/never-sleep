@@ -22,6 +22,9 @@ review with `git diff`, verify, commit, then delete `rename.sh`.
 - Android: `./gradlew :app:androidApp:assembleDebug`
 - iOS: open `app/iosApp` in Xcode
 - All meaningful tests: `./gradlew jvmTest :server:test`
+- Lint (detekt + ktlint): `./gradlew qualityCheck` — run whenever you want;
+  enforced ONLY by the CI `quality` job, never by commit/push hooks.
+  Auto-fix formatting: `./gradlew ktlintFormat`. Coverage: `./gradlew koverHtmlReport`.
 
 ## Conventions
 

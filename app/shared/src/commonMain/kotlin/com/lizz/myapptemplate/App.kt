@@ -17,14 +17,16 @@ import org.koin.mp.KoinPlatform
 fun App() {
     // Theme follows whichever feature provides a ThemeModeProvider
     // (feature:settings). Without one, falls back to following the system.
-    val themeModeProvider = remember {
-        runCatching { KoinPlatform.getKoin().getOrNull<ThemeModeProvider>() }.getOrNull()
-    }
-    val themeMode = themeModeProvider
-        ?.themeMode
-        ?.collectAsState(initial = ThemeMode.System)
-        ?.value
-        ?: ThemeMode.System
+    val themeModeProvider =
+        remember {
+            runCatching { KoinPlatform.getKoin().getOrNull<ThemeModeProvider>() }.getOrNull()
+        }
+    val themeMode =
+        themeModeProvider
+            ?.themeMode
+            ?.collectAsState(initial = ThemeMode.System)
+            ?.value
+            ?: ThemeMode.System
 
     AppTheme(themeMode = themeMode) {
         Surface(modifier = Modifier.fillMaxSize()) {

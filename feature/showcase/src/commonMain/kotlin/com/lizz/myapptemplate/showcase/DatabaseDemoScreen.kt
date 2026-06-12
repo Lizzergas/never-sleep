@@ -41,10 +41,11 @@ fun DatabaseDemoScreen(onBack: () -> Unit) {
     var text by rememberSaveable { mutableStateOf("") }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding()
-            .padding(Theme.spacing.md),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .safeContentPadding()
+                .padding(Theme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Database demo", style = MaterialTheme.typography.headlineMedium)

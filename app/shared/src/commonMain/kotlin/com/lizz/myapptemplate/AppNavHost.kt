@@ -23,44 +23,50 @@ import kotlinx.serialization.modules.polymorphic
  * delete its line here, its Koin module in di/Koin.kt, and its include in
  * settings.gradle.kts.
  */
-val featureRegistrations: List<FeatureRegistration> = listOf(
-    ShowcaseFeature,
-    SettingsFeature,
-)
+val featureRegistrations: List<FeatureRegistration> =
+    listOf(
+        ShowcaseFeature,
+        SettingsFeature,
+    )
 
 @Composable
 fun AppNavHost() {
-    val configuration = remember {
-        SavedStateConfiguration {
-            serializersModule = SerializersModule {
-                polymorphic(NavKey::class) {
-                    featureRegistrations.forEach { it.registerRoutes(this) }
+    val configuration =
+        remember {
+            SavedStateConfiguration {
+                serializersModule =
+                    SerializersModule {
+                        polymorphic(NavKey::class) {
+                            featureRegistrations.forEach { it.registerRoutes(this) }
+                        }
+                    }
+            }
+        }
+    val backStack = rememberNavBackStack(configuration, ShowcaseHomeRoute)
+    val navigator =
+        remember(backStack) {
+            object : Navigator {
+                override fun navigate(route: NavKey) {
+                    backStack.add(route)
+                }
+
+                override fun goBack() {
+                    backStack.removeLastOrNull()
                 }
             }
         }
-    }
-    val backStack = rememberNavBackStack(configuration, ShowcaseHomeRoute)
-    val navigator = remember(backStack) {
-        object : Navigator {
-            override fun navigate(route: NavKey) {
-                backStack.add(route)
-            }
-
-            override fun goBack() {
-                backStack.removeLastOrNull()
-            }
-        }
-    }
     NavDisplay(
         backStack = backStack,
         onBack = { navigator.goBack() },
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            // Scopes ViewModels to nav entries, cleared when an entry is popped.
-            rememberViewModelStoreNavEntryDecorator(),
-        ),
-        entryProvider = entryProvider {
-            featureRegistrations.forEach { it.registerEntries(this, navigator) }
-        },
+        entryDecorators =
+            listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                // Scopes ViewModels to nav entries, cleared when an entry is popped.
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
+        entryProvider =
+            entryProvider {
+                featureRegistrations.forEach { it.registerEntries(this, navigator) }
+            },
     )
 }

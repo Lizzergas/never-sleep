@@ -11,29 +11,29 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 object ShowcaseFeature : FeatureRegistration {
-
     // The home screen is the app's start destination, so the showcase lists
     // only its gallery as an openable feature.
-    override val descriptors = listOf(
-        FeatureDescriptor(
-            id = "designsystem-gallery",
-            title = "Design system gallery",
-            description = "Colors, typography and spacing tokens rendered live",
-            startRoute = DesignsystemGalleryRoute,
-        ),
-        FeatureDescriptor(
-            id = "network-demo",
-            title = "Network demo",
-            description = "Typed API call to the template server via core:network",
-            startRoute = NetworkDemoRoute,
-        ),
-        FeatureDescriptor(
-            id = "database-demo",
-            title = "Database demo",
-            description = "Room 3 KMP insert + observe via core:database",
-            startRoute = DatabaseDemoRoute,
-        ),
-    )
+    override val descriptors =
+        listOf(
+            FeatureDescriptor(
+                id = "designsystem-gallery",
+                title = "Design system gallery",
+                description = "Colors, typography and spacing tokens rendered live",
+                startRoute = DesignsystemGalleryRoute,
+            ),
+            FeatureDescriptor(
+                id = "network-demo",
+                title = "Network demo",
+                description = "Typed API call to the template server via core:network",
+                startRoute = NetworkDemoRoute,
+            ),
+            FeatureDescriptor(
+                id = "database-demo",
+                title = "Database demo",
+                description = "Room 3 KMP insert + observe via core:database",
+                startRoute = DatabaseDemoRoute,
+            ),
+        )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(ShowcaseHomeRoute::class)
@@ -42,7 +42,10 @@ object ShowcaseFeature : FeatureRegistration {
         builder.subclass(DatabaseDemoRoute::class)
     }
 
-    override fun registerEntries(scope: EntryProviderScope<NavKey>, navigator: Navigator) {
+    override fun registerEntries(
+        scope: EntryProviderScope<NavKey>,
+        navigator: Navigator,
+    ) {
         scope.entry<ShowcaseHomeRoute> {
             ShowcaseHomeScreen(onOpenFeature = navigator::navigate)
         }
@@ -58,6 +61,7 @@ object ShowcaseFeature : FeatureRegistration {
     }
 }
 
-val showcaseKoinModule: Module = module {
-    // Showcase screens currently inject only the FeatureCatalog provided by the app shell.
-}
+val showcaseKoinModule: Module =
+    module {
+        // Showcase screens currently inject only the FeatureCatalog provided by the app shell.
+    }
