@@ -62,6 +62,7 @@ class NetworkDemoE2eTest {
                 },
             ),
         )
+        skipOnboardingForTests()
     }
 
     @After

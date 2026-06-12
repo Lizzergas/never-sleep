@@ -8,6 +8,7 @@ import com.lizz.myapptemplate.featureRegistrations
 import com.lizz.myapptemplate.navigation.FeatureCatalog
 import com.lizz.myapptemplate.network.NetworkConfig
 import com.lizz.myapptemplate.network.networkKoinModule
+import com.lizz.myapptemplate.onboarding.onboardingKoinModule
 import com.lizz.myapptemplate.settings.settingsKoinModule
 import com.lizz.myapptemplate.showcase.showcaseKoinModule
 import org.koin.core.context.startKoin
@@ -39,6 +40,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
             databasePlatformKoinModule,
             datastorePlatformKoinModule,
             networkKoinModule,
+            onboardingKoinModule,
             settingsKoinModule,
             showcaseKoinModule,
         )

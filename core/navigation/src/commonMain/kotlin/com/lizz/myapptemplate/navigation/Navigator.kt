@@ -7,4 +7,7 @@ interface Navigator {
     fun navigate(route: NavKey)
 
     fun goBack()
+
+    /** Clears the back stack and lands on the app's default start destination. */
+    fun resetToStart()
 }

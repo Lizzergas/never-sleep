@@ -8,10 +8,13 @@ import com.lizz.myapptemplate.connectivity.ConnectivityMonitor
 import com.lizz.myapptemplate.database.AppDatabase
 import com.lizz.myapptemplate.database.NoteDao
 import com.lizz.myapptemplate.database.buildAppDatabase
+import com.lizz.myapptemplate.onboarding.OnboardingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import okio.Path.Companion.toPath
+import org.koin.core.context.GlobalContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import java.nio.file.Files
@@ -43,6 +46,13 @@ fun testDatabaseModule(): Module =
         }
         single<NoteDao> { get<AppDatabase>().noteDao() }
     }
+
+/** Marks onboarding as completed so tests land on the showcase home. */
+fun skipOnboardingForTests() {
+    runBlocking {
+        GlobalContext.get().get<OnboardingRepository>().markSeen()
+    }
+}
 
 /** Hand-controlled connectivity for testing offline UI and retry-on-reconnect. */
 class FakeConnectivityMonitor(

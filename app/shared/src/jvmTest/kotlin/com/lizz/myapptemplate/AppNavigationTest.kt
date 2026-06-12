@@ -39,6 +39,7 @@ class AppNavigationTest {
     fun setUp() {
         if (GlobalContext.getOrNull() == null) initKoin()
         loadKoinModules(listOf(testDataStoreModule(dataStoreScope), testDatabaseModule()))
+        skipOnboardingForTests()
     }
 
     @After

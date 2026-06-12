@@ -74,6 +74,7 @@ class ConnectivityRetryE2eTest {
                 },
             ),
         )
+        skipOnboardingForTests()
     }
 
     @After
