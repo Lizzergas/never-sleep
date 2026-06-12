@@ -4,10 +4,13 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.room3.Room
+import com.lizz.myapptemplate.connectivity.ConnectivityMonitor
 import com.lizz.myapptemplate.database.AppDatabase
 import com.lizz.myapptemplate.database.NoteDao
 import com.lizz.myapptemplate.database.buildAppDatabase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import okio.Path.Companion.toPath
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -39,4 +42,17 @@ fun testDatabaseModule(): Module =
             buildAppDatabase(Room.databaseBuilder<AppDatabase>(file))
         }
         single<NoteDao> { get<AppDatabase>().noteDao() }
+    }
+
+/** Hand-controlled connectivity for testing offline UI and retry-on-reconnect. */
+class FakeConnectivityMonitor(
+    initiallyOnline: Boolean = true,
+) : ConnectivityMonitor {
+    val state = MutableStateFlow(initiallyOnline)
+    override val isOnline: Flow<Boolean> = state
+}
+
+fun testConnectivityModule(monitor: FakeConnectivityMonitor): Module =
+    module {
+        single<ConnectivityMonitor> { monitor }
     }

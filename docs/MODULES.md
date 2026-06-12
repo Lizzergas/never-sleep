@@ -7,6 +7,7 @@ build-logic/        Gradle convention plugins (template.kmp.library, template.km
 core/
   model/            DTOs shared with the server, AppError, ApiResult — UI-free
   common/           coroutines + Kermit logging facade — UI-free
+  connectivity/     online/offline Flow (ConnectivityManager / NWPathMonitor / JVM polling)
   network/          Ktor client factory, safeGet/safeApiCall error mapping, Koin-owned HttpClient
   database/         Room 3 KMP setup: driver, per-platform builders, sample Note entity
   datastore/        DataStore<Preferences> factory + per-platform storage location
@@ -56,6 +57,9 @@ the theme fall back to following the system — no other change needed.
 
 ## Core module removal notes
 
+- `core:connectivity` — the shell looks it up with a fallback (no banner when
+  absent); also remove the retry-on-reconnect block in the showcase network
+  demo and the Koin registration.
 - `core:network` — also delete `NetworkConfig` from `appModule` and the
   network demo from `feature:showcase`.
 - `core:database` — Room/KSP wiring lives entirely inside the module; deleting

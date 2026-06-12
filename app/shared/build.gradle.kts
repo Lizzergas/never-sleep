@@ -53,6 +53,7 @@ kotlin {
             api(projects.core.model)
             api(projects.core.common)
             api(projects.core.designsystem)
+            implementation(projects.core.connectivity)
             implementation(projects.core.database)
             implementation(projects.core.datastore)
             implementation(projects.core.navigation)
@@ -99,6 +100,7 @@ kotlin {
             // Real client <-> server e2e test spins up the template server in-process.
             implementation(projects.server)
             implementation(libs.ktor.serverNetty)
+            implementation(libs.ktor.clientMock)
         }
     }
 }

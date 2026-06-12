@@ -1,5 +1,6 @@
 package com.lizz.myapptemplate.di
 
+import com.lizz.myapptemplate.connectivity.connectivityPlatformKoinModule
 import com.lizz.myapptemplate.database.databasePlatformKoinModule
 import com.lizz.myapptemplate.datastore.datastorePlatformKoinModule
 import com.lizz.myapptemplate.defaultServerBaseUrl
@@ -34,6 +35,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
         config?.invoke(this)
         modules(
             appModule,
+            connectivityPlatformKoinModule,
             databasePlatformKoinModule,
             datastorePlatformKoinModule,
             networkKoinModule,

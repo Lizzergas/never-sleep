@@ -13,12 +13,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.lizz.myapptemplate.connectivity.ConnectivityMonitor
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.model.AppError
 import com.lizz.myapptemplate.model.Item
@@ -30,6 +32,7 @@ import com.lizz.myapptemplate.ui.toUiState
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.mp.KoinPlatform
 
 /**
  * Calls the template server using shared DTOs from core:model through the
@@ -46,6 +49,27 @@ fun NetworkDemoScreen(onBack: () -> Unit) {
         scope.launch {
             state = UiState.Loading
             state = httpClient.safeGet<List<Item>>("/api/items").toUiState { it.isEmpty() }
+        }
+    }
+
+    // Retry-on-reconnect: when connectivity returns while a network failure is
+    // showing, re-issue the call. Optional lookup — without core:connectivity
+    // the demo simply never auto-retries.
+    val connectivityMonitor =
+        remember {
+            runCatching { KoinPlatform.getKoin().getOrNull<ConnectivityMonitor>() }.getOrNull()
+        }
+    if (connectivityMonitor != null) {
+        LaunchedEffect(connectivityMonitor) {
+            connectivityMonitor.isOnline.collect { online ->
+                val current = state
+                val failedOnNetwork =
+                    current is UiState.Error &&
+                        (current.error is AppError.Network || current.error is AppError.Timeout)
+                if (online && failedOnNetwork) {
+                    load()
+                }
+            }
         }
     }
 
