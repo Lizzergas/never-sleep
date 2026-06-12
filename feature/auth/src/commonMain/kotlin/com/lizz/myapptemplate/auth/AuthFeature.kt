@@ -2,6 +2,12 @@ package com.lizz.myapptemplate.auth
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.lizz.myapptemplate.auth.data.SessionRepositoryImpl
+import com.lizz.myapptemplate.auth.data.tokenStoragePlatformKoinModule
+import com.lizz.myapptemplate.auth.domain.SessionRepository
+import com.lizz.myapptemplate.auth.domain.ValidateCredentialsUseCase
+import com.lizz.myapptemplate.auth.presentation.AccountScreen
+import com.lizz.myapptemplate.auth.presentation.SessionViewModel
 import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
@@ -11,7 +17,7 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 @Serializable
@@ -45,6 +51,8 @@ object AuthFeature : FeatureRegistration {
 val authKoinModule: Module =
     module {
         includes(tokenStoragePlatformKoinModule)
-        single { AuthRepository(config = get(), storage = get()) } bind AuthTokenProvider::class
+        single { SessionRepositoryImpl(config = get(), storage = get()) } binds
+            arrayOf(SessionRepository::class, AuthTokenProvider::class)
+        factory { ValidateCredentialsUseCase() }
         viewModelOf(::SessionViewModel)
     }

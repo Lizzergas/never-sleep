@@ -1,6 +1,7 @@
 package com.lizz.myapptemplate.onboarding
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.lizz.myapptemplate.onboarding.data.DataStoreOnboardingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -39,9 +40,9 @@ class OnboardingRepositoryTest {
             scope.cancel()
         }
 
-    private fun repository(scope: CoroutineScope): OnboardingRepository {
+    private fun repository(scope: CoroutineScope): DataStoreOnboardingRepository {
         val file = Files.createTempDirectory("ds").resolve("t.preferences_pb").toString()
-        return OnboardingRepository(
+        return DataStoreOnboardingRepository(
             PreferenceDataStoreFactory.createWithPath(scope = scope) { file.toPath() },
         )
     }

@@ -6,12 +6,16 @@ import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.StartRouteOverride
+import com.lizz.myapptemplate.onboarding.data.DataStoreOnboardingRepository
+import com.lizz.myapptemplate.onboarding.domain.OnboardingRepository
+import com.lizz.myapptemplate.onboarding.presentation.OnboardingScreen
+import com.lizz.myapptemplate.onboarding.presentation.OnboardingViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.bind
+import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 @Serializable
@@ -44,5 +48,7 @@ object OnboardingFeature : FeatureRegistration {
 
 val onboardingKoinModule: Module =
     module {
-        singleOf(::OnboardingRepository) bind StartRouteOverride::class
+        single { DataStoreOnboardingRepository(get()) } binds
+            arrayOf(OnboardingRepository::class, StartRouteOverride::class)
+        viewModelOf(::OnboardingViewModel)
     }

@@ -1,11 +1,12 @@
-package com.lizz.myapptemplate.auth
+package com.lizz.myapptemplate.auth.data
 
 import com.liftric.kvault.KVault
 import com.lizz.myapptemplate.model.TokenPair
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-/** Keychain-backed storage via KVault. */
+/** Keystore-backed storage via KVault. */
 class KVaultTokenStorage(
     private val vault: KVault,
 ) : TokenStorage {
@@ -33,5 +34,5 @@ class KVaultTokenStorage(
 
 actual val tokenStoragePlatformKoinModule: Module =
     module {
-        single<TokenStorage> { KVaultTokenStorage(KVault(serviceName = "com.lizz.myapptemplate.auth")) }
+        single<TokenStorage> { KVaultTokenStorage(KVault(androidContext())) }
     }

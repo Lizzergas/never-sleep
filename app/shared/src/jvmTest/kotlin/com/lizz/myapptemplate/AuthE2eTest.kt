@@ -14,10 +14,10 @@ import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.lizz.myapptemplate.auth.AuthRepository
 import com.lizz.myapptemplate.auth.JwtConfig
-import com.lizz.myapptemplate.auth.SessionState
-import com.lizz.myapptemplate.auth.TokenStorage
+import com.lizz.myapptemplate.auth.data.SessionRepositoryImpl
+import com.lizz.myapptemplate.auth.data.TokenStorage
+import com.lizz.myapptemplate.auth.domain.SessionState
 import com.lizz.myapptemplate.di.initKoin
 import com.lizz.myapptemplate.model.TokenPair
 import com.lizz.myapptemplate.network.NetworkConfig
@@ -143,7 +143,7 @@ class AuthE2eTest {
         rule.waitForIdle()
 
         val koin = GlobalContext.get()
-        val repository = koin.get<AuthRepository>()
+        val repository = koin.get<com.lizz.myapptemplate.auth.domain.SessionRepository>()
 
         runBlocking {
             repository.register("refresh@test.dev", "password123")
@@ -151,7 +151,7 @@ class AuthE2eTest {
             // from storage must then go through /api/auth/refresh.
             Thread.sleep(2_500)
             val restored =
-                AuthRepository(
+                SessionRepositoryImpl(
                     config = koin.get<NetworkConfig>(),
                     storage = tokenStorage,
                 )

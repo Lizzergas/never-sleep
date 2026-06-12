@@ -8,7 +8,7 @@ import com.lizz.myapptemplate.connectivity.ConnectivityMonitor
 import com.lizz.myapptemplate.database.AppDatabase
 import com.lizz.myapptemplate.database.NoteDao
 import com.lizz.myapptemplate.database.buildAppDatabase
-import com.lizz.myapptemplate.onboarding.OnboardingRepository
+import com.lizz.myapptemplate.onboarding.domain.OnboardingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,5 +1,7 @@
-package com.lizz.myapptemplate.auth
+package com.lizz.myapptemplate.auth.data
 
+import com.lizz.myapptemplate.auth.domain.SessionRepository
+import com.lizz.myapptemplate.auth.domain.SessionState
 import com.lizz.myapptemplate.model.ApiResult
 import com.lizz.myapptemplate.model.AppError
 import com.lizz.myapptemplate.model.AuthRequest
@@ -23,37 +25,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-sealed interface SessionState {
-    /** Not yet restored from storage. */
-    data object Unknown : SessionState
-
-    data object LoggedOut : SessionState
-
-    data class LoggedIn(
-        val user: UserDto,
-    ) : SessionState
-}
-
 /**
- * Owns the session: register/login/logout against the /api/auth endpoints, token
- * persistence, and the [AuthTokenProvider] hookup that gives the app
+ * Owns the session: register/login/logout against the /api/auth endpoints,
+ * token persistence, and the [AuthTokenProvider] hookup that gives the app
  * HttpClient automatic bearer headers + 401 refresh.
  *
  * Uses its own bare client (no Auth plugin) for the auth endpoints so token
  * refresh can never recurse into itself.
  */
-class AuthRepository(
+class SessionRepositoryImpl(
     config: NetworkConfig,
     private val storage: TokenStorage,
     engine: HttpClientEngine? = null,
-) : AuthTokenProvider {
+) : SessionRepository,
+    AuthTokenProvider {
     private val bareClient: HttpClient = createHttpClient(config, engine)
 
     private val _sessionState = MutableStateFlow<SessionState>(SessionState.Unknown)
-    val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
+    override val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
 
-    /** Restores the session from stored tokens; call once at first use. */
-    suspend fun restore() {
+    override suspend fun restore() {
         if (_sessionState.value != SessionState.Unknown) return
         val tokens = storage.read()
         if (tokens == null) {
@@ -65,17 +56,17 @@ class AuthRepository(
         }
     }
 
-    suspend fun register(
+    override suspend fun register(
         email: String,
         password: String,
     ): ApiResult<UserDto> = authenticate("/api/auth/register", email, password)
 
-    suspend fun login(
+    override suspend fun login(
         email: String,
         password: String,
     ): ApiResult<UserDto> = authenticate("/api/auth/login", email, password)
 
-    suspend fun logout() {
+    override suspend fun logout() {
         storage.clear()
         _sessionState.value = SessionState.LoggedOut
     }

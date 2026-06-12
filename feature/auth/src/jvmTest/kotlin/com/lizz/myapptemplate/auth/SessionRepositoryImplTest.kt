@@ -1,5 +1,8 @@
 package com.lizz.myapptemplate.auth
 
+import com.lizz.myapptemplate.auth.data.SessionRepositoryImpl
+import com.lizz.myapptemplate.auth.data.TokenStorage
+import com.lizz.myapptemplate.auth.domain.SessionState
 import com.lizz.myapptemplate.model.ApiResult
 import com.lizz.myapptemplate.model.Item
 import com.lizz.myapptemplate.model.TokenPair
@@ -86,13 +89,13 @@ internal class FakeAuthBackend {
     private fun tokenBody() = """{"accessToken":"$validAccess","refreshToken":"$validRefresh"}"""
 }
 
-class AuthRepositoryTest {
+class SessionRepositoryImplTest {
     @Test
     fun loginStoresTokensAndEntersLoggedIn() =
         runBlocking<Unit> {
             val backend = FakeAuthBackend()
             val storage = FakeTokenStorage()
-            val repository = AuthRepository(NetworkConfig(), storage, backend.engine)
+            val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
 
             val result = repository.login("user@test.dev", "password123")
 
@@ -105,7 +108,7 @@ class AuthRepositoryTest {
     fun restoreWithoutTokensIsLoggedOut() =
         runBlocking<Unit> {
             val backend = FakeAuthBackend()
-            val repository = AuthRepository(NetworkConfig(), FakeTokenStorage(), backend.engine)
+            val repository = SessionRepositoryImpl(NetworkConfig(), FakeTokenStorage(), backend.engine)
 
             repository.restore()
 
@@ -121,7 +124,7 @@ class AuthRepositoryTest {
                     // Stored access token is stale, refresh token still valid.
                     tokens = TokenPair(accessToken = "expired", refreshToken = backend.validRefresh)
                 }
-            val repository = AuthRepository(NetworkConfig(), storage, backend.engine)
+            val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
 
             repository.restore()
 
@@ -137,7 +140,7 @@ class AuthRepositoryTest {
                 FakeTokenStorage().apply {
                     tokens = TokenPair(accessToken = "expired", refreshToken = "stale-refresh")
                 }
-            val repository = AuthRepository(NetworkConfig(), storage, backend.engine)
+            val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
 
             val refreshed = repository.refreshTokens("stale-refresh")
 
@@ -151,7 +154,7 @@ class AuthRepositoryTest {
         runBlocking<Unit> {
             val backend = FakeAuthBackend()
             val storage = FakeTokenStorage()
-            val repository = AuthRepository(NetworkConfig(), storage, backend.engine)
+            val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
             repository.login("user@test.dev", "password123")
 
             // Simulate access-token expiry server-side: rotate what the backend accepts.

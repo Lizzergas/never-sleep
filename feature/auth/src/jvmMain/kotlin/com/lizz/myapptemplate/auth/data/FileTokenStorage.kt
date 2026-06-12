@@ -1,4 +1,4 @@
-package com.lizz.myapptemplate.auth
+package com.lizz.myapptemplate.auth.data
 
 import com.lizz.myapptemplate.model.TokenPair
 import kotlinx.coroutines.Dispatchers
