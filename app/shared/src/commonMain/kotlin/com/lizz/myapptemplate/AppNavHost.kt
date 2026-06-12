@@ -1,11 +1,24 @@
 package com.lizz.myapptemplate
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -14,11 +27,14 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lizz.myapptemplate.auth.AuthFeature
+import com.lizz.myapptemplate.designsystem.WindowWidthClass
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.StartRouteOverride
+import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.notes.NotesFeature
 import com.lizz.myapptemplate.onboarding.OnboardingFeature
+import com.lizz.myapptemplate.onboarding.OnboardingRoute
 import com.lizz.myapptemplate.settings.SettingsFeature
 import com.lizz.myapptemplate.showcase.ShowcaseFeature
 import com.lizz.myapptemplate.showcase.ShowcaseHomeRoute
@@ -29,9 +45,9 @@ import org.koin.mp.KoinPlatform
 
 /**
  * THE feature plug-in point for navigation. Each entry contributes its routes
- * (serializers), nav entries, and showcase listing. To remove a feature,
- * delete its line here, its Koin module in di/Koin.kt, and its include in
- * settings.gradle.kts.
+ * (serializers), nav entries, showcase listing, and optional top-level
+ * destination. To remove a feature, delete its line here, its Koin module in
+ * di/Koin.kt, and its include in settings.gradle.kts.
  */
 val featureRegistrations: List<FeatureRegistration> =
     listOf(
@@ -88,7 +104,9 @@ fun AppNavHost() {
                 }
 
                 override fun goBack() {
-                    backStack.removeLastOrNull()
+                    if (backStack.size > 1) {
+                        backStack.removeLastOrNull()
+                    }
                 }
 
                 override fun resetToStart() {
@@ -99,18 +117,96 @@ fun AppNavHost() {
                 }
             }
         }
-    NavDisplay(
-        backStack = backStack,
-        onBack = { navigator.goBack() },
-        entryDecorators =
-            listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                // Scopes ViewModels to nav entries, cleared when an entry is popped.
-                rememberViewModelStoreNavEntryDecorator(),
-            ),
-        entryProvider =
-            entryProvider {
-                featureRegistrations.forEach { it.registerEntries(this, navigator) }
-            },
+
+    val topLevelDestinations =
+        remember { featureRegistrations.mapNotNull { it.topLevelDestination } }
+    val currentRoute = backStack.lastOrNull()
+    // Primary navigation chrome is hidden while onboarding runs.
+    val showChrome = topLevelDestinations.isNotEmpty() && currentRoute != OnboardingRoute
+
+    fun selectTopLevel(destination: TopLevelDestination) {
+        if (currentRoute == destination.route) return
+        backStack.add(destination.route)
+        while (backStack.size > 1) {
+            backStack.removeAt(0)
+        }
+    }
+
+    val navDisplay: @Composable (Modifier) -> Unit = { modifier ->
+        NavDisplay(
+            backStack = backStack,
+            modifier = modifier,
+            onBack = { navigator.goBack() },
+            entryDecorators =
+                listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    // Scopes ViewModels to nav entries, cleared when an entry is popped.
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
+            entryProvider =
+                entryProvider {
+                    featureRegistrations.forEach { it.registerEntries(this, navigator) }
+                },
+        )
+    }
+
+    AdaptiveShell(
+        destinations = topLevelDestinations,
+        currentRoute = currentRoute,
+        showChrome = showChrome,
+        onSelect = ::selectTopLevel,
+        content = navDisplay,
     )
+}
+
+/** Bottom bar on compact widths, navigation rail on medium/expanded. */
+@Composable
+private fun AdaptiveShell(
+    destinations: List<TopLevelDestination>,
+    currentRoute: NavKey?,
+    showChrome: Boolean,
+    onSelect: (TopLevelDestination) -> Unit,
+    content: @Composable (Modifier) -> Unit,
+) {
+    BoxWithConstraints {
+        val widthClass = WindowWidthClass.fromWidth(maxWidth)
+        when {
+            !showChrome -> content(Modifier.fillMaxSize())
+
+            widthClass == WindowWidthClass.Compact ->
+                Scaffold(
+                    bottomBar = {
+                        NavigationBar {
+                            destinations.forEach { destination ->
+                                NavigationBarItem(
+                                    selected = currentRoute == destination.route,
+                                    onClick = { onSelect(destination) },
+                                    icon = { Icon(destination.icon, contentDescription = destination.label) },
+                                    label = { Text(destination.label) },
+                                )
+                            }
+                        }
+                    },
+                ) { padding ->
+                    content(Modifier.fillMaxSize().padding(padding))
+                }
+
+            else ->
+                Row(modifier = Modifier.fillMaxSize()) {
+                    NavigationRail {
+                        destinations.forEach { destination ->
+                            NavigationRailItem(
+                                selected = currentRoute == destination.route,
+                                onClick = { onSelect(destination) },
+                                icon = { Icon(destination.icon, contentDescription = destination.label) },
+                                label = { Text(destination.label) },
+                            )
+                        }
+                    }
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        content(Modifier.fillMaxSize())
+                    }
+                }
+        }
+    }
 }

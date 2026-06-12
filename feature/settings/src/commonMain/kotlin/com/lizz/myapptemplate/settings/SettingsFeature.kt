@@ -1,11 +1,14 @@
 package com.lizz.myapptemplate.settings
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
 import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
+import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.settings.data.DataStoreSettingsRepository
 import com.lizz.myapptemplate.settings.domain.SettingsRepository
 import com.lizz.myapptemplate.settings.presentation.SettingsScreen
@@ -22,6 +25,9 @@ import org.koin.dsl.module
 data object SettingsRoute : NavKey
 
 object SettingsFeature : FeatureRegistration {
+    override val topLevelDestination =
+        TopLevelDestination(route = SettingsRoute, label = "Settings", icon = Icons.Default.Settings)
+
     override val descriptors =
         listOf(
             FeatureDescriptor(

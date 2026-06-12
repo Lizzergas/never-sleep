@@ -8,10 +8,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 /**
  * The single theming entry point for the whole app.
  * Apply at the shell (App()) — screens only consume MaterialTheme/Theme tokens.
+ *
+ * With [dynamicColor] (default), Android 12+ uses Material You wallpaper
+ * colors; every other platform falls back to the brand palette in Color.kt.
  */
 @Composable
 fun AppTheme(
     themeMode: ThemeMode = ThemeMode.System,
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val useDarkTheme =
@@ -20,9 +24,12 @@ fun AppTheme(
             ThemeMode.Light -> false
             ThemeMode.Dark -> true
         }
+    val brandScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme =
+        if (dynamicColor) platformColorScheme(useDarkTheme) ?: brandScheme else brandScheme
     CompositionLocalProvider(LocalSpacing provides Spacing()) {
         MaterialTheme(
-            colorScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme,
+            colorScheme = colorScheme,
             content = content,
         )
     }

@@ -1,5 +1,7 @@
 package com.lizz.myapptemplate.auth
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.auth.data.SessionRepositoryImpl
@@ -11,6 +13,7 @@ import com.lizz.myapptemplate.auth.presentation.SessionViewModel
 import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
+import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.network.AuthTokenProvider
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
@@ -24,6 +27,9 @@ import org.koin.dsl.module
 data object AccountRoute : NavKey
 
 object AuthFeature : FeatureRegistration {
+    override val topLevelDestination =
+        TopLevelDestination(route = AccountRoute, label = "Account", icon = Icons.Default.Person)
+
     override val descriptors =
         listOf(
             FeatureDescriptor(

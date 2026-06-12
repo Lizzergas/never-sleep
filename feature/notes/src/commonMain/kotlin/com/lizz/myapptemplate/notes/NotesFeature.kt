@@ -1,10 +1,13 @@
 package com.lizz.myapptemplate.notes
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
+import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.notes.data.NotesRepositoryImpl
 import com.lizz.myapptemplate.notes.domain.AddNoteUseCase
 import com.lizz.myapptemplate.notes.domain.NotesRepository
@@ -22,6 +25,9 @@ import org.koin.dsl.module
 data object NotesRoute : NavKey
 
 object NotesFeature : FeatureRegistration {
+    override val topLevelDestination =
+        TopLevelDestination(route = NotesRoute, label = "Notes", icon = Icons.Default.Edit)
+
     override val descriptors =
         listOf(
             FeatureDescriptor(

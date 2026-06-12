@@ -1,5 +1,6 @@
 package com.lizz.myapptemplate.navigation
 
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
@@ -18,6 +19,13 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
 interface FeatureRegistration {
     /** Listed in the showcase feature catalog; empty hides the feature from it. */
     val descriptors: List<FeatureDescriptor> get() = emptyList()
+
+    /**
+     * Non-null places this feature in the adaptive shell's primary navigation
+     * (bottom bar on compact, rail on medium/expanded). The catalog
+     * automatically drops descriptors whose route is a top-level destination.
+     */
+    val topLevelDestination: TopLevelDestination? get() = null
 
     /** Register every route type this feature owns (serializer registration). */
     fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>)
@@ -40,4 +48,11 @@ data class FeatureDescriptor(
 /** All listed features, provided via DI by the app shell. */
 data class FeatureCatalog(
     val features: List<FeatureDescriptor>,
+)
+
+/** An entry in the adaptive shell's primary navigation. */
+data class TopLevelDestination(
+    val route: NavKey,
+    val label: String,
+    val icon: ImageVector,
 )
