@@ -1,16 +1,10 @@
 package com.lizz.myapptemplate
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.lizz.myapptemplate.di.initKoin
 import com.lizz.myapptemplate.network.NetworkConfig
 import com.lizz.myapptemplate.network.createHttpClient
@@ -86,7 +80,7 @@ class ConnectivityRetryE2eTest {
     @Test
     fun offlineBannerShowsAndDemoRetriesOnReconnect() {
         rule.setContent {
-            TestOwner { App() }
+            TestAppOwner { App() }
         }
 
         // Go offline: transport fails and the shell banner appears.
@@ -114,18 +108,5 @@ class ConnectivityRetryE2eTest {
         }
         rule.onNodeWithText("Recovered item").assertIsDisplayed()
         rule.onNodeWithText("You're offline").assertDoesNotExist()
-    }
-}
-
-@Composable
-private fun TestOwner(content: @Composable () -> Unit) {
-    val owner =
-        remember {
-            object : ViewModelStoreOwner {
-                override val viewModelStore = ViewModelStore()
-            }
-        }
-    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-        content()
     }
 }

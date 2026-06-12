@@ -20,17 +20,9 @@ import org.koin.dsl.module
 /** Permanent app-level DI definitions live here. */
 val appModule =
     module {
-        // The showcase home screen lists features from this catalog —
-        // minus anything already reachable from the shell's primary navigation.
-        single {
-            FeatureCatalog(
-                featureRegistrations.flatMap { registration ->
-                    registration.descriptors.filterNot { descriptor ->
-                        registration.topLevelDestination?.route == descriptor.startRoute
-                    }
-                },
-            )
-        }
+        // The showcase home screen lists features from this catalog.
+        // (Top-level destinations live in the shell's bar/rail, not here.)
+        single { FeatureCatalog(featureRegistrations.flatMap { it.descriptors }) }
         // Point this at your API; the template default is the local sample server.
         single { NetworkConfig(baseUrl = defaultServerBaseUrl()) }
     }

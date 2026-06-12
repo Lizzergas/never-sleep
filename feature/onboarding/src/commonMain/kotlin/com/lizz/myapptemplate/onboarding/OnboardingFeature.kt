@@ -22,6 +22,8 @@ import org.koin.dsl.module
 data object OnboardingRoute : NavKey
 
 object OnboardingFeature : FeatureRegistration {
+    override val fullScreenRoutes: Set<NavKey> = setOf(OnboardingRoute)
+
     override val descriptors =
         listOf(
             FeatureDescriptor(

@@ -1,8 +1,14 @@
 package com.lizz.myapptemplate
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.room3.Room
 import com.lizz.myapptemplate.connectivity.ConnectivityMonitor
 import com.lizz.myapptemplate.database.AppDatabase
@@ -66,3 +72,20 @@ fun testConnectivityModule(monitor: FakeConnectivityMonitor): Module =
     module {
         single<ConnectivityMonitor> { monitor }
     }
+
+/**
+ * Hosts [content] with a ViewModelStoreOwner so koinViewModel works in
+ * compose tests. Use in every e2e test instead of redefining it.
+ */
+@Composable
+fun TestAppOwner(content: @Composable () -> Unit) {
+    val owner =
+        remember {
+            object : ViewModelStoreOwner {
+                override val viewModelStore = ViewModelStore()
+            }
+        }
+    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+        content()
+    }
+}

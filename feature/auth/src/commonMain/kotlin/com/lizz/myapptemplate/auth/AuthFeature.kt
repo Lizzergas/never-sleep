@@ -10,11 +10,13 @@ import com.lizz.myapptemplate.auth.domain.SessionRepository
 import com.lizz.myapptemplate.auth.domain.ValidateCredentialsUseCase
 import com.lizz.myapptemplate.auth.presentation.AccountScreen
 import com.lizz.myapptemplate.auth.presentation.SessionViewModel
-import com.lizz.myapptemplate.navigation.FeatureDescriptor
+import com.lizz.myapptemplate.common.UserDataCleaner
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.network.AuthTokenProvider
+import com.lizz.myapptemplate.network.clearBearerTokens
+import io.ktor.client.HttpClient
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
@@ -29,16 +31,6 @@ data object AccountRoute : NavKey
 object AuthFeature : FeatureRegistration {
     override val topLevelDestination =
         TopLevelDestination(route = AccountRoute, label = "Account", icon = Icons.Default.Person)
-
-    override val descriptors =
-        listOf(
-            FeatureDescriptor(
-                id = "account",
-                title = "Account",
-                description = "JWT auth: register, login, 401 auto-refresh, secure token storage",
-                startRoute = AccountRoute,
-            ),
-        )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(AccountRoute::class)
@@ -57,8 +49,19 @@ object AuthFeature : FeatureRegistration {
 val authKoinModule: Module =
     module {
         includes(tokenStoragePlatformKoinModule)
-        single { SessionRepositoryImpl(config = get(), storage = get()) } binds
-            arrayOf(SessionRepository::class, AuthTokenProvider::class)
+        single {
+            // Lazy lookups: the app HttpClient itself depends on this
+            // repository (as AuthTokenProvider), so resolve at call time.
+            val koin = getKoin()
+            SessionRepositoryImpl(
+                config = get(),
+                storage = get(),
+                onSessionChanged = {
+                    koin.get<HttpClient>().clearBearerTokens()
+                    koin.getAll<UserDataCleaner>().forEach { it.clearUserData() }
+                },
+            )
+        } binds arrayOf(SessionRepository::class, AuthTokenProvider::class)
         factory { ValidateCredentialsUseCase() }
         viewModelOf(::SessionViewModel)
     }

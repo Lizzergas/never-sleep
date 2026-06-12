@@ -12,6 +12,7 @@ kotlin {
     }
 
     sourceSets.commonMain.dependencies {
+        implementation(projects.core.common)
         api(libs.room3.runtime)
         api(libs.sqlite.bundled)
         api(libs.kotlinx.coroutinesCore)

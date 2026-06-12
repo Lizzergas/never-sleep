@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lizz.myapptemplate.auth.domain.SessionState
+import com.lizz.myapptemplate.auth.domain.User
 import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.Theme
-import com.lizz.myapptemplate.model.UserDto
 import com.lizz.myapptemplate.ui.ErrorContent
 import com.lizz.myapptemplate.ui.LoadingContent
 import org.koin.compose.viewmodel.koinViewModel
@@ -114,7 +114,7 @@ private fun AuthForm(
 
 @Composable
 private fun Profile(
-    user: UserDto,
+    user: User,
     onLogout: () -> Unit,
 ) {
     Text("Profile", style = MaterialTheme.typography.headlineMedium)
@@ -140,7 +140,7 @@ private fun AccountLoggedOutPreview() {
 private fun AccountLoggedInPreview() {
     AppTheme {
         AccountContent(
-            state = AccountUiState(session = SessionState.LoggedIn(UserDto("42", "preview@lizz.dev"))),
+            state = AccountUiState(session = SessionState.LoggedIn(User("42", "preview@lizz.dev"))),
             onEvent = {},
             onBack = {},
         )

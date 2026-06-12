@@ -5,7 +5,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
-import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.TopLevelDestination
@@ -27,16 +26,6 @@ data object SettingsRoute : NavKey
 object SettingsFeature : FeatureRegistration {
     override val topLevelDestination =
         TopLevelDestination(route = SettingsRoute, label = "Settings", icon = Icons.Default.Settings)
-
-    override val descriptors =
-        listOf(
-            FeatureDescriptor(
-                id = "settings",
-                title = "Settings",
-                description = "Theme mode persisted via core:datastore",
-                startRoute = SettingsRoute,
-            ),
-        )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(SettingsRoute::class)

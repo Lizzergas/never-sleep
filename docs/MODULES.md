@@ -56,9 +56,9 @@ derives from the registrations.
 
 ## Removing a feature
 
-Delete the same lines in reverse plus the module directory. Nothing else
-references a feature; if a removal leaves a compile error, that error IS the
-remaining reference.
+Delete the same lines in reverse plus the module directory. Code references
+surface as compile errors; runtime wiring (Koin lookups, catalog entries)
+degrades via documented fallbacks — run the app and tests after a removal.
 
 `feature:settings` note: it provides `ThemeModeProvider`; removing it makes
 the theme fall back to following the system — no other change needed.
@@ -69,6 +69,12 @@ the app start directly at the showcase home.
 `feature:auth` note: it provides `AuthTokenProvider`; removing it makes the
 app HttpClient unauthenticated (no bearer/refresh). The server's /api/auth
 routes are independent and can stay or go separately.
+
+`feature:notes` note (the copy-me sample) spreads slightly wider than the
+3-line contract; removing it also means deleting `NoteEntity`/`NoteDao` from
+`core:database` (and bumping the Room schema), the note DTOs in `core:model`,
+the `/api/notes` routes in `server`, and `NotesE2eTest`. It binds a
+`UserDataCleaner`, which auth discovers via `getAll` — no unbinding needed.
 
 ## Core module removal notes
 

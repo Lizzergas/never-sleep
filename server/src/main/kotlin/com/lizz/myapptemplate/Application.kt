@@ -44,9 +44,9 @@ fun Application.module(
     }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.respond(
+            call.respondError(
                 HttpStatusCode.InternalServerError,
-                mapOf("error" to (cause.message ?: "internal error")),
+                (cause.message ?: "internal error"),
             )
         }
     }

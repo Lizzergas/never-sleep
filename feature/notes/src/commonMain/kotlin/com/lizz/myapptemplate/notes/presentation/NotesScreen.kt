@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,14 +39,27 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-/** Stateful wrapper: owns the ViewModel. All rendering is in [NotesContent]. */
+/** Stateful wrapper: owns the ViewModel and collects one-off effects. */
 @Composable
 fun NotesScreen(onBack: () -> Unit) {
     val viewModel = koinViewModel<NotesViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var draft by rememberSaveable { mutableStateOf("") }
+
+    // The draft is cleared only when the add actually succeeded — a failed
+    // add (offline, validation) must not destroy the user's typed text.
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                NotesEffect.NoteAdded -> draft = ""
+            }
+        }
+    }
 
     NotesContent(
         state = state,
+        draft = draft,
+        onDraftChange = { draft = it },
         onEvent = viewModel::onEvent,
         onBack = onBack,
     )
@@ -54,11 +68,11 @@ fun NotesScreen(onBack: () -> Unit) {
 @Composable
 fun NotesContent(
     state: NotesUiState,
+    draft: String,
+    onDraftChange: (String) -> Unit,
     onEvent: (NotesEvent) -> Unit,
     onBack: () -> Unit,
 ) {
-    var draft by rememberSaveable { mutableStateOf("") }
-
     Column(
         modifier =
             Modifier
@@ -80,14 +94,11 @@ fun NotesContent(
         ) {
             OutlinedTextField(
                 value = draft,
-                onValueChange = { draft = it },
+                onValueChange = onDraftChange,
                 label = { Text("New note") },
                 modifier = Modifier.weight(1f),
             )
-            Button(onClick = {
-                onEvent(NotesEvent.Add(draft))
-                draft = ""
-            }) { Text("Add") }
+            Button(onClick = { onEvent(NotesEvent.Add(draft)) }) { Text("Add") }
         }
 
         state.error?.let { error ->
@@ -149,6 +160,8 @@ private fun NoteRow(
 private fun NotesContentPreview() {
     AppTheme {
         NotesContent(
+            draft = "",
+            onDraftChange = {},
             state =
                 NotesUiState(
                     notes =
@@ -172,6 +185,8 @@ private fun NotesContentPreview() {
 private fun NotesContentLoggedOutPreview() {
     AppTheme {
         NotesContent(
+            draft = "",
+            onDraftChange = {},
             state = NotesUiState(error = AppError.Unauthorized),
             onEvent = {},
             onBack = {},

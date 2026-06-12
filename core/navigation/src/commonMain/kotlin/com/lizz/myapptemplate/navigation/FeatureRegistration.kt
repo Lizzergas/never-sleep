@@ -22,10 +22,13 @@ interface FeatureRegistration {
 
     /**
      * Non-null places this feature in the adaptive shell's primary navigation
-     * (bottom bar on compact, rail on medium/expanded). The catalog
-     * automatically drops descriptors whose route is a top-level destination.
+     * (bottom bar on compact, rail on medium/expanded). Don't also list the
+     * same route as a descriptor — the shell already surfaces it.
      */
     val topLevelDestination: TopLevelDestination? get() = null
+
+    /** Routes that render WITHOUT the shell's navigation chrome (e.g. onboarding, paywalls). */
+    val fullScreenRoutes: Set<NavKey> get() = emptySet()
 
     /** Register every route type this feature owns (serializer registration). */
     fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>)

@@ -1,4 +1,4 @@
-package com.lizz.template
+package buildlogic
 
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.specs.Spec

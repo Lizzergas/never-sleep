@@ -1,14 +1,10 @@
 package com.lizz.myapptemplate
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.lizz.myapptemplate.di.initKoin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +44,7 @@ class AppNavigationTest {
     @Test
     fun showcaseListsFeaturesAndNavigatesToGalleryAndBack() {
         rule.setContent {
-            TestViewModelStoreOwner {
+            TestAppOwner {
                 App()
             }
         }
@@ -75,7 +71,7 @@ class AppNavigationTest {
     @Test
     fun settingsThemeSelectionPersistsThroughTheRealChain() {
         rule.setContent {
-            TestViewModelStoreOwner {
+            TestAppOwner {
                 App()
             }
         }
@@ -89,18 +85,5 @@ class AppNavigationTest {
         rule.waitUntil(timeoutMillis = 10_000) {
             runCatching { rule.onNodeWithText("Dark").assertIsSelected() }.isSuccess
         }
-    }
-}
-
-@androidx.compose.runtime.Composable
-private fun TestViewModelStoreOwner(content: @androidx.compose.runtime.Composable () -> Unit) {
-    val owner =
-        androidx.compose.runtime.remember {
-            object : ViewModelStoreOwner {
-                override val viewModelStore = ViewModelStore()
-            }
-        }
-    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-        content()
     }
 }

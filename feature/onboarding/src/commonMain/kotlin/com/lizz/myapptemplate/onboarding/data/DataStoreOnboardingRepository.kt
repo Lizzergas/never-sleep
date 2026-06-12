@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.navigation3.runtime.NavKey
+import com.lizz.myapptemplate.datastore.safeData
 import com.lizz.myapptemplate.navigation.StartRouteOverride
 import com.lizz.myapptemplate.onboarding.OnboardingRoute
 import com.lizz.myapptemplate.onboarding.domain.OnboardingRepository
@@ -21,7 +22,7 @@ class DataStoreOnboardingRepository(
 ) : OnboardingRepository,
     StartRouteOverride {
     override val hasSeenOnboarding: Flow<Boolean> =
-        dataStore.data.map { it[SEEN_KEY] == true }
+        dataStore.safeData().map { it[SEEN_KEY] == true }
 
     override suspend fun markSeen() {
         dataStore.edit { it[SEEN_KEY] = true }

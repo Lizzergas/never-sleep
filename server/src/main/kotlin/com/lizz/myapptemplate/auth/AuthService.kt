@@ -4,6 +4,8 @@ import at.favre.lib.crypto.bcrypt.BCrypt
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.lizz.myapptemplate.model.TokenPair
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -37,21 +39,29 @@ class AuthService(
     private val refreshTokens = ConcurrentHashMap<String, RefreshEntry>()
     private val algorithm = Algorithm.HMAC256(config.secret)
 
-    fun register(
+    suspend fun register(
         email: String,
         password: String,
     ): AuthResult {
-        val hash = BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
+        // bcrypt at cost 12 burns ~100-300ms of CPU: keep it off Ktor's
+        // call-processing threads or a handful of logins stalls every endpoint.
+        val hash =
+            withContext(Dispatchers.IO) {
+                BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
+            }
         val user = users.create(email, hash) ?: return AuthResult.EmailTaken
         return AuthResult.Success(issueTokens(user.id))
     }
 
-    fun login(
+    suspend fun login(
         email: String,
         password: String,
     ): AuthResult {
         val user = users.findByEmail(email) ?: return AuthResult.InvalidCredentials
-        val verified = BCrypt.verifyer().verify(password.toCharArray(), user.passwordHash).verified
+        val verified =
+            withContext(Dispatchers.IO) {
+                BCrypt.verifyer().verify(password.toCharArray(), user.passwordHash).verified
+            }
         return if (verified) AuthResult.Success(issueTokens(user.id)) else AuthResult.InvalidCredentials
     }
 
@@ -63,6 +73,8 @@ class AuthService(
 
     private fun issueTokens(userId: String): TokenPair {
         val now = System.currentTimeMillis()
+        // Opportunistic sweep so abandoned sessions don't accumulate forever.
+        refreshTokens.entries.removeIf { it.value.expiresAtMillis < now }
         val accessToken =
             JWT
                 .create()

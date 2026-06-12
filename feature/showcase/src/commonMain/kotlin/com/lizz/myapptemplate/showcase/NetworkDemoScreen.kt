@@ -28,11 +28,11 @@ import com.lizz.myapptemplate.network.safeGet
 import com.lizz.myapptemplate.ui.ErrorContent
 import com.lizz.myapptemplate.ui.UiState
 import com.lizz.myapptemplate.ui.UiStateContent
+import com.lizz.myapptemplate.ui.rememberOptionalKoin
 import com.lizz.myapptemplate.ui.toUiState
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import org.koin.mp.KoinPlatform
 
 /**
  * Calls the template server using shared DTOs from core:model through the
@@ -55,10 +55,7 @@ fun NetworkDemoScreen(onBack: () -> Unit) {
     // Retry-on-reconnect: when connectivity returns while a network failure is
     // showing, re-issue the call. Optional lookup — without core:connectivity
     // the demo simply never auto-retries.
-    val connectivityMonitor =
-        remember {
-            runCatching { KoinPlatform.getKoin().getOrNull<ConnectivityMonitor>() }.getOrNull()
-        }
+    val connectivityMonitor = rememberOptionalKoin<ConnectivityMonitor>()
     if (connectivityMonitor != null) {
         LaunchedEffect(connectivityMonitor) {
             connectivityMonitor.isOnline.collect { online ->

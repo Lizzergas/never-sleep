@@ -16,8 +16,6 @@ data class NetworkConfig(
     val baseUrl: String? = null,
     val requestTimeoutMs: Long = DEFAULT_REQUEST_TIMEOUT_MS,
     val connectTimeoutMs: Long = DEFAULT_CONNECT_TIMEOUT_MS,
-    /** Called per request; return a bearer token to add an Authorization header. */
-    val authToken: () -> String? = { null },
 )
 
 val DefaultJson =

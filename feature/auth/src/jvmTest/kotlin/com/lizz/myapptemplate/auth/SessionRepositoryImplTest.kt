@@ -16,6 +16,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -147,6 +148,61 @@ class SessionRepositoryImplTest {
             assertNull(refreshed)
             assertNull(storage.tokens)
             assertEquals(SessionState.LoggedOut, repository.sessionState.value)
+        }
+
+    @Test
+    fun sessionChangedCallbackFiresOnLoginAndLogout() =
+        runBlocking<Unit> {
+            val backend = FakeAuthBackend()
+            var changes = 0
+            val repository =
+                SessionRepositoryImpl(
+                    NetworkConfig(),
+                    FakeTokenStorage(),
+                    backend.engine,
+                    onSessionChanged = { changes += 1 },
+                )
+
+            repository.login("user@test.dev", "password123")
+            assertEquals(1, changes)
+
+            repository.logout()
+            assertEquals(2, changes)
+        }
+
+    @Test
+    fun staleRefreshAfterRotationReturnsStoredTokensWithoutLogout() =
+        runBlocking<Unit> {
+            val backend = FakeAuthBackend()
+            val storage = FakeTokenStorage()
+            val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
+            repository.login("user@test.dev", "password123")
+
+            // A racing caller asks to refresh with a token that storage has
+            // already rotated past — it must get the stored pair back, not
+            // burn the single-use refresh token again or wipe the session.
+            val refreshed = repository.refreshTokens("some-older-refresh")
+
+            assertEquals(storage.tokens?.accessToken, refreshed?.accessToken)
+            assertIs<SessionState.LoggedIn>(repository.sessionState.value)
+        }
+
+    @Test
+    fun transientRestoreFailureKeepsStoredTokens() =
+        runBlocking<Unit> {
+            val storage =
+                FakeTokenStorage().apply {
+                    tokens = TokenPair(accessToken = "access-1", refreshToken = "refresh-1")
+                }
+            // Server unreachable: every call fails with a network error.
+            val deadEngine = MockEngine { throw IOException("connection refused") }
+            val repository = SessionRepositoryImpl(NetworkConfig(), storage, deadEngine)
+
+            repository.restore()
+
+            // Logged-out UI for now, but credentials survive for the next retry.
+            assertEquals(SessionState.LoggedOut, repository.sessionState.value)
+            assertEquals("refresh-1", storage.tokens?.refreshToken)
         }
 
     @Test

@@ -34,14 +34,13 @@ import com.lizz.myapptemplate.navigation.StartRouteOverride
 import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.notes.NotesFeature
 import com.lizz.myapptemplate.onboarding.OnboardingFeature
-import com.lizz.myapptemplate.onboarding.OnboardingRoute
 import com.lizz.myapptemplate.settings.SettingsFeature
 import com.lizz.myapptemplate.showcase.ShowcaseFeature
 import com.lizz.myapptemplate.showcase.ShowcaseHomeRoute
 import com.lizz.myapptemplate.ui.LoadingContent
+import com.lizz.myapptemplate.ui.rememberOptionalKoin
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import org.koin.mp.KoinPlatform
 
 /**
  * THE feature plug-in point for navigation. Each entry contributes its routes
@@ -65,10 +64,7 @@ fun AppNavHost() {
     // Features may override the start destination (e.g. onboarding until its
     // seen-flag is set). The lookup is optional — without one we start at the
     // default immediately; with one we gate on the (suspend) resolution.
-    val startRouteOverride =
-        remember {
-            runCatching { KoinPlatform.getKoin().getOrNull<StartRouteOverride>() }.getOrNull()
-        }
+    val startRouteOverride = rememberOptionalKoin<StartRouteOverride>()
     var startRoute by remember {
         mutableStateOf(if (startRouteOverride == null) defaultStartRoute else null)
     }
@@ -120,9 +116,10 @@ fun AppNavHost() {
 
     val topLevelDestinations =
         remember { featureRegistrations.mapNotNull { it.topLevelDestination } }
+    val fullScreenRoutes =
+        remember { featureRegistrations.flatMap { it.fullScreenRoutes }.toSet() }
     val currentRoute = backStack.lastOrNull()
-    // Primary navigation chrome is hidden while onboarding runs.
-    val showChrome = topLevelDestinations.isNotEmpty() && currentRoute != OnboardingRoute
+    val showChrome = topLevelDestinations.isNotEmpty() && currentRoute !in fullScreenRoutes
 
     fun selectTopLevel(destination: TopLevelDestination) {
         if (currentRoute == destination.route) return
@@ -132,21 +129,27 @@ fun AppNavHost() {
         }
     }
 
+    // Remembered: rebuilding the 5-feature entry map on every back-stack
+    // mutation would be wasted work on the hottest navigation path.
+    val appEntryProvider =
+        remember(navigator) {
+            entryProvider {
+                featureRegistrations.forEach { it.registerEntries(this, navigator) }
+            }
+        }
+    val onBack = remember(navigator) { { navigator.goBack() } }
     val navDisplay: @Composable (Modifier) -> Unit = { modifier ->
         NavDisplay(
             backStack = backStack,
             modifier = modifier,
-            onBack = { navigator.goBack() },
+            onBack = onBack,
             entryDecorators =
                 listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     // Scopes ViewModels to nav entries, cleared when an entry is popped.
                     rememberViewModelStoreNavEntryDecorator(),
                 ),
-            entryProvider =
-                entryProvider {
-                    featureRegistrations.forEach { it.registerEntries(this, navigator) }
-                },
+            entryProvider = appEntryProvider,
         )
     }
 

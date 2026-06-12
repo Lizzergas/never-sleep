@@ -3,10 +3,10 @@ package com.lizz.myapptemplate.auth.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lizz.myapptemplate.auth.domain.SessionRepository
+import com.lizz.myapptemplate.auth.domain.User
 import com.lizz.myapptemplate.auth.domain.ValidateCredentialsUseCase
 import com.lizz.myapptemplate.model.ApiResult
 import com.lizz.myapptemplate.model.AppError
-import com.lizz.myapptemplate.model.UserDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -56,7 +56,7 @@ class SessionViewModel(
     private fun submit(
         email: String,
         password: String,
-        action: suspend (String, String) -> ApiResult<UserDto>,
+        action: suspend (String, String) -> ApiResult<User>,
     ) {
         val validation = validateCredentials(email, password)
         if (!validation.isValid) {

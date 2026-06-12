@@ -1,8 +1,5 @@
 package com.lizz.myapptemplate
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -10,9 +7,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.lizz.myapptemplate.auth.domain.SessionRepository
 import com.lizz.myapptemplate.database.NoteDao
 import com.lizz.myapptemplate.di.initKoin
@@ -85,7 +79,7 @@ class NotesE2eTest {
     @Test
     fun addNoteThroughUiRoundTripsServerAndCache() {
         rule.setContent {
-            NotesTestOwner { App() }
+            TestAppOwner { App() }
         }
 
         rule.onNodeWithText("Notes").performClick()
@@ -109,18 +103,5 @@ class NotesE2eTest {
                     .first()
             }
         assertTrue(cached.any { it.text == "buy oat milk" })
-    }
-}
-
-@Composable
-private fun NotesTestOwner(content: @Composable () -> Unit) {
-    val owner =
-        remember {
-            object : ViewModelStoreOwner {
-                override val viewModelStore = ViewModelStore()
-            }
-        }
-    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-        content()
     }
 }

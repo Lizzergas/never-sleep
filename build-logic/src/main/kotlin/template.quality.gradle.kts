@@ -1,4 +1,4 @@
-import com.lizz.template.QualityFilters
+import buildlogic.QualityFilters
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 

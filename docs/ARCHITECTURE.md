@@ -88,6 +88,15 @@ module; the shell looks it up with a fallback (`getOrNull`):
 | `ThemeModeProvider`  | core:designsystem  | feature:settings  | follow system      |
 | `StartRouteOverride` | core:navigation    | feature:onboarding| default start route|
 | `AuthTokenProvider`  | core:network       | feature:auth      | unauthenticated    |
+| `UserDataCleaner`    | core:common        | any feature with per-user caches (feature:notes) | nothing to clear |
+
+`UserDataCleaner` is collected with `getAll` (not `getOrNull`): every feature
+that caches per-user data binds one, and feature:auth invokes them all on
+login/logout so nothing leaks across accounts.
+
+In composables, use `rememberOptionalKoin<T>()` (core:ui) for optional
+lookups; in `FeatureRegistration`, declare full-screen routes (no bottom
+bar/rail chrome) via `fullScreenRoutes` — onboarding does this for its pager.
 
 ## Wiring (the 3-line plug-in contract)
 
@@ -95,8 +104,10 @@ module; the shell looks it up with a fallback (`getOrNull`):
 2. `AppNavHost.kt` — add the `FeatureRegistration` to `featureRegistrations`
 3. `di/Koin.kt` — add the feature's Koin module to `initKoin`
 
-Removal is the same lines in reverse; any leftover reference is a compile
-error pointing at it.
+Removal is the same lines in reverse. Leftover *code* references become
+compile errors pointing at the spot; leftover *runtime* wiring (Koin lookups,
+catalog entries) is designed to degrade silently via the fallbacks above —
+after removing a feature, run the app and the tests, not just the compiler.
 
 ## Testing conventions
 

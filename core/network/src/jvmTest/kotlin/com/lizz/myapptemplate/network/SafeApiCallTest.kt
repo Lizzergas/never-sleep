@@ -7,6 +7,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -125,7 +126,7 @@ class SafeApiCallTest {
         }
 
     @Test
-    fun factoryAttachesBearerTokenFromNetworkConfig() =
+    fun factoryAttachesBearerTokenFromAuthTokenProvider() =
         runTest {
             var seenAuth: String? = null
             val engine =
@@ -134,7 +135,13 @@ class SafeApiCallTest {
                     respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
                 }
 
-            val client = createHttpClient(NetworkConfig(authToken = { "token-123" }), engine)
+            val provider =
+                object : AuthTokenProvider {
+                    override suspend fun loadTokens() = BearerTokens("token-123", "refresh-123")
+
+                    override suspend fun refreshTokens(oldRefreshToken: String?) = null
+                }
+            val client = createHttpClient(NetworkConfig(), engine, provider)
             client.safeGet<List<Item>>("/items")
 
             assertEquals("Bearer token-123", seenAuth)

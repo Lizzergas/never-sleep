@@ -3,6 +3,7 @@ package com.lizz.myapptemplate.notes
 import com.lizz.myapptemplate.auth.AuthService
 import com.lizz.myapptemplate.auth.JWT_AUTH
 import com.lizz.myapptemplate.model.CreateNoteRequest
+import com.lizz.myapptemplate.respondError
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -36,7 +37,7 @@ fun Route.notesRoutes(store: NotesStore) {
                 val request = call.receive<CreateNoteRequest>()
                 val text = request.text.trim()
                 if (text.isEmpty()) {
-                    call.respond(HttpStatusCode.UnprocessableEntity, mapOf("error" to "note text required"))
+                    call.respondError(HttpStatusCode.UnprocessableEntity, "note text required")
                     return@post
                 }
                 call.respond(store.add(userId, text))
@@ -45,13 +46,13 @@ fun Route.notesRoutes(store: NotesStore) {
                 val userId = userId ?: return@delete call.respond(HttpStatusCode.Unauthorized)
                 val id = call.parameters["id"]?.toLongOrNull()
                 if (id == null) {
-                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "invalid id"))
+                    call.respondError(HttpStatusCode.BadRequest, "invalid id")
                     return@delete
                 }
                 if (store.delete(userId, id)) {
                     call.respond(HttpStatusCode.NoContent)
                 } else {
-                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "note not found"))
+                    call.respondError(HttpStatusCode.NotFound, "note not found")
                 }
             }
         }

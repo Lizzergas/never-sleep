@@ -12,8 +12,18 @@ fun databaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
     return Room.databaseBuilder<AppDatabase>(context, dbFile.absolutePath)
 }
 
+// Process-wide: a second Room instance on the same file risks lock errors,
+// and Koin may be stopped/restarted within one process.
+private val instanceLock = Any()
+private var instance: AppDatabase? = null
+
 actual val databasePlatformKoinModule: Module =
     module {
-        single<AppDatabase> { buildAppDatabase(databaseBuilder(androidContext())) }
+        single<AppDatabase> {
+            synchronized(instanceLock) {
+                instance ?: buildAppDatabase(databaseBuilder(androidContext().applicationContext))
+                    .also { instance = it }
+            }
+        }
         single<NoteDao> { get<AppDatabase>().noteDao() }
     }

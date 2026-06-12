@@ -11,6 +11,7 @@
 #   myapptemplate          -> <appname>   (lowercase leftovers, e.g. ~/.myapptemplate dirs)
 #   com/lizz/myapptemplate -> <package path>
 #
+# (build-logic's brand-neutral `buildlogic` package is intentionally untouched.)
 # Run once from the repo root, review with `git diff`, then commit.
 set -euo pipefail
 
@@ -59,7 +60,13 @@ git ls-files -z | while IFS= read -r -d '' f; do
   fi
 done
 
-# 2. Move Kotlin/Java source trees to the new package path.
+# 2. Rename dotted-FQN directories (e.g. Room schema exports like
+#    core/database/schemas/com.lizz.myapptemplate.database.AppDatabase/).
+find . -depth -type d -name "*${OLD_PACKAGE}*" -not -path "./.git/*" -not -path "*/build/*" | while read -r dir; do
+  mv "$dir" "${dir//${OLD_PACKAGE}/${NEW_PACKAGE}}"
+done
+
+# 3. Move Kotlin/Java source trees to the new package path.
 OLD_PATH="com/lizz/myapptemplate"
 NEW_PATH="$(echo "$NEW_PACKAGE" | tr '.' '/')"
 find . -type d -path "*/$OLD_PATH" -not -path "./.git/*" -not -path "*/build/*" | while read -r dir; do

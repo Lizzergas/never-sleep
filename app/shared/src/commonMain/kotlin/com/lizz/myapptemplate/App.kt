@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -13,7 +12,7 @@ import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.ThemeMode
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
 import com.lizz.myapptemplate.ui.OfflineBanner
-import org.koin.mp.KoinPlatform
+import com.lizz.myapptemplate.ui.rememberOptionalKoin
 
 @Composable
 @Preview
@@ -22,10 +21,7 @@ fun App() {
     // stay removable: theme follows feature:settings' ThemeModeProvider
     // (else System), the offline banner follows core:connectivity (else
     // never shown).
-    val themeModeProvider =
-        remember {
-            runCatching { KoinPlatform.getKoin().getOrNull<ThemeModeProvider>() }.getOrNull()
-        }
+    val themeModeProvider = rememberOptionalKoin<ThemeModeProvider>()
     val themeMode =
         themeModeProvider
             ?.themeMode
@@ -33,10 +29,7 @@ fun App() {
             ?.value
             ?: ThemeMode.System
 
-    val connectivityMonitor =
-        remember {
-            runCatching { KoinPlatform.getKoin().getOrNull<ConnectivityMonitor>() }.getOrNull()
-        }
+    val connectivityMonitor = rememberOptionalKoin<ConnectivityMonitor>()
     val isOnline =
         connectivityMonitor
             ?.isOnline

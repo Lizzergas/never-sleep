@@ -11,7 +11,6 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.HttpHeaders
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import co.touchlab.kermit.Logger as KermitLogger
@@ -67,8 +66,5 @@ private fun HttpClientConfig<*>.applyTemplateDefaults(
     }
     defaultRequest {
         config.baseUrl?.let { url.takeFrom(it) }
-        config.authToken()?.let { token ->
-            headers.append(HttpHeaders.Authorization, "Bearer $token")
-        }
     }
 }

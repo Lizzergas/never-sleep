@@ -1,8 +1,5 @@
 package com.lizz.myapptemplate
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -11,9 +8,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.lizz.myapptemplate.auth.JwtConfig
 import com.lizz.myapptemplate.auth.data.SessionRepositoryImpl
 import com.lizz.myapptemplate.auth.data.TokenStorage
@@ -105,7 +99,7 @@ class AuthE2eTest {
     @Test
     fun registerLogoutLoginThroughTheUi() {
         rule.setContent {
-            AuthTestOwner { App() }
+            TestAppOwner { App() }
         }
 
         rule.onNodeWithText("Account").performClick()
@@ -138,7 +132,7 @@ class AuthE2eTest {
     @Test
     fun restoreRefreshesExpiredAccessTokenAgainstRealServer() {
         rule.setContent {
-            AuthTestOwner { App() }
+            TestAppOwner { App() }
         }
         rule.waitForIdle()
 
@@ -160,18 +154,5 @@ class AuthE2eTest {
                 "expected LoggedIn after refresh-restore, was ${restored.sessionState.value}"
             }
         }
-    }
-}
-
-@Composable
-private fun AuthTestOwner(content: @Composable () -> Unit) {
-    val owner =
-        remember {
-            object : ViewModelStoreOwner {
-                override val viewModelStore = ViewModelStore()
-            }
-        }
-    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-        content()
     }
 }

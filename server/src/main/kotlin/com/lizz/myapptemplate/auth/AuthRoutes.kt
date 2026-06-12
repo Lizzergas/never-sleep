@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.lizz.myapptemplate.model.AuthRequest
 import com.lizz.myapptemplate.model.RefreshRequest
 import com.lizz.myapptemplate.model.UserDto
+import com.lizz.myapptemplate.respondError
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -47,32 +48,32 @@ fun Route.authRoutes(authService: AuthService) {
         post("/register") {
             val request = call.receive<AuthRequest>()
             if (!request.email.contains("@") || request.password.length < MIN_PASSWORD_LENGTH) {
-                call.respond(
+                call.respondError(
                     HttpStatusCode.UnprocessableEntity,
-                    mapOf("error" to "valid email and a password of at least $MIN_PASSWORD_LENGTH characters required"),
+                    "valid email and a password of at least $MIN_PASSWORD_LENGTH characters required",
                 )
                 return@post
             }
             when (val result = authService.register(request.email, request.password)) {
                 is AuthResult.Success -> call.respond(result.tokens)
                 AuthResult.EmailTaken ->
-                    call.respond(HttpStatusCode.Conflict, mapOf("error" to "email already registered"))
+                    call.respondError(HttpStatusCode.Conflict, "email already registered")
                 AuthResult.InvalidCredentials ->
-                    call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "invalid credentials"))
+                    call.respondError(HttpStatusCode.Unauthorized, "invalid credentials")
             }
         }
         post("/login") {
             val request = call.receive<AuthRequest>()
             when (val result = authService.login(request.email, request.password)) {
                 is AuthResult.Success -> call.respond(result.tokens)
-                else -> call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "invalid credentials"))
+                else -> call.respondError(HttpStatusCode.Unauthorized, "invalid credentials")
             }
         }
         post("/refresh") {
             val request = call.receive<RefreshRequest>()
             when (val result = authService.refresh(request.refreshToken)) {
                 is AuthResult.Success -> call.respond(result.tokens)
-                else -> call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "invalid refresh token"))
+                else -> call.respondError(HttpStatusCode.Unauthorized, "invalid refresh token")
             }
         }
     }
@@ -85,7 +86,7 @@ fun Route.protectedRoutes(users: UserRepository) {
             val userId = principal?.payload?.getClaim(AuthService.USER_ID_CLAIM)?.asString()
             val user = userId?.let(users::findById)
             if (user == null) {
-                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "unknown user"))
+                call.respondError(HttpStatusCode.Unauthorized, "unknown user")
             } else {
                 call.respond(UserDto(id = user.id, email = user.email))
             }

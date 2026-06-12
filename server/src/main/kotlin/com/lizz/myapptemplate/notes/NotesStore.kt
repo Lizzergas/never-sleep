@@ -6,13 +6,15 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Per-user in-memory notes — the server side of the feature:notes sample.
+ * Values are immutable lists swapped atomically via compute(): a concurrent
+ * map alone would NOT make mutable lists inside it thread-safe.
  * Swap for real persistence the same way as UserRepository.
  */
 class NotesStore {
-    private val notesByUser = ConcurrentHashMap<String, MutableList<NoteDto>>()
+    private val notesByUser = ConcurrentHashMap<String, List<NoteDto>>()
     private val nextId = AtomicLong(1)
 
-    fun list(userId: String): List<NoteDto> = notesByUser[userId]?.toList() ?: emptyList()
+    fun list(userId: String): List<NoteDto> = notesByUser[userId] ?: emptyList()
 
     fun add(
         userId: String,
@@ -24,12 +26,22 @@ class NotesStore {
                 text = text,
                 createdAtEpochMillis = System.currentTimeMillis(),
             )
-        notesByUser.computeIfAbsent(userId) { mutableListOf() }.add(0, note)
+        notesByUser.compute(userId) { _, existing ->
+            listOf(note) + (existing ?: emptyList())
+        }
         return note
     }
 
     fun delete(
         userId: String,
         id: Long,
-    ): Boolean = notesByUser[userId]?.removeAll { it.id == id } == true
+    ): Boolean {
+        var removed = false
+        notesByUser.computeIfPresent(userId) { _, existing ->
+            val remaining = existing.filterNot { it.id == id }
+            removed = remaining.size != existing.size
+            remaining
+        }
+        return removed
+    }
 }

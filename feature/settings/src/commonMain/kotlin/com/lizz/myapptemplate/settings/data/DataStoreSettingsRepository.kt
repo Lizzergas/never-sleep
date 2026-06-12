@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.lizz.myapptemplate.datastore.safeData
 import com.lizz.myapptemplate.designsystem.ThemeMode
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
 import com.lizz.myapptemplate.settings.domain.SettingsRepository
@@ -19,7 +20,7 @@ class DataStoreSettingsRepository(
 ) : SettingsRepository,
     ThemeModeProvider {
     override val themeMode: Flow<ThemeMode> =
-        dataStore.data.map { preferences ->
+        dataStore.safeData().map { preferences ->
             preferences[THEME_MODE_KEY]
                 ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
                 ?: ThemeMode.System

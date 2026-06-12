@@ -1,16 +1,10 @@
 package com.lizz.myapptemplate
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.lizz.myapptemplate.di.initKoin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +40,7 @@ class OnboardingE2eTest {
     @Test
     fun firstLaunchShowsOnboardingAndGetStartedLandsOnHome() {
         rule.setContent {
-            OnboardingTestOwner { App() }
+            TestAppOwner { App() }
         }
 
         // Fresh DataStore -> onboarding is the start destination.
@@ -71,25 +65,12 @@ class OnboardingE2eTest {
         skipOnboardingForTests()
 
         rule.setContent {
-            OnboardingTestOwner { App() }
+            TestAppOwner { App() }
         }
 
         rule.waitUntil(timeoutMillis = 10_000) {
             rule.onAllNodesWithText("Installed features").fetchSemanticsNodes().isNotEmpty()
         }
         rule.onNodeWithText("Welcome").assertDoesNotExist()
-    }
-}
-
-@Composable
-private fun OnboardingTestOwner(content: @Composable () -> Unit) {
-    val owner =
-        remember {
-            object : ViewModelStoreOwner {
-                override val viewModelStore = ViewModelStore()
-            }
-        }
-    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-        content()
     }
 }

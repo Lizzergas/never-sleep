@@ -1,5 +1,6 @@
 package com.lizz.myapptemplate.auth.data
 
+import com.lizz.myapptemplate.common.appStorageFile
 import com.lizz.myapptemplate.model.TokenPair
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -49,6 +50,6 @@ class FileTokenStorage(
 actual val tokenStoragePlatformKoinModule: Module =
     module {
         single<TokenStorage> {
-            FileTokenStorage(File(System.getProperty("user.home"), ".myapptemplate/tokens.properties"))
+            FileTokenStorage(appStorageFile("tokens.properties"))
         }
     }
