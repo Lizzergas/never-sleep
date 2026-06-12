@@ -15,7 +15,7 @@ kotlin {
     sourceSets.jvmTest.dependencies {
         implementation(libs.junit)
         implementation(libs.kotlin.testJunit)
-        implementation(compose.desktop.uiTestJUnit4)
+        implementation(libs.compose.uiTestJunit4)
         implementation(compose.desktop.currentOs)
     }
 }

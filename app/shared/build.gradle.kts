@@ -22,7 +22,7 @@ kotlin {
 
     jvm()
 
-    androidLibrary {
+    android {
         namespace = "com.lizz.myapptemplate.app.shared"
         compileSdk =
             libs.versions.android.compileSdk
@@ -97,7 +97,7 @@ kotlin {
         jvmTest.dependencies {
             implementation(libs.junit)
             implementation(libs.kotlin.testJunit)
-            implementation(compose.desktop.uiTestJUnit4)
+            implementation(libs.compose.uiTestJunit4)
             implementation(compose.desktop.currentOs)
             // Real client <-> server e2e test spins up the template server in-process.
             implementation(projects.server)
