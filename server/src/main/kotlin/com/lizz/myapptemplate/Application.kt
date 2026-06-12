@@ -1,5 +1,12 @@
 package com.lizz.myapptemplate
 
+import com.lizz.myapptemplate.auth.AuthService
+import com.lizz.myapptemplate.auth.InMemoryUserRepository
+import com.lizz.myapptemplate.auth.JwtConfig
+import com.lizz.myapptemplate.auth.UserRepository
+import com.lizz.myapptemplate.auth.authRoutes
+import com.lizz.myapptemplate.auth.installJwtAuth
+import com.lizz.myapptemplate.auth.protectedRoutes
 import com.lizz.myapptemplate.model.HelloResponse
 import com.lizz.myapptemplate.model.Item
 import io.ktor.http.HttpStatusCode
@@ -24,7 +31,12 @@ fun main() {
 }
 
 @OptIn(ExperimentalTime::class)
-fun Application.module() {
+fun Application.module(
+    jwtConfig: JwtConfig = JwtConfig.fromEnvironment(),
+    userRepository: UserRepository = InMemoryUserRepository(),
+) {
+    val authService = AuthService(userRepository, jwtConfig)
+
     install(ContentNegotiation) {
         json()
     }
@@ -36,6 +48,8 @@ fun Application.module() {
             )
         }
     }
+    installJwtAuth(jwtConfig)
+
     routing {
         get("/") {
             call.respondText(sayHello("Ktor"))
@@ -55,6 +69,8 @@ fun Application.module() {
             get("/items") {
                 call.respond(sampleItems)
             }
+            authRoutes(authService)
+            protectedRoutes(userRepository)
         }
     }
 }
