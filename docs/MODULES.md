@@ -15,6 +15,8 @@ core/
   navigation/       FeatureRegistration contract, Navigator, FeatureCatalog
   ui/               UiState + Loading/Error/Empty components, AppError user messages
 feature/
+  auth/             Account: register/login/logout, KVault token storage, 401 auto-refresh
+  onboarding/       First-launch pager; overrides the start destination until seen
   settings/         Reference feature: theme mode persisted via core:datastore
   showcase/         Start destination: feature catalog + designsystem gallery + demos
 app/
@@ -54,6 +56,13 @@ remaining reference.
 
 `feature:settings` note: it provides `ThemeModeProvider`; removing it makes
 the theme fall back to following the system — no other change needed.
+
+`feature:onboarding` note: it provides `StartRouteOverride`; removing it makes
+the app start directly at the showcase home.
+
+`feature:auth` note: it provides `AuthTokenProvider`; removing it makes the
+app HttpClient unauthenticated (no bearer/refresh). The server's /api/auth
+routes are independent and can stay or go separately.
 
 ## Core module removal notes
 

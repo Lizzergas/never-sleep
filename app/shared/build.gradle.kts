@@ -59,6 +59,7 @@ kotlin {
             implementation(projects.core.navigation)
             api(projects.core.network)
             implementation(projects.core.ui)
+            implementation(projects.feature.auth)
             implementation(projects.feature.onboarding)
             implementation(projects.feature.settings)
             implementation(projects.feature.showcase)

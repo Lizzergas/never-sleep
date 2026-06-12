@@ -12,7 +12,7 @@ import org.koin.dsl.module
 val networkKoinModule: Module =
     module {
         single {
-            createHttpClient(get())
+            createHttpClient(config = get(), authTokenProvider = getOrNull())
         } withOptions {
             onClose { it?.close() }
         }

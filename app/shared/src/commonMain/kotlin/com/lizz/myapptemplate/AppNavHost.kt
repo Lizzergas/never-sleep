@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.lizz.myapptemplate.auth.AuthFeature
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.StartRouteOverride
@@ -36,6 +37,7 @@ val featureRegistrations: List<FeatureRegistration> =
         ShowcaseFeature,
         SettingsFeature,
         OnboardingFeature,
+        AuthFeature,
     )
 
 private val defaultStartRoute: NavKey = ShowcaseHomeRoute

@@ -1,5 +1,6 @@
 package com.lizz.myapptemplate.di
 
+import com.lizz.myapptemplate.auth.authKoinModule
 import com.lizz.myapptemplate.connectivity.connectivityPlatformKoinModule
 import com.lizz.myapptemplate.database.databasePlatformKoinModule
 import com.lizz.myapptemplate.datastore.datastorePlatformKoinModule
@@ -36,6 +37,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
         config?.invoke(this)
         modules(
             appModule,
+            authKoinModule,
             connectivityPlatformKoinModule,
             databasePlatformKoinModule,
             datastorePlatformKoinModule,

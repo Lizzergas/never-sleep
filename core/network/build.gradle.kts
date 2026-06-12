@@ -7,6 +7,7 @@ kotlin {
     sourceSets.commonMain.dependencies {
         api(projects.core.model)
         api(libs.ktor.clientCore)
+        api(libs.ktor.clientAuth)
         implementation(libs.ktor.clientContentNegotiation)
         implementation(libs.ktor.clientLogging)
         implementation(libs.ktor.serializationKotlinxJson)
