@@ -21,6 +21,7 @@ kotlin {
         implementation(lib("compose-foundation"))
         implementation(lib("compose-material3"))
         implementation(lib("compose-ui"))
+        implementation(lib("compose-uiToolingPreview"))
         implementation(lib("androidx-lifecycle-viewmodelCompose"))
         implementation(lib("androidx-lifecycle-runtimeCompose"))
 

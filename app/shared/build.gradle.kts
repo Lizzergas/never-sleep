@@ -99,6 +99,8 @@ kotlin {
             implementation(libs.kotlin.testJunit)
             implementation(libs.compose.uiTestJunit4)
             implementation(compose.desktop.currentOs)
+            // collectAsStateWithLifecycle needs a Main dispatcher in JVM tests.
+            implementation(libs.kotlinx.coroutinesSwing)
             // Real client <-> server e2e test spins up the template server in-process.
             implementation(projects.server)
             implementation(libs.ktor.serverNetty)

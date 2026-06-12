@@ -1,4 +1,4 @@
-package com.lizz.myapptemplate.settings
+package com.lizz.myapptemplate.settings.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -6,16 +6,18 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.lizz.myapptemplate.designsystem.ThemeMode
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
+import com.lizz.myapptemplate.settings.domain.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Typed access to the settings preferences. Also the app's [ThemeModeProvider]
- * — the shell applies whatever theme mode is persisted here.
+ * DataStore-backed settings. Also the app's [ThemeModeProvider] — the shell
+ * applies whatever theme mode is persisted here.
  */
-class SettingsRepository(
+class DataStoreSettingsRepository(
     private val dataStore: DataStore<Preferences>,
-) : ThemeModeProvider {
+) : SettingsRepository,
+    ThemeModeProvider {
     override val themeMode: Flow<ThemeMode> =
         dataStore.data.map { preferences ->
             preferences[THEME_MODE_KEY]
@@ -23,7 +25,7 @@ class SettingsRepository(
                 ?: ThemeMode.System
         }
 
-    suspend fun setThemeMode(mode: ThemeMode) {
+    override suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[THEME_MODE_KEY] = mode.name }
     }
 

@@ -1,4 +1,4 @@
-package com.lizz.myapptemplate.settings
+package com.lizz.myapptemplate.settings.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,19 +13,35 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.designsystem.ThemeMode
 import org.koin.compose.viewmodel.koinViewModel
 
+/** Stateful wrapper: owns the ViewModel. All rendering is in [SettingsContent]. */
 @Composable
 fun SettingsScreen(onBack: () -> Unit) {
     val viewModel = koinViewModel<SettingsViewModel>()
-    val themeMode by viewModel.themeMode.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
+    SettingsContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onBack = onBack,
+    )
+}
+
+@Composable
+fun SettingsContent(
+    state: SettingsUiState,
+    onEvent: (SettingsEvent) -> Unit,
+    onBack: () -> Unit,
+) {
     Column(
         modifier =
             Modifier
@@ -43,19 +59,31 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Modifier
                         .fillMaxWidth()
                         .selectable(
-                            selected = themeMode == mode,
-                            onClick = { viewModel.setThemeMode(mode) },
+                            selected = state.themeMode == mode,
+                            onClick = { onEvent(SettingsEvent.SetThemeMode(mode)) },
                         ).padding(Theme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
-                    selected = themeMode == mode,
-                    onClick = { viewModel.setThemeMode(mode) },
+                    selected = state.themeMode == mode,
+                    onClick = { onEvent(SettingsEvent.SetThemeMode(mode)) },
                 )
                 Text(mode.name, style = MaterialTheme.typography.bodyLarge)
             }
         }
 
         Button(onClick = onBack) { Text("Back") }
+    }
+}
+
+@Preview
+@Composable
+private fun SettingsContentPreview() {
+    AppTheme {
+        SettingsContent(
+            state = SettingsUiState(themeMode = ThemeMode.Dark),
+            onEvent = {},
+            onBack = {},
+        )
     }
 }

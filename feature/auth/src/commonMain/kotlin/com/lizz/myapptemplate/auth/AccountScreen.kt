@@ -13,12 +13,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.model.UserDto
 import com.lizz.myapptemplate.ui.ErrorContent
@@ -32,7 +32,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun AccountScreen(onBack: () -> Unit) {
     val viewModel = koinViewModel<SessionViewModel>()
-    val session by viewModel.sessionState.collectAsState()
+    val session by viewModel.sessionState.collectAsStateWithLifecycle()
 
     Column(
         modifier =
@@ -53,8 +53,8 @@ fun AccountScreen(onBack: () -> Unit) {
 
 @Composable
 private fun AuthForm(viewModel: SessionViewModel) {
-    val inFlight by viewModel.inFlight.collectAsState()
-    val lastError by viewModel.lastError.collectAsState()
+    val inFlight by viewModel.inFlight.collectAsStateWithLifecycle()
+    val lastError by viewModel.lastError.collectAsStateWithLifecycle()
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 

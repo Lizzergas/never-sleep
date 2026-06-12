@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "android-clean-architecture": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "computedHash": "877b63dfe31ec4d864c0a09ead442029a236def32fd2a7fd374083a27b4fa5ba"
+    },
+    "compose-multiplatform-patterns": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "computedHash": "bb1c2a3397b144a0a5ac4f6c4bcb44514ec52a7020becd794eeceb62eee69b0d"
+    },
+    "mobile-android-design": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "bcb274bcc4e0ad076b5947f90e5a247f370ed4da1274b2b7347dc293ee396309"
+    }
+  }
+}

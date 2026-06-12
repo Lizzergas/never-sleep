@@ -6,13 +6,16 @@ import com.lizz.myapptemplate.designsystem.ThemeModeProvider
 import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
+import com.lizz.myapptemplate.settings.data.DataStoreSettingsRepository
+import com.lizz.myapptemplate.settings.domain.SettingsRepository
+import com.lizz.myapptemplate.settings.presentation.SettingsScreen
+import com.lizz.myapptemplate.settings.presentation.SettingsViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 @Serializable
@@ -45,6 +48,7 @@ object SettingsFeature : FeatureRegistration {
 
 val settingsKoinModule: Module =
     module {
-        singleOf(::SettingsRepository) bind ThemeModeProvider::class
+        single { DataStoreSettingsRepository(get()) } binds
+            arrayOf(SettingsRepository::class, ThemeModeProvider::class)
         viewModelOf(::SettingsViewModel)
     }

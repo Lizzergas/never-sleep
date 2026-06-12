@@ -2,6 +2,7 @@ package com.lizz.myapptemplate.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.lizz.myapptemplate.designsystem.ThemeMode
+import com.lizz.myapptemplate.settings.data.DataStoreSettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +21,7 @@ class SettingsRepositoryTest {
             val file = Files.createTempDirectory("ds").resolve("t.preferences_pb").toString()
             val scope = CoroutineScope(Job() + Dispatchers.Default)
             val repository =
-                SettingsRepository(
+                DataStoreSettingsRepository(
                     PreferenceDataStoreFactory.createWithPath(scope = scope) { file.toPath() },
                 )
 
@@ -36,7 +37,7 @@ class SettingsRepositoryTest {
             // First "process": write Dark
             val scope1 = CoroutineScope(Job() + Dispatchers.Default)
             val repository1 =
-                SettingsRepository(
+                DataStoreSettingsRepository(
                     PreferenceDataStoreFactory.createWithPath(scope = scope1) { file.toPath() },
                 )
             repository1.setThemeMode(ThemeMode.Dark)
@@ -46,7 +47,7 @@ class SettingsRepositoryTest {
             // Simulated restart: a fresh DataStore over the same file
             val scope2 = CoroutineScope(Job() + Dispatchers.Default)
             val repository2 =
-                SettingsRepository(
+                DataStoreSettingsRepository(
                     PreferenceDataStoreFactory.createWithPath(scope = scope2) { file.toPath() },
                 )
             assertEquals(ThemeMode.Dark, repository2.themeMode.first())
