@@ -1,5 +1,9 @@
 # Module guide
 
+> Layer rules, the UiState/Event contract, and the file-by-file anatomy of a
+> feature live in [ARCHITECTURE.md](./ARCHITECTURE.md). **Copy `feature/notes`
+> when starting a new feature** — it demonstrates the full chain.
+
 ## Layout
 
 ```
@@ -16,9 +20,10 @@ core/
   ui/               UiState + Loading/Error/Empty components, AppError user messages
 feature/
   auth/             Account: register/login/logout, KVault token storage, 401 auto-refresh
+  notes/            THE reference feature — full chain server<->Room<->domain<->UI (copy me)
   onboarding/       First-launch pager; overrides the start destination until seen
-  settings/         Reference feature: theme mode persisted via core:datastore
-  showcase/         Start destination: feature catalog + designsystem gallery + demos
+  settings/         Theme mode persisted via core:datastore (smallest exemplar)
+  showcase/         Start destination: feature catalog + designsystem gallery + network demo
 app/
   shared/           App shell: AppTheme application, AppNavHost (registry), di/initKoin
   androidApp/       Android entry (MainApplication starts Koin with androidContext)
@@ -39,7 +44,8 @@ server/             Ktor server with /api/* sample routes using core:model DTOs
 
 1. Create `feature/<name>` with `id("template.kmp.feature")` and implement a
    `FeatureRegistration` object (routes + entries + optional catalog
-   descriptors) plus a Koin `Module`.
+   descriptors + optional `topLevelDestination` for the bottom bar / rail)
+   plus a Koin `Module`. Follow the package anatomy in ARCHITECTURE.md.
 2. `settings.gradle.kts`: `include(":feature:<name>")`
 3. `app/shared .../AppNavHost.kt`: add the registration to `featureRegistrations`
 4. `app/shared .../di/Koin.kt`: add the feature's Koin module to `initKoin`

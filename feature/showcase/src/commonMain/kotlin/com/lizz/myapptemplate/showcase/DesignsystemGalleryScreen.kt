@@ -21,8 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.Theme
 
 /** Renders the design system tokens live: colors, typography, spacing. */
@@ -98,5 +100,13 @@ private fun SpacingBar(
                     .background(MaterialTheme.colorScheme.primary),
         )
         Text("$name ($width)", style = MaterialTheme.typography.labelSmall)
+    }
+}
+
+@Preview
+@Composable
+private fun DesignsystemGalleryPreview() {
+    AppTheme {
+        DesignsystemGalleryScreen(onBack = {})
     }
 }

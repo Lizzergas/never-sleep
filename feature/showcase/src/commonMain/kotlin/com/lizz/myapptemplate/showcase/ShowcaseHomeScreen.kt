@@ -13,9 +13,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
+import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.navigation.FeatureCatalog
+import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import org.koin.compose.koinInject
 
 /**
@@ -26,7 +29,14 @@ import org.koin.compose.koinInject
 @Composable
 fun ShowcaseHomeScreen(onOpenFeature: (NavKey) -> Unit) {
     val catalog = koinInject<FeatureCatalog>()
+    ShowcaseHomeContent(catalog = catalog, onOpenFeature = onOpenFeature)
+}
 
+@Composable
+fun ShowcaseHomeContent(
+    catalog: FeatureCatalog,
+    onOpenFeature: (NavKey) -> Unit,
+) {
     Column(
         modifier =
             Modifier
@@ -53,5 +63,26 @@ fun ShowcaseHomeScreen(onOpenFeature: (NavKey) -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ShowcaseHomeContentPreview() {
+    AppTheme {
+        ShowcaseHomeContent(
+            catalog =
+                FeatureCatalog(
+                    listOf(
+                        FeatureDescriptor(
+                            id = "preview",
+                            title = "Design system gallery",
+                            description = "Colors, typography and spacing tokens rendered live",
+                            startRoute = DesignsystemGalleryRoute,
+                        ),
+                    ),
+                ),
+            onOpenFeature = {},
+        )
     }
 }

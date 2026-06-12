@@ -1,8 +1,10 @@
 # Agent / developer guide
 
 Compose Multiplatform template (Android, iOS, Desktop JVM, Ktor server) with a
-plug-in module architecture. Full module map, dependency rules, and the
-add/remove-a-feature contract: **docs/MODULES.md**.
+plug-in module architecture. Full module map and the add/remove-a-feature
+contract: **docs/MODULES.md**. Layer rules, UiState/Event contract, and the
+anatomy of a feature: **docs/ARCHITECTURE.md** — copy `feature/notes` when
+building a new feature.
 
 ## Renaming the template (do this first in a new app)
 
