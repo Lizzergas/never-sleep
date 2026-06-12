@@ -14,7 +14,7 @@ class AppDatabaseTest {
             val file = Files.createTempDirectory("db").resolve("test.db").toString()
             val database = buildAppDatabase(Room.databaseBuilder<AppDatabase>(file))
 
-            database.noteDao().insert(Note(text = "hello room"))
+            database.noteDao().upsert(listOf(NoteEntity(id = 1, text = "hello room", createdAtEpochMillis = 0)))
             val notes = database.noteDao().observeAll().first()
 
             assertEquals(1, notes.size)

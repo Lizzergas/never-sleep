@@ -5,32 +5,48 @@ import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
 import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
 import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
+import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Sample entity proving the Room 3 KMP setup end to end. Replace with your
- * real schema — the wiring (driver, per-platform builders, KSP) stays.
+ * Local cache of server notes (feature:notes). The id is the server id.
+ * Add your own entities here — the wiring (driver, builders, KSP) stays.
  */
 @Entity
-data class Note(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+data class NoteEntity(
+    @PrimaryKey val id: Long,
     val text: String,
+    val createdAtEpochMillis: Long,
 )
 
 @Dao
 interface NoteDao {
-    @Insert
-    suspend fun insert(note: Note)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(notes: List<NoteEntity>)
 
-    @Query("SELECT * FROM Note ORDER BY id DESC")
-    fun observeAll(): Flow<List<Note>>
+    @Query("DELETE FROM NoteEntity")
+    suspend fun clear()
+
+    /** Replaces the whole cache atomically (refresh-from-server). */
+    @Transaction
+    suspend fun replaceAll(notes: List<NoteEntity>) {
+        clear()
+        upsert(notes)
+    }
+
+    @Query("DELETE FROM NoteEntity WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM NoteEntity ORDER BY createdAtEpochMillis DESC")
+    fun observeAll(): Flow<List<NoteEntity>>
 }
 
-@Database(entities = [Note::class], version = 1)
+@Database(entities = [NoteEntity::class], version = 2)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao

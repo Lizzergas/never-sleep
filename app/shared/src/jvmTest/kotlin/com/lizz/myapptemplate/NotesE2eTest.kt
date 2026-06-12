@@ -1,0 +1,126 @@
+package com.lizz.myapptemplate
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.lizz.myapptemplate.auth.domain.SessionRepository
+import com.lizz.myapptemplate.database.NoteDao
+import com.lizz.myapptemplate.di.initKoin
+import com.lizz.myapptemplate.network.NetworkConfig
+import io.ktor.server.engine.EmbeddedServer
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import kotlin.test.assertTrue
+
+/**
+ * The reference feature end to end: register (auth), add a note through the
+ * UI, server round-trip, and the Room cache holding the data.
+ */
+class NotesE2eTest {
+    @get:Rule
+    val rule = createComposeRule()
+
+    private lateinit var server: EmbeddedServer<*, *>
+    private val dataStoreScope = CoroutineScope(Job() + Dispatchers.Default)
+
+    @Before
+    fun setUp() {
+        server = embeddedServer(Netty, port = 0) { module() }.start(wait = false)
+        val port =
+            runBlocking {
+                server.engine
+                    .resolvedConnectors()
+                    .first()
+                    .port
+            }
+
+        if (GlobalContext.getOrNull() == null) initKoin()
+        loadKoinModules(
+            listOf(
+                testDataStoreModule(dataStoreScope),
+                testDatabaseModule(),
+                module {
+                    single { NetworkConfig(baseUrl = "http://localhost:$port") }
+                },
+            ),
+        )
+        skipOnboardingForTests()
+        // Notes are per-user: establish a session first.
+        runBlocking {
+            GlobalContext.get().get<SessionRepository>().register("notes-e2e@test.dev", "password123")
+        }
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
+        dataStoreScope.cancel()
+        server.stop(gracePeriodMillis = 0, timeoutMillis = 1000)
+    }
+
+    @Test
+    fun addNoteThroughUiRoundTripsServerAndCache() {
+        rule.setContent {
+            NotesTestOwner { App() }
+        }
+
+        rule.onNodeWithText("Notes").performClick()
+        rule.waitForIdle()
+
+        rule.onNode(hasSetTextAction() and hasText("New note")).performTextInput("buy oat milk")
+        rule.onNodeWithText("Add").performClick()
+
+        // Server accepted it and the UI shows it (via the Room cache flow).
+        rule.waitUntil(timeoutMillis = 15_000) {
+            rule.onAllNodesWithText("buy oat milk").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // And the cache really holds it — offline reads would survive.
+        val cached =
+            runBlocking {
+                GlobalContext
+                    .get()
+                    .get<NoteDao>()
+                    .observeAll()
+                    .first()
+            }
+        assertTrue(cached.any { it.text == "buy oat milk" })
+    }
+}
+
+@Composable
+private fun NotesTestOwner(content: @Composable () -> Unit) {
+    val owner =
+        remember {
+            object : ViewModelStoreOwner {
+                override val viewModelStore = ViewModelStore()
+            }
+        }
+    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+        content()
+    }
+}

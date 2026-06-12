@@ -3,12 +3,9 @@ package com.lizz.myapptemplate
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -60,7 +57,7 @@ class AppNavigationTest {
         rule.onNodeWithText("Installed features").assertIsDisplayed()
         rule.onNodeWithText("Design system gallery").assertIsDisplayed()
         rule.onNodeWithText("Network demo").assertIsDisplayed()
-        rule.onNodeWithText("Database demo").assertIsDisplayed()
+        rule.onNodeWithText("Notes").assertIsDisplayed()
         rule.onNodeWithText("Settings").assertIsDisplayed()
 
         // Navigate to the gallery
@@ -91,26 +88,6 @@ class AppNavigationTest {
         rule.onNodeWithText("Dark").performClick()
         rule.waitUntil(timeoutMillis = 10_000) {
             runCatching { rule.onNodeWithText("Dark").assertIsSelected() }.isSuccess
-        }
-    }
-
-    @Test
-    fun databaseDemoInsertsAndObservesNotes() {
-        rule.setContent {
-            TestViewModelStoreOwner {
-                App()
-            }
-        }
-
-        rule.onNodeWithText("Database demo").performClick()
-        rule.waitForIdle()
-
-        rule.onNode(hasSetTextAction()).performTextInput("buy milk")
-        rule.onNodeWithText("Add note").performClick()
-
-        // Insert -> Room -> observeAll Flow -> UI
-        rule.waitUntil(timeoutMillis = 10_000) {
-            rule.onAllNodesWithText("buy milk").fetchSemanticsNodes().isNotEmpty()
         }
     }
 }

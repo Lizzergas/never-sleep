@@ -13,6 +13,9 @@ fun buildAppDatabase(builder: RoomDatabase.Builder<AppDatabase>): AppDatabase =
     builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
+        // Template default for a local CACHE: schema changes drop the data.
+        // Replace with real Migrations once the database stores user data.
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
 
 /**

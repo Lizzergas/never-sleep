@@ -9,6 +9,8 @@ import com.lizz.myapptemplate.auth.installJwtAuth
 import com.lizz.myapptemplate.auth.protectedRoutes
 import com.lizz.myapptemplate.model.HelloResponse
 import com.lizz.myapptemplate.model.Item
+import com.lizz.myapptemplate.notes.NotesStore
+import com.lizz.myapptemplate.notes.notesRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -71,6 +73,7 @@ fun Application.module(
             }
             authRoutes(authService)
             protectedRoutes(userRepository)
+            notesRoutes(NotesStore())
         }
     }
 }

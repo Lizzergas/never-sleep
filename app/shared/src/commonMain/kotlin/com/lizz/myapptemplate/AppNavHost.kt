@@ -17,6 +17,7 @@ import com.lizz.myapptemplate.auth.AuthFeature
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.StartRouteOverride
+import com.lizz.myapptemplate.notes.NotesFeature
 import com.lizz.myapptemplate.onboarding.OnboardingFeature
 import com.lizz.myapptemplate.settings.SettingsFeature
 import com.lizz.myapptemplate.showcase.ShowcaseFeature
@@ -35,6 +36,7 @@ import org.koin.mp.KoinPlatform
 val featureRegistrations: List<FeatureRegistration> =
     listOf(
         ShowcaseFeature,
+        NotesFeature,
         SettingsFeature,
         OnboardingFeature,
         AuthFeature,
