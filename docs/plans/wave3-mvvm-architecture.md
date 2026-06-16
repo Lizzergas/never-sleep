@@ -3,6 +3,8 @@
 > Designed against the android-clean-architecture, compose-multiplatform-patterns,
 > and mobile-android-design skills. Goal: a prescriptive, copyable "anatomy of a
 > feature" so new projects spawn fast with consistent structure.
+> Status: Implemented / archived. The resulting contract is maintained in
+> docs/ARCHITECTURE.md, with the module map in docs/MODULES.md.
 
 ## Decisions (made together, 2026-06-14)
 
@@ -10,7 +12,7 @@
    `domain/` (repository interface, domain models, UseCases only where logic is
    multi-step), `data/` (repository impl, DataSources, mappers), `presentation/`
    (ViewModel + UiState + Event, Screen/Content split). Features stay
-   self-contained Gradle modules; the 3-line plug-in contract is unchanged.
+   self-contained Gradle modules; the app-shell plug-in contract is unchanged.
    No cross-cutting core:domain/core:data modules.
 2. **Presentation contract: UiState + Event sink, convention only.** One
    `StateFlow<XxxUiState>` (single data class) + `fun onEvent(XxxEvent)` per
@@ -18,7 +20,8 @@
    No base class — the convention is documented and demonstrated, not enforced.
 3. **Canonical sample: `feature:notes`** demonstrating the FULL chain:
    server CRUD ↔ NoteDto ↔ NoteEntity (Room) ↔ Note (domain) ↔ NoteUi,
-   offline-first repository, a real UseCase, UiState/Event VM, previews.
+   offline reads with server-authoritative writes, a real UseCase,
+   UiState/Event VM, previews.
 4. **Design system upgrades: all four** — Screen/Content + @Previews,
    collectAsStateWithLifecycle, dynamic color (Android 12+), WindowSizeClass
    adaptive shell.
@@ -71,13 +74,14 @@ AuthTokenProvider still bound via the interface; e2e suite green.
 ## Phase 3: feature:notes — the canonical full-chain sample
 
 Server: /api/notes GET/POST/DELETE (auth-protected, per-user, in-memory store).
-Client: NoteDto ↔ NoteEntity ↔ Note mappers; offline-first NotesRepository
-(Room as source of truth, observeAll from DB, refresh pulls server → upserts,
-add writes locally + pushes); AddNoteUseCase (validate + persist + sync);
+Client: NoteDto ↔ NoteEntity ↔ Note mappers; NotesRepository with offline
+reads and server-authoritative writes (Room as source of truth for observeAll,
+refresh pulls server → upserts, add/delete update the cache after server
+success); AddNoteUseCase (validate + persist);
 NotesUiState/Event; Screen/Content with previews; replaces the showcase
 Database demo (Network demo stays — it demonstrates error states).
 
-**Accept**: notes survive restart offline; server round-trip when online;
+**Accept**: cached notes remain readable during an outage; server round-trip when online;
 repository tests (fake DataSources) + UI e2e; documented as THE copy recipe.
 
 ## Phase 4: Design system — dynamic color + adaptive shell
@@ -89,7 +93,8 @@ extended so features declare an optional top-level destination (icon + label).
 Showcase home remains the catalog; previews for both form factors.
 
 **Accept**: desktop shows rail, phone shows bottom bar; dynamic color verified
-on Android emulator; registry contract still 3-line removable.
+on Android emulator; registry contract remains removable through the documented
+app-shell touchpoints.
 
 ## Phase 5: Sweep + docs
 

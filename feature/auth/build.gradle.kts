@@ -19,6 +19,8 @@ kotlin {
         implementation(libs.kvault)
     }
     sourceSets.jvmTest.dependencies {
+        implementation(compose.desktop.currentOs)
+        implementation(libs.compose.uiTestJunit4)
         implementation(libs.kotlinx.coroutinesTest)
         implementation(libs.turbine)
         implementation(libs.ktor.clientMock)

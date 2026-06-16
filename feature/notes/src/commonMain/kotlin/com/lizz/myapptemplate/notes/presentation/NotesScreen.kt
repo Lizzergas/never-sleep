@@ -2,6 +2,9 @@
 
 package com.lizz.myapptemplate.notes.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -41,7 +45,7 @@ import kotlin.time.Instant
 
 /** Stateful wrapper: owns the ViewModel and collects one-off effects. */
 @Composable
-fun NotesScreen(onBack: () -> Unit) {
+fun NotesScreen() {
     val viewModel = koinViewModel<NotesViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     var draft by rememberSaveable { mutableStateOf("") }
@@ -61,18 +65,18 @@ fun NotesScreen(onBack: () -> Unit) {
         draft = draft,
         onDraftChange = { draft = it },
         onEvent = viewModel::onEvent,
-        onBack = onBack,
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NotesContent(
     state: NotesUiState,
     draft: String,
     onDraftChange: (String) -> Unit,
     onEvent: (NotesEvent) -> Unit,
-    onBack: () -> Unit,
 ) {
+    val effectsSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     Column(
         modifier =
             Modifier
@@ -82,11 +86,6 @@ fun NotesContent(
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Notes", style = MaterialTheme.typography.headlineMedium)
-        Text(
-            "The reference feature: server CRUD, Room cache (offline reads), " +
-                "mapper chain, UseCase, UiState/Event. Requires being logged in.",
-            style = MaterialTheme.typography.bodyMedium,
-        )
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
@@ -101,13 +100,25 @@ fun NotesContent(
             Button(onClick = { onEvent(NotesEvent.Add(draft)) }) { Text("Add") }
         }
 
-        state.error?.let { error ->
-            ErrorContent(error, onRetry = { onEvent(NotesEvent.Refresh) })
-            if (error == AppError.Unauthorized) {
-                Text(
-                    "Log in via the Account feature first — notes are per user.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
+        AnimatedVisibility(
+            visible = state.error != null,
+            enter = fadeIn(animationSpec = effectsSpec),
+            exit = fadeOut(animationSpec = effectsSpec),
+        ) {
+            state.error?.let { error ->
+                Column {
+                    ErrorContent(
+                        error = error,
+                        onRetry = { onEvent(NotesEvent.Refresh) },
+                        isRetrying = state.isRefreshing,
+                    )
+                    if (error == AppError.Unauthorized) {
+                        Text(
+                            "Sign in from Account first. Notes are saved per user.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
             }
         }
 
@@ -120,12 +131,13 @@ fun NotesContent(
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
-            OutlinedButton(
-                onClick = { onEvent(NotesEvent.Refresh) },
-                enabled = !state.isRefreshing,
-            ) { Text(if (state.isRefreshing) "Refreshing…" else "Refresh") }
-            Button(onClick = onBack) { Text("Back") }
+        if (state.error == null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
+                OutlinedButton(
+                    onClick = { onEvent(NotesEvent.Refresh) },
+                    enabled = !state.isRefreshing,
+                ) { Text(if (state.isRefreshing) "Refreshing..." else "Refresh") }
+            }
         }
     }
 }
@@ -175,7 +187,6 @@ private fun NotesContentPreview() {
                         ),
                 ),
             onEvent = {},
-            onBack = {},
         )
     }
 }
@@ -189,7 +200,6 @@ private fun NotesContentLoggedOutPreview() {
             onDraftChange = {},
             state = NotesUiState(error = AppError.Unauthorized),
             onEvent = {},
-            onBack = {},
         )
     }
 }

@@ -1,0 +1,22 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="RIGHT_MARGIN" value="120" />
+    <JetCodeStyleSettings>
+      <option name="ALLOW_TRAILING_COMMA" value="true" />
+      <option name="ALLOW_TRAILING_COMMA_ON_CALL_SITE" value="true" />
+      <option name="ALLOW_TRAILING_COMMA_VALUE_PARAMETER_LIST" value="true" />
+      <option name="ALLOW_TRAILING_COMMA_VALUE_ARGUMENT_LIST" value="true" />
+      <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
+    </JetCodeStyleSettings>
+    <codeStyleSettings language="kotlin">
+      <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
+      <option name="RIGHT_MARGIN" value="120" />
+      <option name="CALL_PARAMETERS_WRAP" value="2" />
+      <option name="CALL_PARAMETERS_RPAREN_ON_NEXT_LINE" value="true" />
+      <option name="METHOD_PARAMETERS_WRAP" value="2" />
+      <option name="METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE" value="true" />
+      <option name="ASSIGNMENT_WRAP" value="0" />
+      <option name="PLACE_ASSIGNMENT_SIGN_ON_NEXT_LINE" value="false" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>

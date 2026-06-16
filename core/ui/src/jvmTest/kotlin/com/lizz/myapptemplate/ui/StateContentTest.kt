@@ -4,8 +4,10 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.lizz.myapptemplate.model.AppError
@@ -28,6 +30,24 @@ class StateContentTest {
         rule.onNodeWithText("Retry").performClick()
 
         assertTrue(retried)
+    }
+
+    @Test
+    fun retryingErrorContentKeepsMessageAndShowsProgress() {
+        rule.setContent {
+            ErrorContent(AppError.Network, onRetry = {}, isRetrying = true)
+        }
+
+        rule.onNodeWithText("Can't reach the server. Check your connection.").assertIsDisplayed()
+        rule.onNodeWithText("Retrying...").assertIsDisplayed()
+        rule.onAllNodesWithText("Retry").assertCountEquals(0)
+        rule
+            .onNode(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ProgressBarRangeInfo,
+                    ProgressBarRangeInfo.Indeterminate,
+                ),
+            ).assertIsDisplayed()
     }
 
     @Test

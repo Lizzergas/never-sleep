@@ -1,4 +1,4 @@
-package com.lizz.myapptemplate.showcase
+package com.lizz.myapptemplate.showcase.presentation.designsystem
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

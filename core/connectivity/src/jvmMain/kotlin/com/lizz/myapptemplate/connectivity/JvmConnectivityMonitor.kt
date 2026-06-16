@@ -16,6 +16,7 @@ import org.koin.dsl.module
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val STOP_TIMEOUT_MS = 5_000L
 private const val DEFAULT_POLL_INTERVAL_MS = 5_000L
@@ -36,7 +37,7 @@ class JvmConnectivityMonitor(
         flow {
             while (true) {
                 emit(probe())
-                delay(pollIntervalMs)
+                delay(pollIntervalMs.milliseconds)
             }
         }.distinctUntilChanged()
             .flowOn(Dispatchers.IO)

@@ -13,8 +13,8 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
  * entries to the Navigation3 entry provider, and listed descriptors to the
  * showcase feature catalog.
  *
- * Removing a feature = removing its settings.gradle include, its Koin module
- * registration, and its entry in the app shell's registration list.
+ * Removing a feature = removing its settings.gradle include, app/shared
+ * dependency, Koin module registration, and app-shell registration.
  */
 interface FeatureRegistration {
     /** Listed in the showcase feature catalog; empty hides the feature from it. */

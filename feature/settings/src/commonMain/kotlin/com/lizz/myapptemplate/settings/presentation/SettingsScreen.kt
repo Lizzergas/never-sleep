@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -25,14 +24,13 @@ import org.koin.compose.viewmodel.koinViewModel
 
 /** Stateful wrapper: owns the ViewModel. All rendering is in [SettingsContent]. */
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen() {
     val viewModel = koinViewModel<SettingsViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     SettingsContent(
         state = state,
         onEvent = viewModel::onEvent,
-        onBack = onBack,
     )
 }
 
@@ -40,7 +38,6 @@ fun SettingsScreen(onBack: () -> Unit) {
 fun SettingsContent(
     state: SettingsUiState,
     onEvent: (SettingsEvent) -> Unit,
-    onBack: () -> Unit,
 ) {
     Column(
         modifier =
@@ -71,8 +68,6 @@ fun SettingsContent(
                 Text(mode.name, style = MaterialTheme.typography.bodyLarge)
             }
         }
-
-        Button(onClick = onBack) { Text("Back") }
     }
 }
 
@@ -83,7 +78,6 @@ private fun SettingsContentPreview() {
         SettingsContent(
             state = SettingsUiState(themeMode = ThemeMode.Dark),
             onEvent = {},
-            onBack = {},
         )
     }
 }

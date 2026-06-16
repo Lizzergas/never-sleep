@@ -4,10 +4,12 @@
 > (core split, convention plugins, registry/showcase, network, UiState,
 > settings, database) is complete and on CI. This plan adds the next tracer
 > features + the quality infrastructure, reusing wave-1 patterns throughout.
+> Status: Implemented / archived. Current module and architecture contracts are
+> maintained in docs/MODULES.md and docs/ARCHITECTURE.md.
 
 ## Context
 
-The template has the plug-in architecture but lacks: lint/coverage tooling
+At planning time, the template had the plug-in architecture but lacked: lint/coverage tooling
 (the one thing lizz-yt-downloader had that this doesn't), connectivity
 awareness, a first-launch flow, and the single biggest time-saver — auth.
 Auth also forces two patterns the template doesn't demonstrate yet:
@@ -28,8 +30,9 @@ conditional navigation and an authenticated 401-refresh flow.
 
 - New modules follow wave-1 conventions: `template.kmp.library` /
   `template.kmp.feature` plugins; features implement `FeatureRegistration`
-  (core:navigation) + one Koin module; the 3-line wiring contract
-  (settings.gradle include, `AppNavHost.featureRegistrations`, `di/Koin.kt`).
+  (core:navigation) + one Koin module; the app-shell wiring contract
+  (settings.gradle include, app/shared dependency,
+  `AppNavHost.featureRegistrations`, `di/Koin.kt`).
 - Optional cross-feature contracts use the ThemeModeProvider pattern: a small
   interface in a core module, bound by the owning feature's Koin module,
   looked up with `getOrNull` + fallback so features stay removable.
@@ -62,10 +65,10 @@ parallel `quality` job to `.github/workflows/ci.yml`. Explicitly NO git hooks.
 
 ### Acceptance criteria
 
-- [ ] `./gradlew qualityCheck` runs detekt + ktlint across all modules locally, currently green
-- [ ] CI gains a `quality` job on PRs/main; new violations fail it
-- [ ] `./gradlew koverHtmlReport` produces a merged report with sensible exclusions
-- [ ] No pre-commit/pre-push hooks anywhere; AGENTS.md documents the one local command
+- [x] `./gradlew qualityCheck` runs detekt + ktlint across all modules locally, currently green
+- [x] CI gains a `quality` job on PRs/main; new violations fail it
+- [x] `./gradlew koverHtmlReport` produces a merged report with sensible exclusions
+- [x] No pre-commit/pre-push hooks anywhere; AGENTS.md documents the one local command
 
 ## Phase 2: Connectivity monitor
 
@@ -83,9 +86,9 @@ returns, re-issue the load.
 
 ### Acceptance criteria
 
-- [ ] All targets compile; banner appears/disappears with a fake monitor in a compose test
-- [ ] Network demo auto-retries on reconnect (test with fake monitor + in-process server)
-- [ ] Removing `core:connectivity` follows the documented contract (shell falls back to no banner)
+- [x] All targets compile; banner appears/disappears with a fake monitor in a compose test
+- [x] Network demo auto-retries on reconnect (test with fake monitor + in-process server)
+- [x] Removing `core:connectivity` follows the documented contract (shell falls back to no banner)
 
 ## Phase 3: Onboarding
 
@@ -102,9 +105,10 @@ showcase home. Listed in the catalog so it can be re-run from the showcase.
 
 ### Acceptance criteria
 
-- [ ] First launch shows onboarding; "Get started" lands on showcase home; relaunch skips straight to home (UI test with temp DataStore, both paths)
-- [ ] Repository flag round-trip test
-- [ ] 3-line removal contract holds (no override bound → straight to showcase)
+- [x] First launch shows onboarding; "Get started" lands on showcase home; relaunch skips straight
+  to home (UI test with temp DataStore, both paths)
+- [x] Repository flag round-trip test
+- [x] Removal contract holds (no override bound -> straight to showcase)
 
 ## Phase 4: Auth — server slice
 
@@ -120,9 +124,10 @@ failures to 401/409 consistently with the existing error contract.
 
 ### Acceptance criteria
 
-- [ ] Route tests: register, login, wrong-password 401, duplicate-register 409, me-with-token 200, me-without 401, refresh rotates tokens, stale refresh 401
-- [ ] `curl` happy path works against `./gradlew :server:run`
-- [ ] UserRepository swap-point documented
+- [x] Route tests: register, login, wrong-password 401, duplicate-register 409, me-with-token 200,
+  me-without 401, refresh rotates tokens, stale refresh 401
+- [x] `curl` happy path works against `./gradlew :server:run`
+- [x] UserRepository swap-point documented
 
 ## Phase 5: Auth — client slice
 
@@ -147,10 +152,13 @@ failures to 401/409 consistently with the existing error contract.
 
 ### Acceptance criteria
 
-- [ ] Unit tests: SessionManager state transitions (Turbine, fake TokenStorage); refresh flow with MockEngine (expired access -> refresh -> retry succeeds)
-- [ ] E2e (in-process server, temp storage): register -> profile shows email -> logout -> login again; and 401-refresh path with a short-TTL access token
-- [ ] Tokens survive app restart (storage round-trip test); desktop fallback documented
-- [ ] All targets compile; `qualityCheck` green; full 3-line removal contract documented for feature:auth
+- [x] Unit tests: SessionManager state transitions (Turbine, fake TokenStorage); refresh flow with
+  MockEngine (expired access -> refresh -> retry succeeds)
+- [x] E2e (in-process server, temp storage): register -> profile shows email -> logout -> login
+  again; and 401-refresh path with a short-TTL access token
+- [x] Tokens survive app restart (storage round-trip test); desktop fallback documented
+- [x] All targets compile; `qualityCheck` green; full app-shell removal
+  contract documented for feature:auth
 
 ---
 
@@ -171,7 +179,8 @@ failures to 401/409 consistently with the existing error contract.
 
 ## Verification (end-to-end)
 
-1. `./gradlew qualityCheck jvmTest :server:test :app:androidApp:assembleDebug :app:shared:compileKotlinIosArm64`
+1.
+`./gradlew qualityCheck jvmTest :server:test :app:androidApp:assembleDebug :app:shared:compileKotlinIosArm64`
 2. Desktop run: onboarding on first launch → showcase → Account: register,
    see profile, logout, login → kill server mid-session, see offline
    banner + network demo auto-retry on restart

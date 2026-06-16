@@ -12,7 +12,7 @@ sealed interface OnboardingEvent {
     data object Finish : OnboardingEvent
 }
 
-/** One-off effects: collected once by the Screen, never modeled as sticky state. */
+/** One-off effects: navigate only after the repository marks onboarding as seen. */
 sealed interface OnboardingEffect {
     data object Done : OnboardingEffect
 }

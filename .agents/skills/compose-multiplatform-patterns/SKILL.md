@@ -6,7 +6,8 @@ origin: ECC
 
 # Compose Multiplatform Patterns
 
-Patterns for building shared UI across Android, iOS, Desktop, and Web using Compose Multiplatform and Jetpack Compose. Covers state management, navigation, theming, and performance.
+Patterns for building shared UI across Android, iOS, Desktop, and Web using Compose Multiplatform
+and Jetpack Compose. Covers state management, navigation, theming, and performance.
 
 ## When to Activate
 
@@ -52,6 +53,13 @@ class ItemListViewModel(
     }
 }
 ```
+
+When repository or domain flows feed the screen, still keep one state object:
+collect those flows in `viewModelScope` and copy values into the same `_state`.
+Avoid creating a second private state type such as `LocalState` and deriving the
+public UI state with `combine`; that adds two mental models for the same screen.
+Use one-off `Channel`/`Flow` effects for navigation, snackbars, and other
+non-sticky actions.
 
 ### Collecting State in Compose
 
@@ -263,7 +271,33 @@ activeItems.forEach { item ->
 
 ## Theming
 
-### Material 3 Dynamic Theming
+### Material 3 Expressive + Dynamic Theming
+
+For Compose Multiplatform apps using Material 3 Expressive, keep the
+experimental theme at the design-system entry point and let screens consume
+plain `MaterialTheme`:
+
+```kotlin
+@Composable
+fun AppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = appColorScheme(darkTheme, dynamicColor)
+
+    MaterialExpressiveTheme(
+        colorScheme = colorScheme,
+        motionScheme = MotionScheme.expressive(),
+        content = content
+    )
+}
+```
+
+Use `MaterialTheme.motionScheme.defaultEffectsSpec()` for alpha/color/status
+changes and `defaultSpatialSpec()` for size, scale, and layout continuity. Keep
+meaningful content visible during retries; animate the action/status affordance
+instead of blanking the whole error or content block.
 
 ```kotlin
 @Composable
@@ -287,10 +321,12 @@ fun AppTheme(
 
 ## Anti-Patterns to Avoid
 
-- Using `mutableStateOf` in ViewModels when `MutableStateFlow` with `collectAsStateWithLifecycle` is safer for lifecycle
+- Using `mutableStateOf` in ViewModels when `MutableStateFlow` with `collectAsStateWithLifecycle` is
+  safer for lifecycle
 - Passing `NavController` deep into composables — pass lambda callbacks instead
 - Heavy computation inside `@Composable` functions — move to ViewModel or `remember {}`
-- Using `LaunchedEffect(Unit)` as a substitute for ViewModel init — it re-runs on configuration change in some setups
+- Using `LaunchedEffect(Unit)` as a substitute for ViewModel init — it re-runs on configuration
+  change in some setups
 - Creating new object instances in composable parameters — causes unnecessary recomposition
 
 ## References

@@ -19,6 +19,7 @@ plugins {
 
 dependencies {
     kover(projects.core.common)
+    kover(projects.core.connectivity)
     kover(projects.core.database)
     kover(projects.core.datastore)
     kover(projects.core.designsystem)
@@ -26,8 +27,13 @@ dependencies {
     kover(projects.core.navigation)
     kover(projects.core.network)
     kover(projects.core.ui)
+    kover(projects.feature.auth)
+    kover(projects.feature.notes)
+    kover(projects.feature.onboarding)
     kover(projects.feature.settings)
     kover(projects.feature.showcase)
+    kover(projects.app.androidApp)
+    kover(projects.app.desktopApp)
     kover(projects.app.shared)
     kover(projects.server)
 }

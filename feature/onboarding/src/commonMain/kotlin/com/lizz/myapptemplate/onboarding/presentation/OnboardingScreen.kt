@@ -37,15 +37,15 @@ private val pages =
     listOf(
         OnboardingPage(
             "Welcome",
-            "This template ships with networking, storage, theming and navigation already wired.",
+            "Keep your notes and preferences ready across your devices.",
         ),
         OnboardingPage(
-            "Plug-in features",
-            "Every feature is a module you can keep, replace, or delete in three lines.",
+            "Stay organized",
+            "Create, refresh, and manage notes from a clean shared workspace.",
         ),
         OnboardingPage(
             "Make it yours",
-            "Run ./rename.sh, delete the showcase, and start building.",
+            "Choose your theme, sign in, and start with the workflow that fits you.",
         ),
     )
 

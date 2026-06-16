@@ -24,8 +24,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 /**
- * The offline-first contract: MockEngine plays the server, a real Room
- * database (temp file) is the cache. Proves the full mapper chain.
+ * The notes cache contract: MockEngine plays the server, a real Room database
+ * (temp file) backs offline reads. Proves the full mapper chain.
  */
 class NotesRepositoryImplTest {
     private val serverUp = AtomicBoolean(true)

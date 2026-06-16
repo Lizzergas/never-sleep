@@ -36,7 +36,7 @@ object SettingsFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<SettingsRoute> {
-            SettingsScreen(onBack = navigator::goBack)
+            SettingsScreen()
         }
     }
 }

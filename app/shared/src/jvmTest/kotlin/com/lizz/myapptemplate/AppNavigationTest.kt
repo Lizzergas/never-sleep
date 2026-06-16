@@ -1,8 +1,10 @@
 package com.lizz.myapptemplate
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.lizz.myapptemplate.di.initKoin
@@ -85,5 +87,59 @@ class AppNavigationTest {
         rule.waitUntil(timeoutMillis = 10_000) {
             runCatching { rule.onNodeWithText("Dark").assertIsSelected() }.isSuccess
         }
+    }
+
+    @Test
+    fun topLevelRootsDoNotRenderBackAndHomeDetailStackIsRetained() {
+        rule.setContent {
+            TestAppOwner {
+                App()
+            }
+        }
+
+        rule.onNodeWithText("Installed features").assertIsDisplayed()
+        rule.onAllNodesWithText("Back").assertCountEquals(0)
+
+        rule.onNodeWithText("Design system gallery").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Design system").assertIsDisplayed()
+        rule.onNodeWithText("Back").assertIsDisplayed()
+
+        rule.onNodeWithText("Settings").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Theme").assertIsDisplayed()
+        rule.onAllNodesWithText("Back").assertCountEquals(0)
+
+        rule.onNodeWithText("Home").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Design system").assertIsDisplayed()
+        rule.onNodeWithText("Back").assertIsDisplayed()
+
+        rule.onNodeWithText("Home").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Installed features").assertIsDisplayed()
+        rule.onAllNodesWithText("Back").assertCountEquals(0)
+    }
+
+    @Test
+    fun switchingFromSettingsToAccountDoesNotLeaveSettingsContentMounted() {
+        rule.setContent {
+            TestAppOwner {
+                App()
+            }
+        }
+
+        rule.onNodeWithText("Settings").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Theme").assertIsDisplayed()
+
+        rule.onNodeWithText("Account").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Email").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Email").assertIsDisplayed()
+        rule.onAllNodesWithText("Theme").assertCountEquals(0)
+        rule.onAllNodesWithText("Back").assertCountEquals(0)
     }
 }

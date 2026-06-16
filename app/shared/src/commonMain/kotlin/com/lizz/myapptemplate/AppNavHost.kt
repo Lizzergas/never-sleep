@@ -15,21 +15,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lizz.myapptemplate.auth.AuthFeature
 import com.lizz.myapptemplate.designsystem.WindowWidthClass
 import com.lizz.myapptemplate.navigation.FeatureRegistration
-import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.StartRouteOverride
 import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.notes.NotesFeature
@@ -39,23 +46,24 @@ import com.lizz.myapptemplate.showcase.ShowcaseFeature
 import com.lizz.myapptemplate.showcase.ShowcaseHomeRoute
 import com.lizz.myapptemplate.ui.LoadingContent
 import com.lizz.myapptemplate.ui.rememberOptionalKoin
+import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
 /**
  * THE feature plug-in point for navigation. Each entry contributes its routes
  * (serializers), nav entries, showcase listing, and optional top-level
- * destination. To remove a feature, delete its line here, its Koin module in
- * di/Koin.kt, and its include in settings.gradle.kts.
+ * destination. To remove a feature, delete its line here, its app/shared
+ * dependency, its Koin module in di/Koin.kt, and its include in
+ * settings.gradle.kts.
  */
-val featureRegistrations: List<FeatureRegistration> =
-    listOf(
-        ShowcaseFeature,
-        NotesFeature,
-        SettingsFeature,
-        OnboardingFeature,
-        AuthFeature,
-    )
+val featureRegistrations: List<FeatureRegistration> = listOf(
+    ShowcaseFeature,
+    NotesFeature,
+    SettingsFeature,
+    OnboardingFeature,
+    AuthFeature,
+)
 
 private val defaultStartRoute: NavKey = ShowcaseHomeRoute
 
@@ -80,93 +88,142 @@ fun AppNavHost() {
         return
     }
 
-    val configuration =
-        remember {
-            SavedStateConfiguration {
-                serializersModule =
-                    SerializersModule {
-                        polymorphic(NavKey::class) {
-                            featureRegistrations.forEach { it.registerRoutes(this) }
-                        }
+    val configuration = remember {
+        SavedStateConfiguration {
+            serializersModule =
+                SerializersModule {
+                    polymorphic(NavKey::class) {
+                        featureRegistrations.forEach { it.registerRoutes(this) }
                     }
-            }
+                }
         }
-    val backStack = rememberNavBackStack(configuration, resolvedStartRoute)
-    val navigator =
-        remember(backStack) {
-            object : Navigator {
-                override fun navigate(route: NavKey) {
-                    backStack.add(route)
-                }
-
-                override fun goBack() {
-                    if (backStack.size > 1) {
-                        backStack.removeLastOrNull()
-                    }
-                }
-
-                override fun resetToStart() {
-                    backStack.add(defaultStartRoute)
-                    while (backStack.size > 1) {
-                        backStack.removeAt(0)
-                    }
-                }
-            }
-        }
-
+    }
     val topLevelDestinations =
         remember { featureRegistrations.mapNotNull { it.topLevelDestination } }
-    val fullScreenRoutes =
-        remember { featureRegistrations.flatMap { it.fullScreenRoutes }.toSet() }
-    val currentRoute = backStack.lastOrNull()
+    val fullScreenRoutes = remember { featureRegistrations.flatMap { it.fullScreenRoutes }.toSet() }
+    val topLevelRoutes =
+        remember(topLevelDestinations) { topLevelDestinations.map { it.route }.toSet() }
+    val initialTopLevelRoute =
+        if (resolvedStartRoute in topLevelRoutes) resolvedStartRoute else defaultStartRoute
+    val startsOutsideTopLevel = resolvedStartRoute !in topLevelRoutes
+    val selectedTopLevelRouteState = rememberSerializable(
+        stateSerializer = PolymorphicSerializer(NavKey::class),
+        configuration = configuration,
+    ) {
+        mutableStateOf(initialTopLevelRoute)
+    }
+    val transientActiveState = rememberSaveable(resolvedStartRoute) {
+        mutableStateOf(startsOutsideTopLevel)
+    }
+    val transientBackStack =
+        if (startsOutsideTopLevel) {
+            rememberNavBackStack(configuration, resolvedStartRoute)
+        } else {
+            null
+        }
+    val topLevelBackStacks = rememberTopLevelBackStacks(configuration, topLevelDestinations)
+    val controller = remember(
+        topLevelBackStacks,
+        selectedTopLevelRouteState,
+        transientBackStack,
+        transientActiveState,
+    ) {
+        AppNavigationController(
+            topLevelBackStacks = topLevelBackStacks,
+            selectedTopLevelRouteState = selectedTopLevelRouteState,
+            defaultTopLevelRoute = defaultStartRoute,
+            transientBackStack = transientBackStack,
+            transientActiveState = transientActiveState,
+        )
+    }
+    val currentRoute = controller.currentRoute
     val showChrome = topLevelDestinations.isNotEmpty() && currentRoute !in fullScreenRoutes
 
     fun selectTopLevel(destination: TopLevelDestination) {
-        if (currentRoute == destination.route) return
-        backStack.add(destination.route)
-        while (backStack.size > 1) {
-            backStack.removeAt(0)
-        }
+        controller.selectTopLevel(destination.route)
     }
 
     // Remembered: rebuilding the 5-feature entry map on every back-stack
     // mutation would be wasted work on the hottest navigation path.
-    val appEntryProvider =
-        remember(navigator) {
-            entryProvider {
-                featureRegistrations.forEach { it.registerEntries(this, navigator) }
-            }
+    val appEntryProvider = remember(controller.navigator) {
+        entryProvider {
+            featureRegistrations.forEach { it.registerEntries(this, controller.navigator) }
         }
-    val onBack = remember(navigator) { { navigator.goBack() } }
-    val navDisplay: @Composable (Modifier) -> Unit = { modifier ->
-        NavDisplay(
+    }
+    val entriesByTopLevel = topLevelBackStacks.mapValues { (_, backStack) ->
+        rememberDecoratedNavEntries(
             backStack = backStack,
-            modifier = modifier,
-            onBack = onBack,
-            entryDecorators =
-                listOf(
-                    rememberSaveableStateHolderNavEntryDecorator(),
-                    // Scopes ViewModels to nav entries, cleared when an entry is popped.
-                    rememberViewModelStoreNavEntryDecorator(),
-                ),
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
             entryProvider = appEntryProvider,
         )
+    }
+    val transientEntries = transientBackStack?.let { backStack ->
+        rememberDecoratedNavEntries(
+            backStack = backStack,
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
+            entryProvider = appEntryProvider,
+        )
+    }
+    val currentEntries = if (controller.isTransientActive && transientEntries != null) {
+        transientEntries
+    } else {
+        entriesByTopLevel.getValue(controller.selectedTopLevelRoute)
+    }
+    val onBack = remember(controller) {
+        {
+            controller.goBack()
+            Unit
+        }
+    }
+    val rootBackState = rememberNavigationEventState(NavigationEventInfo.None)
+    NavigationBackHandler(
+        state = rootBackState,
+        isBackEnabled = controller.canHandleRootBack,
+        onBackCompleted = { controller.goBack() },
+    )
+    val navDisplay: @Composable (Modifier) -> Unit = { modifier ->
+        key(if (controller.isTransientActive) currentRoute else controller.selectedTopLevelRoute) {
+            NavDisplay(
+                entries = currentEntries,
+                modifier = modifier,
+                onBack = onBack,
+            )
+        }
     }
 
     AdaptiveShell(
         destinations = topLevelDestinations,
-        currentRoute = currentRoute,
+        selectedTopLevelRoute = controller.selectedTopLevelRoute,
         showChrome = showChrome,
         onSelect = ::selectTopLevel,
         content = navDisplay,
     )
 }
 
+@Composable
+private fun rememberTopLevelBackStacks(
+    configuration: SavedStateConfiguration,
+    destinations: List<TopLevelDestination>,
+): Map<NavKey, NavBackStack<NavKey>> {
+    val entries = destinations.map { destination ->
+        destination.route to rememberNavBackStack(configuration, destination.route)
+    }
+    return remember(*entries.map { it.second }.toTypedArray()) {
+        entries.toMap()
+    }
+}
+
 /** Bottom bar on compact widths, navigation rail on medium/expanded. */
 @Composable
 private fun AdaptiveShell(
     destinations: List<TopLevelDestination>,
-    currentRoute: NavKey?,
+    selectedTopLevelRoute: NavKey,
     showChrome: Boolean,
     onSelect: (TopLevelDestination) -> Unit,
     content: @Composable (Modifier) -> Unit,
@@ -182,9 +239,14 @@ private fun AdaptiveShell(
                         NavigationBar {
                             destinations.forEach { destination ->
                                 NavigationBarItem(
-                                    selected = currentRoute == destination.route,
+                                    selected = selectedTopLevelRoute == destination.route,
                                     onClick = { onSelect(destination) },
-                                    icon = { Icon(destination.icon, contentDescription = destination.label) },
+                                    icon = {
+                                        Icon(
+                                            destination.icon,
+                                            contentDescription = destination.label,
+                                        )
+                                    },
                                     label = { Text(destination.label) },
                                 )
                             }
@@ -199,9 +261,14 @@ private fun AdaptiveShell(
                     NavigationRail {
                         destinations.forEach { destination ->
                             NavigationRailItem(
-                                selected = currentRoute == destination.route,
+                                selected = selectedTopLevelRoute == destination.route,
                                 onClick = { onSelect(destination) },
-                                icon = { Icon(destination.icon, contentDescription = destination.label) },
+                                icon = {
+                                    Icon(
+                                        destination.icon,
+                                        contentDescription = destination.label,
+                                    )
+                                },
                                 label = { Text(destination.label) },
                             )
                         }

@@ -58,6 +58,7 @@ fun Route.authRoutes(authService: AuthService) {
                 is AuthResult.Success -> call.respond(result.tokens)
                 AuthResult.EmailTaken ->
                     call.respondError(HttpStatusCode.Conflict, "email already registered")
+
                 AuthResult.InvalidCredentials ->
                     call.respondError(HttpStatusCode.Unauthorized, "invalid credentials")
             }

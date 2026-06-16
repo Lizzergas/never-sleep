@@ -1,5 +1,3 @@
-import org.gradle.api.artifacts.VersionCatalogsExtension
-
 /**
  * Convention for feature:* modules: KMP library + Compose + serialization,
  * with the UI/DI/navigation baseline every feature needs. A feature build

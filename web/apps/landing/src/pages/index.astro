@@ -1,0 +1,59 @@
+---
+import { apiBaseUrl } from "@myapptemplate/api-client";
+import { HelloIsland } from "../components/HelloIsland";
+import "../styles/site.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyAppTemplate Landing</title>
+    <meta
+      name="description"
+      content="Astro and React landing-page scaffold for MyAppTemplate."
+    />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="kicker">Astro + React + Bun</p>
+          <h1 id="page-title">MyAppTemplate web landing</h1>
+          <p class="lede">
+            A static-first marketing surface living beside the Kotlin apps without touching the
+            Gradle module graph.
+          </p>
+          <div class="actions" aria-label="Primary links">
+            <a href="http://localhost:5174">Open admin</a>
+            <a href="http://localhost:8080/api/hello">Check API</a>
+          </div>
+        </div>
+
+        <div class="preview-panel" aria-label="Workspace preview">
+          <div class="preview-header">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <dl>
+            <div>
+              <dt>Landing</dt>
+              <dd>Astro on :5173</dd>
+            </div>
+            <div>
+              <dt>Admin</dt>
+              <dd>Vite on :5174</dd>
+            </div>
+            <div>
+              <dt>API</dt>
+              <dd>Ktor on :8080</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <HelloIsland client:load apiPath={`${apiBaseUrl}/api/hello`} />
+    </main>
+  </body>
+</html>

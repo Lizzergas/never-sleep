@@ -16,5 +16,7 @@ kotlin {
         implementation(libs.kotlinx.coroutinesTest)
         implementation(libs.turbine)
         implementation(libs.ktor.clientMock)
+        implementation(libs.compose.uiTestJunit4)
+        implementation(compose.desktop.currentOs)
     }
 }

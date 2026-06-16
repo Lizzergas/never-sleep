@@ -5,7 +5,10 @@
 xcuserdata
 !src/**/build/
 local.properties
-.idea
+.idea/*
+!.idea/codeStyles/
+!.idea/codeStyles/Project.xml
+!.idea/codeStyles/codeStyleConfig.xml
 .DS_Store
 captures
 .externalNativeBuild
@@ -17,3 +20,16 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+
+# Web workspace
+web/node_modules/
+web/apps/*/dist/
+web/apps/*/.astro/
+web/apps/*/.vite/
+web/packages/*/dist/
+web/coverage/
+web/playwright-report/
+web/test-results/
+web/.cache/
+web/.turbo/
+web/**/*.tsbuildinfo

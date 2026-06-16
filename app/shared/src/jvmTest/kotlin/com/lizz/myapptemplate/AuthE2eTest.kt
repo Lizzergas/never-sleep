@@ -107,7 +107,9 @@ class AuthE2eTest {
 
         // Register
         rule.onNode(hasSetTextAction() and hasText("Email")).performTextInput("e2e@test.dev")
-        rule.onNode(hasSetTextAction() and hasText("Password (min 8 chars)")).performTextInput("password123")
+        rule
+            .onNode(hasSetTextAction() and hasText("Password (min 8 chars)"))
+            .performTextInput("password123")
         rule.onNodeWithText("Register").performClick()
         rule.waitUntil(timeoutMillis = 15_000) {
             rule.onAllNodesWithText("Signed in as e2e@test.dev").fetchSemanticsNodes().isNotEmpty()
@@ -121,7 +123,9 @@ class AuthE2eTest {
 
         // Login again
         rule.onNode(hasSetTextAction() and hasText("Email")).performTextInput("e2e@test.dev")
-        rule.onNode(hasSetTextAction() and hasText("Password (min 8 chars)")).performTextInput("password123")
+        rule
+            .onNode(hasSetTextAction() and hasText("Password (min 8 chars)"))
+            .performTextInput("password123")
         rule.onNodeWithText("Log in").performClick()
         rule.waitUntil(timeoutMillis = 15_000) {
             rule.onAllNodesWithText("Signed in as e2e@test.dev").fetchSemanticsNodes().isNotEmpty()

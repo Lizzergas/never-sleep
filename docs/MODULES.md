@@ -15,7 +15,7 @@ core/
   network/          Ktor client factory, safeGet/safeApiCall error mapping, Koin-owned HttpClient
   database/         Room 3 KMP setup: driver, per-platform builders, sample Note entity
   datastore/        DataStore<Preferences> factory + per-platform storage location
-  designsystem/     AppTheme, color schemes, typography, spacing tokens, ThemeModeProvider
+  designsystem/     Material 3 Expressive AppTheme, color schemes, typography, spacing, ThemeModeProvider
   navigation/       FeatureRegistration contract, Navigator, FeatureCatalog
   ui/               UiState + Loading/Error/Empty components, AppError user messages
 feature/
@@ -30,6 +30,7 @@ app/
   desktopApp/       Desktop entry (main() starts Koin)
   iosApp/           Xcode project (iOSApp.init starts Koin via doInitKoin)
 server/             Ktor server with /api/* sample routes using core:model DTOs
+web/                Optional Bun workspace: Astro landing, Vite admin, TS API client
 ```
 
 ## Dependency rules
@@ -39,24 +40,33 @@ server/             Ktor server with /api/* sample routes using core:model DTOs
 - `core:ui` may depend on `core:designsystem` (one-way, both are UI-foundation).
 - `app:shared` is the only module that sees everything; it owns theme
   application, the navigation shell, and Koin startup.
+- `web/` is not a Gradle module. Keep web tooling, package manifests, and
+  generated artifacts inside `web/`; it talks to `server` over HTTP `/api/*`.
 
-## Adding a feature (3 wiring lines)
+## Adding a feature (4 wiring touchpoints)
 
-1. Create `feature/<name>` with `id("template.kmp.feature")` and implement a
-   `FeatureRegistration` object (routes + entries + optional catalog
-   descriptors + optional `topLevelDestination` for the bottom bar / rail)
-   plus a Koin `Module`. Follow the package anatomy in ARCHITECTURE.md.
-2. `settings.gradle.kts`: `include(":feature:<name>")`
+First create `feature/<name>` with `id("template.kmp.feature")` and implement a
+`FeatureRegistration` object (routes + entries + optional catalog descriptors +
+optional `topLevelDestination` for the bottom bar / rail) plus a Koin `Module`.
+Follow the package anatomy in ARCHITECTURE.md.
+
+Then wire it in four places:
+
+1. `settings.gradle.kts`: `include(":feature:<name>")`
+2. `app/shared/build.gradle.kts`: add
+   `implementation(projects.feature.<name>)`
 3. `app/shared .../AppNavHost.kt`: add the registration to `featureRegistrations`
 4. `app/shared .../di/Koin.kt`: add the feature's Koin module to `initKoin`
 
-(Plus one `implementation(projects.feature.<name>)` line in app/shared's
-build file.) The showcase home lists the feature automatically — its catalog
-derives from the registrations.
+The showcase home lists the feature automatically when its registration
+contributes catalog descriptors; top-level destinations appear in the shell's
+bottom bar / rail. Top-level destinations are retained shell tabs: do not render
+a screen-local Back button on the root route; use Back only for deeper entries
+inside that feature's stack.
 
 ## Removing a feature
 
-Delete the same lines in reverse plus the module directory. Code references
+Delete the same touchpoints in reverse plus the module directory. Code references
 surface as compile errors; runtime wiring (Koin lookups, catalog entries)
 degrades via documented fallbacks — run the app and tests after a removal.
 
@@ -70,8 +80,8 @@ the app start directly at the showcase home.
 app HttpClient unauthenticated (no bearer/refresh). The server's /api/auth
 routes are independent and can stay or go separately.
 
-`feature:notes` note (the copy-me sample) spreads slightly wider than the
-3-line contract; removing it also means deleting `NoteEntity`/`NoteDao` from
+`feature:notes` note (the copy-me sample) spreads wider than the normal
+feature contract; removing it also means deleting `NoteEntity`/`NoteDao` from
 `core:database` (and bumping the Room schema), the note DTOs in `core:model`,
 the `/api/notes` routes in `server`, and `NotesE2eTest`. It binds a
 `UserDataCleaner`, which auth discovers via `getAll` — no unbinding needed.
@@ -79,8 +89,8 @@ the `/api/notes` routes in `server`, and `NotesE2eTest`. It binds a
 ## Core module removal notes
 
 - `core:connectivity` — the shell looks it up with a fallback (no banner when
-  absent); also remove the retry-on-reconnect block in the showcase network
-  demo and the Koin registration.
+  absent); also remove the retry-on-reconnect dependency from
+  `NetworkDemoViewModel`, its tests, and its Koin factory.
 - `core:network` — also delete `NetworkConfig` from `appModule` and the
   network demo from `feature:showcase`.
 - `core:database` — Room/KSP wiring lives entirely inside the module; deleting

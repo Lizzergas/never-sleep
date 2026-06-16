@@ -39,7 +39,7 @@ object NotesFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<NotesRoute> {
-            NotesScreen(onBack = navigator::goBack)
+            NotesScreen()
         }
     }
 }

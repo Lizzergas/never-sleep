@@ -20,9 +20,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Offline-first: Room is the source of truth. Reads observe the cache;
- * refresh replaces it with server state; writes hit the server (the app
- * HttpClient carries auth automatically) and update the cache on success.
+ * Room is the source of truth for reads. refresh replaces it with server state;
+ * writes hit the server (the app HttpClient carries auth automatically) and
+ * update the cache only after server success.
  */
 class NotesRepositoryImpl(
     private val httpClient: HttpClient,

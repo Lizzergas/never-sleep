@@ -8,9 +8,14 @@ import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.TopLevelDestination
+import com.lizz.myapptemplate.showcase.presentation.designsystem.DesignsystemGalleryScreen
+import com.lizz.myapptemplate.showcase.presentation.home.ShowcaseHomeScreen
+import com.lizz.myapptemplate.showcase.presentation.network.NetworkDemoScreen
+import com.lizz.myapptemplate.showcase.presentation.network.NetworkDemoViewModel
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.subclass
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 object ShowcaseFeature : FeatureRegistration {
@@ -59,5 +64,10 @@ object ShowcaseFeature : FeatureRegistration {
 
 val showcaseKoinModule: Module =
     module {
-        // Showcase screens currently inject only the FeatureCatalog provided by the app shell.
+        viewModel {
+            NetworkDemoViewModel(
+                httpClient = get(),
+                connectivityMonitor = getKoin().getOrNull(),
+            )
+        }
     }

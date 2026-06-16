@@ -6,7 +6,7 @@ import com.lizz.myapptemplate.model.AppError
 
 data class AccountUiState(
     val session: SessionState = SessionState.Unknown,
-    val inFlight: Boolean = false,
+    val isSubmitting: Boolean = false,
     val error: AppError? = null,
     val validation: ValidateCredentialsUseCase.Result = ValidateCredentialsUseCase.Result(),
 )

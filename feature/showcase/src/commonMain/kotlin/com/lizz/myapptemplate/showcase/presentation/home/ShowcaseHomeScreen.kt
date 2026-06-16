@@ -1,4 +1,4 @@
-package com.lizz.myapptemplate.showcase
+package com.lizz.myapptemplate.showcase.presentation.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,7 @@ import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.navigation.FeatureCatalog
 import com.lizz.myapptemplate.navigation.FeatureDescriptor
+import com.lizz.myapptemplate.showcase.DesignsystemGalleryRoute
 import org.koin.compose.koinInject
 
 /**

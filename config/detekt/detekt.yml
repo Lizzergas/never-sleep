@@ -3,27 +3,27 @@
 
 naming:
   FunctionNaming:
-    ignoreAnnotated: ['Composable']
+    ignoreAnnotated: [ 'Composable' ]
   TopLevelPropertyNaming:
     constantPattern: '[A-Z][A-Za-z0-9_]*'
 
 style:
   MagicNumber:
-    ignoreAnnotated: ['Composable']
+    ignoreAnnotated: [ 'Composable' ]
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
   UnusedPrivateMember:
-    ignoreAnnotated: ['Preview']
+    ignoreAnnotated: [ 'Preview' ]
   ReturnCount:
     max: 4
 
 complexity:
   LongMethod:
-    ignoreAnnotated: ['Composable']
+    ignoreAnnotated: [ 'Composable' ]
   LongParameterList:
-    ignoreAnnotated: ['Composable']
+    ignoreAnnotated: [ 'Composable' ]
   TooManyFunctions:
-    ignoreAnnotatedFunctions: ['Composable', 'Preview']
+    ignoreAnnotatedFunctions: [ 'Composable', 'Preview' ]
 
 exceptions:
   # The template's safeApiCall deliberately maps broad exceptions to AppError.

@@ -1,5 +1,33 @@
 # Material Design 3 Theming
 
+## Material 3 Expressive
+
+Use Material 3 Expressive at the app/design-system entry point when the project
+depends on the Expressive APIs. Screens should continue to consume
+`MaterialTheme` tokens and should not opt in locally.
+
+```kotlin
+@Composable
+fun AppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = appColorScheme(darkTheme, dynamicColor)
+
+    MaterialExpressiveTheme(
+        colorScheme = colorScheme,
+        motionScheme = MotionScheme.expressive(),
+        content = content
+    )
+}
+```
+
+Prefer expressive motion for continuity: keep meaningful content visible during
+loading/retry, animate status or action affordances with
+`MaterialTheme.motionScheme.defaultEffectsSpec()`, and use
+`defaultSpatialSpec()` for size, scale, and layout transitions.
+
 ## Color System
 
 ### Dynamic Color (Material You)

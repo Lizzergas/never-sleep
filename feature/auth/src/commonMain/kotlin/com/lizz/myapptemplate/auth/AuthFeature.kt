@@ -41,7 +41,7 @@ object AuthFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<AccountRoute> {
-            AccountScreen(onBack = navigator::goBack)
+            AccountScreen()
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.lizz.myapptemplate.designsystem
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 
@@ -12,6 +14,7 @@ import androidx.compose.runtime.CompositionLocalProvider
  * With [dynamicColor] (default), Android 12+ uses Material You wallpaper
  * colors; every other platform falls back to the brand palette in Color.kt.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTheme(
     themeMode: ThemeMode = ThemeMode.System,
@@ -28,8 +31,9 @@ fun AppTheme(
     val colorScheme =
         if (dynamicColor) platformColorScheme(useDarkTheme) ?: brandScheme else brandScheme
     CompositionLocalProvider(LocalSpacing provides Spacing()) {
-        MaterialTheme(
+        MaterialExpressiveTheme(
             colorScheme = colorScheme,
+            motionScheme = MotionScheme.expressive(),
             content = content,
         )
     }

@@ -1,4 +1,4 @@
-package com.lizz.myapptemplate.showcase
+package com.lizz.myapptemplate.showcase.presentation.network
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,26 +13,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.lizz.myapptemplate.connectivity.ConnectivityMonitor
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.model.AppError
-import com.lizz.myapptemplate.model.Item
-import com.lizz.myapptemplate.network.safeGet
 import com.lizz.myapptemplate.ui.ErrorContent
-import com.lizz.myapptemplate.ui.UiState
 import com.lizz.myapptemplate.ui.UiStateContent
-import com.lizz.myapptemplate.ui.rememberOptionalKoin
-import com.lizz.myapptemplate.ui.toUiState
-import io.ktor.client.HttpClient
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Calls the template server using shared DTOs from core:model through the
@@ -41,35 +29,22 @@ import org.koin.compose.koinInject
  */
 @Composable
 fun NetworkDemoScreen(onBack: () -> Unit) {
-    val httpClient = koinInject<HttpClient>()
-    val scope = rememberCoroutineScope()
-    var state by remember { mutableStateOf<UiState<List<Item>>?>(null) }
+    val viewModel = koinViewModel<NetworkDemoViewModel>()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    fun load() {
-        scope.launch {
-            state = UiState.Loading
-            state = httpClient.safeGet<List<Item>>("/api/items").toUiState { it.isEmpty() }
-        }
-    }
+    NetworkDemoContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onBack = onBack,
+    )
+}
 
-    // Retry-on-reconnect: when connectivity returns while a network failure is
-    // showing, re-issue the call. Optional lookup — without core:connectivity
-    // the demo simply never auto-retries.
-    val connectivityMonitor = rememberOptionalKoin<ConnectivityMonitor>()
-    if (connectivityMonitor != null) {
-        LaunchedEffect(connectivityMonitor) {
-            connectivityMonitor.isOnline.collect { online ->
-                val current = state
-                val failedOnNetwork =
-                    current is UiState.Error &&
-                        (current.error is AppError.Network || current.error is AppError.Timeout)
-                if (online && failedOnNetwork) {
-                    load()
-                }
-            }
-        }
-    }
-
+@Composable
+fun NetworkDemoContent(
+    state: NetworkDemoUiState,
+    onEvent: (NetworkDemoEvent) -> Unit,
+    onBack: () -> Unit,
+) {
     Column(
         modifier =
             Modifier
@@ -87,20 +62,20 @@ fun NetworkDemoScreen(onBack: () -> Unit) {
             style = MaterialTheme.typography.bodyMedium,
         )
 
-        Button(onClick = ::load) {
+        Button(onClick = { onEvent(NetworkDemoEvent.Load) }) {
             Text("Load items")
         }
 
-        when (val s = state) {
+        when (val s = state.items) {
             null -> Text("Not requested yet", style = MaterialTheme.typography.bodyMedium)
 
             else ->
                 UiStateContent(
                     state = s,
-                    onRetry = ::load,
+                    onRetry = { onEvent(NetworkDemoEvent.Load) },
                     error = { appError ->
                         Column(verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
-                            ErrorContent(appError, onRetry = ::load)
+                            ErrorContent(appError, onRetry = { onEvent(NetworkDemoEvent.Load) })
                             if (appError is AppError.Network || appError is AppError.Timeout) {
                                 Text(
                                     "Is the server running? Start it with: ./gradlew :server:run",

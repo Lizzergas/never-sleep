@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    "node_modules/**",
+    "bun.lock",
+    "apps/*/dist/**",
+    "apps/*/.astro/**",
+    "apps/*/.vite/**",
+    "packages/*/dist/**",
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
+    ".cache/**",
+    ".turbo/**",
+    "**/*.astro"
+  ]
+}

@@ -3,17 +3,14 @@ package com.lizz.myapptemplate.notes.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lizz.myapptemplate.model.ApiResult
-import com.lizz.myapptemplate.model.AppError
 import com.lizz.myapptemplate.notes.domain.AddNoteUseCase
 import com.lizz.myapptemplate.notes.domain.NotesRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -26,32 +23,20 @@ class NotesViewModel(
     private val repository: NotesRepository,
     private val addNote: AddNoteUseCase,
 ) : ViewModel() {
-    private data class LocalState(
-        val isRefreshing: Boolean = false,
-        val error: AppError? = null,
-    )
-
-    private val local = MutableStateFlow(LocalState())
+    private val _state = MutableStateFlow(NotesUiState())
+    val state: StateFlow<NotesUiState> = _state.asStateFlow()
 
     private val _effects = Channel<NotesEffect>(Channel.BUFFERED)
     val effects: Flow<NotesEffect> = _effects.receiveAsFlow()
 
     init {
-        onEvent(NotesEvent.Refresh)
+        viewModelScope.launch {
+            repository.observeNotes().collect { notes ->
+                _state.update { it.copy(notes = notes) }
+            }
+        }
+        refresh()
     }
-
-    val state: StateFlow<NotesUiState> =
-        combine(repository.observeNotes(), local) { notes, l ->
-            NotesUiState(
-                notes = notes,
-                isRefreshing = l.isRefreshing,
-                error = l.error,
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = NotesUiState(),
-        )
 
     fun onEvent(event: NotesEvent) {
         when (event) {
@@ -64,26 +49,30 @@ class NotesViewModel(
 
             is NotesEvent.Delete -> launchReporting { repository.delete(event.id) }
 
-            NotesEvent.Refresh ->
-                viewModelScope.launch {
-                    local.update { it.copy(isRefreshing = true, error = null) }
-                    val result = repository.refresh()
-                    local.update {
-                        it.copy(
-                            isRefreshing = false,
-                            error = (result as? ApiResult.Failure)?.error,
-                        )
-                    }
-                }
+            NotesEvent.Refresh -> refresh()
+        }
+    }
+
+    private fun refresh() {
+        if (_state.value.isRefreshing) return
+        _state.update { it.copy(isRefreshing = true) }
+        viewModelScope.launch {
+            val result = repository.refresh()
+            _state.update {
+                it.copy(
+                    isRefreshing = false,
+                    error = (result as? ApiResult.Failure)?.error,
+                )
+            }
         }
     }
 
     private fun launchReporting(action: suspend () -> ApiResult<*>) {
         viewModelScope.launch {
-            local.update { it.copy(error = null) }
+            _state.update { it.copy(error = null) }
             val result = action()
             if (result is ApiResult.Failure) {
-                local.update { it.copy(error = result.error) }
+                _state.update { it.copy(error = result.error) }
             }
         }
     }

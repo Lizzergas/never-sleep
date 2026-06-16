@@ -1,6 +1,8 @@
 # Plan: Wave 1 — Plug-in Module Architecture
 
 > Source PRD: docs/prd/0001-wave1-module-architecture.md
+> Status: Implemented / archived. Current module and architecture contracts are
+> maintained in docs/MODULES.md and docs/ARCHITECTURE.md.
 
 ## Architectural decisions
 
@@ -14,8 +16,9 @@ Durable decisions that apply across all phases:
   core modules may depend on `core:model`/`core:common` only; `core:model` and
   `core:common` are UI-free (server-consumable); `app:shared` is the sole
   aggregation point (theme, navigation shell, Koin startup).
-- **Plug-in contract**: every feature removable via exactly three lines —
-  settings.gradle include, Koin registry entry, navigation registry entry.
+- **Plug-in contract**: every feature removable via the documented app-shell
+  wiring touchpoints — settings.gradle include, app/shared dependency, Koin
+  registry entry, navigation registry entry.
   The showcase derives its feature list from the registries.
 - **Convention plugins**: `template.kmp.library` (KMP targets:
   android/iosArm64/iosSimulatorArm64/jvm + namespace/JVM conventions),
@@ -55,10 +58,14 @@ machinery end to end without changing behavior.
 
 ### Acceptance criteria
 
-- [ ] `build-logic` provides `template.kmp.library`, `template.compose`, `template.kmp.feature`; a module using them needs ≤ ~10 lines of build script
-- [ ] Old `core` is gone; `core:model` and `core:common` exist, are UI-free, and the server depends on them
-- [ ] All targets compile (android, iosArm64, iosSimulatorArm64, jvm) and the desktop app runs unchanged
-- [ ] Dependency rules hold: no feature/app code in core modules; server has no UI dependencies in its graph
+- [x] `build-logic` provides `template.kmp.library`, `template.compose`, `template.kmp.feature`; a
+  module using them needs ≤ ~10 lines of build script
+- [x] Old `core` is gone; `core:model` and `core:common` exist, are UI-free, and the server depends
+  on them
+- [x] All targets compile (android, iosArm64, iosSimulatorArm64, jvm) and the desktop app runs
+  unchanged
+- [x] Dependency rules hold: no feature/app code in core modules; server has no UI dependencies in
+  its graph
 
 ---
 
@@ -75,10 +82,10 @@ restyle of the running app on desktop and mobile.
 
 ### Acceptance criteria
 
-- [ ] `AppTheme` is the single theming entry point; app shell uses it on all targets
-- [ ] Light and dark schemes resolve; system mode follows the platform setting
-- [ ] Spacing/typography tokens are exposed and used by at least one screen
-- [ ] Sanity tests: theme resolves for both modes, tokens exposed
+- [x] `AppTheme` is the single theming entry point; app shell uses it on all targets
+- [x] Light and dark schemes resolve; system mode follows the platform setting
+- [x] Spacing/typography tokens are exposed and used by at least one screen
+- [x] Sanity tests: theme resolves for both modes, tokens exposed
 
 ---
 
@@ -97,10 +104,12 @@ for now (deleted in Phase 7).
 
 ### Acceptance criteria
 
-- [ ] Adding a feature = settings.gradle include + one Koin registry line + one nav registry line; removal = deleting those three
-- [ ] Showcase home lists features derived from the registry (not hardcoded)
-- [ ] Designsystem gallery shows colors, typography, spacing live
-- [ ] Navigating showcase → gallery → back works on desktop and Android; route keys are serializable objects (compile-checked)
+- [x] Adding/removing a feature is handled through the documented app-shell
+  wiring touchpoints
+- [x] Showcase home lists features derived from the registry (not hardcoded)
+- [x] Designsystem gallery shows colors, typography, spacing live
+- [x] Navigating showcase → gallery → back works on desktop and Android; route keys are serializable
+  objects (compile-checked)
 
 ---
 
@@ -120,10 +129,12 @@ the local server isn't running.
 
 ### Acceptance criteria
 
-- [ ] One DTO set in `core:model` is used by both server responses and client decoding
-- [ ] `core:network` maps timeouts, IO failures, 401/404/422/500, and malformed bodies to the documented `AppError` variants (MockEngine tests cover the full table)
-- [ ] Showcase network demo shows success data from the running server and a distinct, friendly failure state when the server is down
-- [ ] Server tests cover both routes via ktor-server-test-host
+- [x] One DTO set in `core:model` is used by both server responses and client decoding
+- [x] `core:network` maps timeouts, IO failures, 401/404/422/500, and malformed bodies to the
+  documented `AppError` variants (MockEngine tests cover the full table)
+- [x] Showcase network demo shows success data from the running server and a distinct, friendly
+  failure state when the server is down
+- [x] Server tests cover both routes via ktor-server-test-host
 
 ---
 
@@ -140,10 +151,10 @@ data, or error component with working retry.
 
 ### Acceptance criteria
 
-- [ ] `UiState` covers Loading/Success/Error/Empty; mapping from `ApiResult`/`AppError` is provided
-- [ ] Network demo uses the shared components; retry re-issues the call
-- [ ] JVM compose-ui tests: each state composable renders; retry callback fires
-- [ ] Unit tests for state transitions
+- [x] `UiState` covers Loading/Success/Error/Empty; mapping from `ApiResult`/`AppError` is provided
+- [x] Network demo uses the shared components; retry re-issues the call
+- [x] JVM compose-ui tests: each state composable renders; retry callback fires
+- [x] Unit tests for state transitions
 
 ---
 
@@ -161,10 +172,12 @@ reachable from the showcase.
 
 ### Acceptance criteria
 
-- [ ] Theme change applies immediately and survives app restart on desktop and Android (iOS compiles; manual check optional)
-- [ ] Preferences are accessed only through typed accessors — no raw keys outside `core:datastore`
-- [ ] DataStore round-trip tests (in-memory/temp file) and ViewModel Turbine tests pass
-- [ ] feature:settings demonstrates the full feature anatomy: UI → ViewModel → core module → DI + nav registration
+- [x] Theme change applies immediately and survives app restart on desktop and Android (iOS
+  compiles; manual check optional)
+- [x] Preferences are accessed only through typed accessors — no raw keys outside `core:datastore`
+- [x] DataStore round-trip tests (in-memory/temp file) and ViewModel Turbine tests pass
+- [x] feature:settings demonstrates the full feature anatomy: UI → ViewModel → core module → DI +
+  nav registration
 
 ---
 
@@ -179,12 +192,15 @@ export location, migration scaffold) with a small sample entity/DAO surfaced in
 the showcase so the KSP wiring stays exercised. Delete DemoScreen per its
 checklist (file, App.kt hook, demo Koin module, old schemas) — its verification
 role is now fully covered by the showcase. Write the per-feature removal
-documentation (the 3-line contract) into the README/feature docs. Final
+documentation into the README/feature docs. Final
 verification across all targets.
 
 ### Acceptance criteria
 
-- [ ] `core:database` owns all Room setup; sample entity round-trips (insert + observe) via the showcase on desktop
-- [ ] DemoScreen and its checklist items are fully removed; no orphaned schemas or Koin entries remain
-- [ ] Each wave-1 feature/core module has removal documentation following the 3-line contract
-- [ ] All targets compile; desktop showcase runs through every screen; all wave-1 tests green
+- [x] `core:database` owns all Room setup; sample entity round-trips (insert + observe) via the
+  showcase on desktop
+- [x] DemoScreen and its checklist items are fully removed; no orphaned schemas or Koin entries
+  remain
+- [x] Each wave-1 feature/core module has removal documentation following the
+  app-shell wiring contract
+- [x] All targets compile; desktop showcase runs through every screen; all wave-1 tests green

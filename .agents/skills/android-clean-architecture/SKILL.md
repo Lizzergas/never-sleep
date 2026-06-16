@@ -6,7 +6,8 @@ origin: ECC
 
 # Android Clean Architecture
 
-Clean Architecture patterns for Android and KMP projects. Covers module boundaries, dependency inversion, UseCase/Repository patterns, and data layer design with Room, SQLDelight, and Ktor.
+Clean Architecture patterns for Android and KMP projects. Covers module boundaries, dependency
+inversion, UseCase/Repository patterns, and data layer design with Room, SQLDelight, and Ktor.
 
 ## When to Activate
 
@@ -44,7 +45,8 @@ domain → core (or no dependencies)
 core → (nothing)
 ```
 
-**Critical**: `domain` must NEVER depend on `data`, `presentation`, or any framework. It contains pure Kotlin only.
+**Critical**: `domain` must NEVER depend on `data`, `presentation`, or any framework. It contains
+pure Kotlin only.
 
 ## Domain Layer
 

@@ -30,14 +30,13 @@ import org.koin.compose.viewmodel.koinViewModel
 
 /** Stateful wrapper: owns the ViewModel. All rendering is in [AccountContent]. */
 @Composable
-fun AccountScreen(onBack: () -> Unit) {
+fun AccountScreen() {
     val viewModel = koinViewModel<SessionViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     AccountContent(
         state = state,
         onEvent = viewModel::onEvent,
-        onBack = onBack,
     )
 }
 
@@ -49,7 +48,6 @@ fun AccountScreen(onBack: () -> Unit) {
 fun AccountContent(
     state: AccountUiState,
     onEvent: (AccountEvent) -> Unit,
-    onBack: () -> Unit,
 ) {
     Column(
         modifier =
@@ -64,7 +62,6 @@ fun AccountContent(
             SessionState.LoggedOut -> AuthForm(state, onEvent)
             is SessionState.LoggedIn -> Profile(session.user, onLogout = { onEvent(AccountEvent.Logout) })
         }
-        Button(onClick = onBack) { Text("Back") }
     }
 }
 
@@ -78,7 +75,7 @@ private fun AuthForm(
 
     Text("Account", style = MaterialTheme.typography.headlineMedium)
     Text(
-        "Register or log in against the template server (JWT + refresh rotation).",
+        "Sign in to keep your notes available across devices.",
         style = MaterialTheme.typography.bodyMedium,
     )
     OutlinedTextField(
@@ -98,16 +95,16 @@ private fun AuthForm(
         modifier = Modifier.fillMaxWidth(),
     )
 
-    state.error?.let { ErrorContent(it) }
+    state.error?.let { ErrorContent(error = it, isRetrying = state.isSubmitting) }
 
     Row(horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
         Button(
             onClick = { onEvent(AccountEvent.Login(email.trim(), password)) },
-            enabled = !state.inFlight,
+            enabled = !state.isSubmitting,
         ) { Text("Log in") }
         OutlinedButton(
             onClick = { onEvent(AccountEvent.Register(email.trim(), password)) },
-            enabled = !state.inFlight,
+            enabled = !state.isSubmitting,
         ) { Text("Register") }
     }
 }
@@ -130,7 +127,6 @@ private fun AccountLoggedOutPreview() {
         AccountContent(
             state = AccountUiState(session = SessionState.LoggedOut),
             onEvent = {},
-            onBack = {},
         )
     }
 }
@@ -142,7 +138,6 @@ private fun AccountLoggedInPreview() {
         AccountContent(
             state = AccountUiState(session = SessionState.LoggedIn(User("42", "preview@lizz.dev"))),
             onEvent = {},
-            onBack = {},
         )
     }
 }

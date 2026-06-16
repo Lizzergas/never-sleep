@@ -1,0 +1,13 @@
+{
+  "name": "@myapptemplate/api-client",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "bun run typecheck",
+    "typecheck": "tsc --noEmit --pretty false",
+    "test": "vitest run"
+  }
+}

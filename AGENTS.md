@@ -6,6 +6,10 @@ contract: **docs/MODULES.md**. Layer rules, UiState/Event contract, and the
 anatomy of a feature: **docs/ARCHITECTURE.md** — copy `feature/notes` when
 building a new feature.
 
+Optional web surfaces live under **web/** as a separate Bun workspace. When
+working there, read **web/AGENTS.md** first and keep Node/Vite/Astro/Oxc
+tooling out of the Gradle module graph unless explicitly requested.
+
 ## Renaming the template (do this first in a new app)
 
 ```
@@ -24,6 +28,9 @@ review with `git diff`, verify, commit, then delete `rename.sh`.
 - Android: `./gradlew :app:androidApp:assembleDebug`
 - iOS: open `app/iosApp` in Xcode
 - All meaningful tests: `./gradlew jvmTest :server:test`
+- Web workspace: `cd web && bun install`; run landing with
+  `bun run dev:landing`, admin with `bun run dev:admin`, and checks with
+  `bun run lint && bun run typecheck && bun run test && bun run build`.
 - Lint (detekt + ktlint): `./gradlew qualityCheck` — run whenever you want;
   enforced ONLY by the CI `quality` job, never by commit/push hooks.
   Auto-fix formatting: `./gradlew ktlintFormat`. Coverage: `./gradlew koverHtmlReport`.
@@ -32,9 +39,11 @@ review with `git diff`, verify, commit, then delete `rename.sh`.
 
 - New modules use the `build-logic` convention plugins:
   `template.kmp.library`, `template.kmp.feature`, `template.compose`.
-- A feature = one `FeatureRegistration` object + one Koin module, wired in
-  `app/shared`'s `AppNavHost.kt` and `di/Koin.kt` plus a settings.gradle
-  include (the 3-line contract).
+- A feature = one `FeatureRegistration` object + one Koin module, wired through
+  `settings.gradle.kts`, `app/shared/build.gradle.kts`, `app/shared`'s
+  `AppNavHost.kt`, and `di/Koin.kt` (the 4-touchpoint contract).
 - Networking returns `ApiResult`/`AppError` (never throws); screens render
   through `core:ui`'s `UiState` components.
-- Versions live only in `gradle/libs.versions.toml`.
+- Kotlin/Gradle versions live only in `gradle/libs.versions.toml`; web
+  dependency versions live in `web/package.json` and package manifests under
+  `web/apps/*` / `web/packages/*`.

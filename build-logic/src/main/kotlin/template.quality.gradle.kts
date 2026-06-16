@@ -1,5 +1,5 @@
 import buildlogic.QualityFilters
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import dev.detekt.gradle.extensions.DetektExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 /**
@@ -8,7 +8,7 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
  * deliberately NOT wired into commits or pushes.
  */
 plugins {
-    id("io.gitlab.arturbosch.detekt")
+    id("dev.detekt")
     id("org.jlleitschuh.gradle.ktlint")
     id("org.jetbrains.kotlinx.kover")
 }

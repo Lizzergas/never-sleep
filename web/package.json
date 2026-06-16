@@ -1,0 +1,26 @@
+{
+  "name": "@myapptemplate/web",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev:landing": "bun --filter @myapptemplate/landing dev",
+    "dev:admin": "bun --filter @myapptemplate/admin dev",
+    "build": "bun run --filter '*' build",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun run --filter '*' test"
+  },
+  "devDependencies": {
+    "oxfmt": "0.55.0",
+    "oxlint": "1.70.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.9"
+  },
+  "packageManager": "bun@1.3.14"
+}

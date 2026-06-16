@@ -5,7 +5,8 @@ description: Master Material Design 3 and Jetpack Compose patterns for building 
 
 # Android Mobile Design
 
-Master Material Design 3 (Material You) and Jetpack Compose to build modern, adaptive Android applications that integrate seamlessly with the Android ecosystem.
+Master Material Design 3 (Material You) and Jetpack Compose to build modern, adaptive Android
+applications that integrate seamlessly with the Android ecosystem.
 
 ## When to Use This Skill
 
@@ -20,7 +21,8 @@ Master Material Design 3 (Material You) and Jetpack Compose to build modern, ada
 
 ## Detailed section: Core Concepts
 
-Originally a 9201-byte section in this SKILL.md. Moved to `references/details.md` to fit Codex's 8 KB skill body cap.
+Originally a 9201-byte section in this SKILL.md. Moved to `references/details.md` to fit Codex's 8
+KB skill body cap.
 
 ## Quick Start Component
 
@@ -82,14 +84,17 @@ fun ItemListCard(
 
 ## Best Practices
 
-1. **Use Material Theme**: Access colors via `MaterialTheme.colorScheme` for automatic dark mode support
-2. **Support Dynamic Color**: Enable dynamic color on Android 12+ for personalization
-3. **Adaptive Layouts**: Use `WindowSizeClass` for responsive designs
-4. **Content Descriptions**: Add `contentDescription` to all interactive elements
-5. **Touch Targets**: Minimum 48dp touch targets for accessibility
-6. **State Hoisting**: Hoist state to make components reusable and testable
-7. **Remember Properly**: Use `remember` and `rememberSaveable` appropriately
-8. **Preview Annotations**: Add `@Preview` with different configurations
+1. **Use Material Theme**: Access colors via `MaterialTheme.colorScheme` for automatic dark mode
+   support
+2. **Use Material 3 Expressive intentionally**: Keep expressive theme and motion in the design
+   system, and use motion to preserve continuity in loading/error transitions
+3. **Support Dynamic Color**: Enable dynamic color on Android 12+ for personalization
+4. **Adaptive Layouts**: Use `WindowSizeClass` for responsive designs
+5. **Content Descriptions**: Add `contentDescription` to all interactive elements
+6. **Touch Targets**: Minimum 48dp touch targets for accessibility
+7. **State Hoisting**: Hoist state to make components reusable and testable
+8. **Remember Properly**: Use `remember` and `rememberSaveable` appropriately
+9. **Preview Annotations**: Add `@Preview` with different configurations
 
 ## Common Issues
 

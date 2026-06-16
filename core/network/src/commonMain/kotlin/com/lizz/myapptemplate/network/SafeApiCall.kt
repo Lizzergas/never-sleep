@@ -37,22 +37,21 @@ suspend inline fun <reified T> HttpClient.safeGet(
  */
 @Suppress("ReturnCount") // one early return per failure class is the point of this function
 suspend inline fun <reified T> safeApiCall(crossinline request: suspend () -> HttpResponse): ApiResult<T> {
-    val response =
-        try {
-            request()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: HttpRequestTimeoutException) {
-            return ApiResult.Failure(AppError.Timeout)
-        } catch (_: ConnectTimeoutException) {
-            return ApiResult.Failure(AppError.Timeout)
-        } catch (_: SocketTimeoutException) {
-            return ApiResult.Failure(AppError.Timeout)
-        } catch (_: IOException) {
-            return ApiResult.Failure(AppError.Network)
-        } catch (e: Exception) {
-            return ApiResult.Failure(AppError.Unknown(e.message))
-        }
+    val response = try {
+        request()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: HttpRequestTimeoutException) {
+        return ApiResult.Failure(AppError.Timeout)
+    } catch (_: ConnectTimeoutException) {
+        return ApiResult.Failure(AppError.Timeout)
+    } catch (_: SocketTimeoutException) {
+        return ApiResult.Failure(AppError.Timeout)
+    } catch (_: IOException) {
+        return ApiResult.Failure(AppError.Network)
+    } catch (e: Exception) {
+        return ApiResult.Failure(AppError.Unknown(e.message))
+    }
 
     return when {
         response.status.isSuccess() ->

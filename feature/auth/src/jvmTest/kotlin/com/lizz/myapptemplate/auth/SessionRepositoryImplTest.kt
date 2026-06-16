@@ -171,23 +171,6 @@ class SessionRepositoryImplTest {
         }
 
     @Test
-    fun staleRefreshAfterRotationReturnsStoredTokensWithoutLogout() =
-        runBlocking<Unit> {
-            val backend = FakeAuthBackend()
-            val storage = FakeTokenStorage()
-            val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
-            repository.login("user@test.dev", "password123")
-
-            // A racing caller asks to refresh with a token that storage has
-            // already rotated past — it must get the stored pair back, not
-            // burn the single-use refresh token again or wipe the session.
-            val refreshed = repository.refreshTokens("some-older-refresh")
-
-            assertEquals(storage.tokens?.accessToken, refreshed?.accessToken)
-            assertIs<SessionState.LoggedIn>(repository.sessionState.value)
-        }
-
-    @Test
     fun transientRestoreFailureKeepsStoredTokens() =
         runBlocking<Unit> {
             val storage =

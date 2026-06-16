@@ -17,25 +17,8 @@ import com.lizz.myapptemplate.ui.rememberOptionalKoin
 @Composable
 @Preview
 fun App() {
-    // Optional contracts looked up with a fallback so the providing modules
-    // stay removable: theme follows feature:settings' ThemeModeProvider
-    // (else System), the offline banner follows core:connectivity (else
-    // never shown).
-    val themeModeProvider = rememberOptionalKoin<ThemeModeProvider>()
-    val themeMode =
-        themeModeProvider
-            ?.themeMode
-            ?.collectAsStateWithLifecycle(initialValue = ThemeMode.System)
-            ?.value
-            ?: ThemeMode.System
-
-    val connectivityMonitor = rememberOptionalKoin<ConnectivityMonitor>()
-    val isOnline =
-        connectivityMonitor
-            ?.isOnline
-            ?.collectAsStateWithLifecycle(initialValue = true)
-            ?.value
-            ?: true
+    val themeMode = rememberThemeMode()
+    val isOnline = rememberOnlineStatus()
 
     AppTheme(themeMode = themeMode) {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -45,4 +28,16 @@ fun App() {
             }
         }
     }
+}
+
+@Composable
+private fun rememberThemeMode(): ThemeMode {
+    val provider = rememberOptionalKoin<ThemeModeProvider>() ?: return ThemeMode.System
+    return provider.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.System).value
+}
+
+@Composable
+private fun rememberOnlineStatus(): Boolean {
+    val monitor = rememberOptionalKoin<ConnectivityMonitor>() ?: return true
+    return monitor.isOnline.collectAsStateWithLifecycle(initialValue = true).value
 }

@@ -1,4 +1,3 @@
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 /**
@@ -22,13 +21,14 @@ kotlin {
 
     android {
         namespace = "com.lizz.myapptemplate" +
-            project.path.replace(":", ".").replace("-", "")
+                project.path.replace(":", ".").replace("-", "")
         compileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
         minSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
+        withHostTest {}
     }
 
     sourceSets.getByName("commonTest").dependencies {
