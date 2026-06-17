@@ -122,6 +122,42 @@ class AppNavigationTest {
     }
 
     @Test
+    fun showcaseDetailNavigationSettlesWithoutLeavingHomeContentMounted() {
+        rule.setContent {
+            TestAppOwner {
+                App(startRoute = defaultStartRoute)
+            }
+        }
+
+        rule.onNodeWithText("Network demo").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Load items").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Network demo").assertIsDisplayed()
+        rule.onNodeWithText("Load items").assertIsDisplayed()
+        rule.onNodeWithText("Home").assertIsSelected()
+        rule.onAllNodesWithText("Installed features").assertCountEquals(0)
+        rule.onAllNodesWithText("Design system gallery").assertCountEquals(0)
+
+        rule.onNodeWithText("Back").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Installed features").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Design system gallery").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Typography").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Design system").assertIsDisplayed()
+        rule.onNodeWithText("Typography").assertIsDisplayed()
+        rule.onNodeWithText("Home").assertIsSelected()
+        rule.onAllNodesWithText("Installed features").assertCountEquals(0)
+        rule.onAllNodesWithText("Network demo").assertCountEquals(0)
+    }
+
+    @Test
     fun switchingFromSettingsToAccountDoesNotLeaveSettingsContentMounted() {
         rule.setContent {
             TestAppOwner {

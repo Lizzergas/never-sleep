@@ -31,7 +31,7 @@ object SettingsFeature : FeatureRegistration {
         TopLevelDestination(
             route = SettingsRoute,
             label = "Settings",
-            icon = Icons.Default.Settings
+            icon = Icons.Default.Settings,
         )
 
     override val deepLinks = listOf(
@@ -68,7 +68,7 @@ val settingsKoinModule: Module =
     module {
         single { DataStoreSettingsRepository(get()) } binds arrayOf(
             SettingsRepository::class,
-            ThemeModeProvider::class
+            ThemeModeProvider::class,
         )
         viewModelOf(::SettingsViewModel)
     }

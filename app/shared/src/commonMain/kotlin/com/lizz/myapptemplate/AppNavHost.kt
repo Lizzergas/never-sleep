@@ -100,7 +100,7 @@ fun AppNavHost(startRoute: NavKey = defaultStartRoute) {
     val initialRetainedDeepLink =
         initialDeepLinkResolution?.takeIf {
             it.backStackPolicy == DeepLinkBackStackPolicy.RetainedTopLevel &&
-                    it.selectedTopLevelRoute in topLevelRoutes
+                it.selectedTopLevelRoute in topLevelRoutes
         }
     val initialTransientDeepLink =
         initialDeepLinkResolution?.takeIf {
@@ -110,7 +110,7 @@ fun AppNavHost(startRoute: NavKey = defaultStartRoute) {
         initialRetainedDeepLink?.selectedTopLevelRoute
             ?: if (startRoute in topLevelRoutes) startRoute else defaultStartRoute
     val startsOutsideTopLevel = initialTransientDeepLink != null ||
-            (initialRetainedDeepLink == null && startRoute !in topLevelRoutes)
+        (initialRetainedDeepLink == null && startRoute !in topLevelRoutes)
     val selectedTopLevelRouteState = rememberSerializable(
         stateSerializer = PolymorphicSerializer(NavKey::class),
         configuration = configuration,
@@ -207,6 +207,10 @@ fun AppNavHost(startRoute: NavKey = defaultStartRoute) {
             NavDisplay(
                 entries = currentEntries,
                 modifier = modifier,
+                sizeTransform = null,
+                transitionSpec = appNavTransitionSpec(),
+                popTransitionSpec = appNavPopTransitionSpec(),
+                predictivePopTransitionSpec = appNavPredictivePopTransitionSpec(),
                 onBack = onBack,
             )
         }

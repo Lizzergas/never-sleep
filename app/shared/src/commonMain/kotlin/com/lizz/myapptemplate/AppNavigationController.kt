@@ -48,8 +48,8 @@ internal class AppNavigationController(
 
     val canHandleRootBack: Boolean
         get() = !isTransientActive &&
-                currentBackStack.size == 1 &&
-                selectedTopLevelRoute != defaultTopLevelRoute
+            currentBackStack.size == 1 &&
+            selectedTopLevelRoute != defaultTopLevelRoute
 
     fun selectTopLevel(route: NavKey) {
         require(route in topLevelBackStacks) { "Unknown top-level route: $route" }
@@ -112,8 +112,7 @@ internal class AppNavigationController(
         }
     }
 
-    private fun selectedTopLevelBackStack(): NavBackStack<NavKey> =
-        topLevelBackStacks.getValue(selectedTopLevelRoute)
+    private fun selectedTopLevelBackStack(): NavBackStack<NavKey> = topLevelBackStacks.getValue(selectedTopLevelRoute)
 
     private fun MutableList<NavKey>.popToRoot() {
         while (size > 1) {

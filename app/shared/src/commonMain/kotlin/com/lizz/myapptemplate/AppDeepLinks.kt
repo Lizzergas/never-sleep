@@ -14,9 +14,10 @@ import org.koin.mp.KoinPlatform
 internal fun appDeepLinkRegistry(registrations: List<FeatureRegistration> = featureRegistrations): DeepLinkRegistry =
     DeepLinkRegistry(registrations.flatMap { it.deepLinks })
 
-fun openAppDeepLink(url: String?): Boolean = runCatching {
-    KoinPlatform.getKoin().get<DeepLinkCoordinator>().openUrl(url)
-}.getOrDefault(false)
+fun openAppDeepLink(url: String?): Boolean =
+    runCatching {
+        KoinPlatform.getKoin().get<DeepLinkCoordinator>().openUrl(url)
+    }.getOrDefault(false)
 
 internal data class DeepLinkRequestEvent(
     val id: Long,
