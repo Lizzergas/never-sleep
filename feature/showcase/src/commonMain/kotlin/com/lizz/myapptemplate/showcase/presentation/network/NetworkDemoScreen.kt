@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -46,19 +45,16 @@ fun NetworkDemoContent(
     onBack: () -> Unit,
 ) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .safeContentPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(Theme.spacing.md),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Network demo", style = MaterialTheme.typography.headlineMedium)
         Text(
             "GET /api/items from the template server, decoded into shared " +
-                "core:model DTOs. Failures map to typed AppError values " +
-                "rendered by core:ui state components.",
+                    "core:model DTOs. Failures map to typed AppError values " +
+                    "rendered by core:ui state components.",
             style = MaterialTheme.typography.bodyMedium,
         )
 
@@ -90,7 +86,10 @@ fun NetworkDemoContent(
                             Card(modifier = Modifier.fillMaxWidth()) {
                                 Column(modifier = Modifier.padding(Theme.spacing.md)) {
                                     Text(item.title, style = MaterialTheme.typography.titleMedium)
-                                    Text(item.description, style = MaterialTheme.typography.bodyMedium)
+                                    Text(
+                                        item.description,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
                                 }
                             }
                         }

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -83,11 +82,7 @@ fun NotesContent(
 ) {
     val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .safeContentPadding()
-                .padding(Theme.spacing.md),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Notes", style = MaterialTheme.typography.headlineMedium)
@@ -187,7 +182,11 @@ private fun NotesContentPreview() {
                 NotesUiState(
                     notes =
                         listOf(
-                            Note(1, "Ship the template", Instant.fromEpochMilliseconds(1_750_000_000_000)),
+                            Note(
+                                1,
+                                "Ship the template",
+                                Instant.fromEpochMilliseconds(1_750_000_000_000)
+                            ),
                             Note(
                                 2,
                                 "Copy this feature for new screens",

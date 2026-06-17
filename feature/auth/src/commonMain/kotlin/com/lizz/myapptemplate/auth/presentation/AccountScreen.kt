@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -50,11 +48,7 @@ fun AccountContent(
     onEvent: (AccountEvent) -> Unit,
 ) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .safeContentPadding()
-                .padding(Theme.spacing.md),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Account", style = MaterialTheme.typography.headlineMedium)
@@ -65,7 +59,9 @@ fun AccountContent(
                 AuthForm(state, onEvent)
             }
 
-            is SessionState.LoggedIn -> Profile(session.user, onLogout = { onEvent(AccountEvent.Logout) })
+            is SessionState.LoggedIn -> Profile(
+                session.user,
+                onLogout = { onEvent(AccountEvent.Logout) })
         }
     }
 }
