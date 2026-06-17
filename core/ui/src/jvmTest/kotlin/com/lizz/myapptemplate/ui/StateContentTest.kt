@@ -60,6 +60,21 @@ class StateContentTest {
     }
 
     @Test
+    fun delayedVisibilityWaitsBeforeShowingContent() {
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            DelayedVisibility(visible = true) {
+                Text("Deferred status")
+            }
+        }
+
+        rule.onAllNodesWithText("Deferred status").assertCountEquals(0)
+
+        rule.mainClock.advanceTimeBy(UI_DEFERRED_INDICATOR_DELAY_MILLIS.toLong() + UI_STATUS_FADE_IN_MILLIS.toLong())
+        rule.onNodeWithText("Deferred status").assertIsDisplayed()
+    }
+
+    @Test
     fun uiStateContentRendersSuccessContent() {
         rule.setContent {
             UiStateContent(UiState.Success("payload")) { data ->

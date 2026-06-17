@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -71,11 +70,7 @@ fun OnboardingContent(onEvent: (OnboardingEvent) -> Unit) {
     val pagerState = rememberPagerState { pages.size }
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .safeContentPadding()
-                .padding(Theme.spacing.md),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.md),
     ) {
         HorizontalPager(

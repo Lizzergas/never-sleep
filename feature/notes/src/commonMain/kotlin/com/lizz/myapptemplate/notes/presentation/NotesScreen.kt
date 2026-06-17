@@ -3,6 +3,8 @@
 package com.lizz.myapptemplate.notes.presentation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -31,12 +32,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.model.AppError
 import com.lizz.myapptemplate.notes.domain.Note
 import com.lizz.myapptemplate.ui.ErrorContent
+import com.lizz.myapptemplate.ui.UI_STATUS_FADE_IN_MILLIS
+import com.lizz.myapptemplate.ui.UI_STATUS_FADE_OUT_MILLIS
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -76,13 +80,9 @@ fun NotesContent(
     onDraftChange: (String) -> Unit,
     onEvent: (NotesEvent) -> Unit,
 ) {
-    val effectsSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .safeContentPadding()
-                .padding(Theme.spacing.md),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
         Text("Notes", style = MaterialTheme.typography.headlineMedium)
@@ -100,23 +100,27 @@ fun NotesContent(
             Button(onClick = { onEvent(NotesEvent.Add(draft)) }) { Text("Add") }
         }
 
-        AnimatedVisibility(
-            visible = state.error != null,
-            enter = fadeIn(animationSpec = effectsSpec),
-            exit = fadeOut(animationSpec = effectsSpec),
+        Column(
+            modifier = Modifier.fillMaxWidth().animateContentSize(animationSpec = spatialSpec),
         ) {
-            state.error?.let { error ->
-                Column {
-                    ErrorContent(
-                        error = error,
-                        onRetry = { onEvent(NotesEvent.Refresh) },
-                        isRetrying = state.isRefreshing,
-                    )
-                    if (error == AppError.Unauthorized) {
-                        Text(
-                            "Sign in from Account first. Notes are saved per user.",
-                            style = MaterialTheme.typography.bodySmall,
+            AnimatedVisibility(
+                visible = state.error != null,
+                enter = fadeIn(animationSpec = tween(UI_STATUS_FADE_IN_MILLIS)),
+                exit = fadeOut(animationSpec = tween(UI_STATUS_FADE_OUT_MILLIS)),
+            ) {
+                state.error?.let { error ->
+                    Column {
+                        ErrorContent(
+                            error = error,
+                            onRetry = { onEvent(NotesEvent.Refresh) },
+                            isRetrying = state.isRefreshing,
                         )
+                        if (error == AppError.Unauthorized) {
+                            Text(
+                                "Sign in from Account first. Notes are saved per user.",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
                     }
                 }
             }
@@ -178,7 +182,11 @@ private fun NotesContentPreview() {
                 NotesUiState(
                     notes =
                         listOf(
-                            Note(1, "Ship the template", Instant.fromEpochMilliseconds(1_750_000_000_000)),
+                            Note(
+                                1,
+                                "Ship the template",
+                                Instant.fromEpochMilliseconds(1_750_000_000_000)
+                            ),
                             Note(
                                 2,
                                 "Copy this feature for new screens",

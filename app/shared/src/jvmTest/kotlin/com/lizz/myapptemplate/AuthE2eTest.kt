@@ -99,7 +99,7 @@ class AuthE2eTest {
     @Test
     fun registerLogoutLoginThroughTheUi() {
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = defaultStartRoute) }
         }
 
         rule.onNodeWithText("Account").performClick()
@@ -136,7 +136,7 @@ class AuthE2eTest {
     @Test
     fun restoreRefreshesExpiredAccessTokenAgainstRealServer() {
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = defaultStartRoute) }
         }
         rule.waitForIdle()
 

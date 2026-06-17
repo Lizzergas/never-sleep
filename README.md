@@ -10,10 +10,14 @@ surfaces for landing pages and admin panels without changing the Gradle module
 graph.
 
 **Read [docs/MODULES.md](./docs/MODULES.md)** for the module map, dependency
-rules, and the add/remove-a-feature contract. The implemented PRD and archived
-rollout plans behind the architecture live in [docs/prd](./docs/prd) and
-[docs/plans](docs/plans).
+rules, and the add/remove-a-feature contract.
 
+<!-- TEMPLATE_ONLY_RENAME_START -->
+The implemented PRD and archived rollout plans behind the architecture live in
+[docs/prd](./docs/prd) and [docs/plans](docs/plans).
+<!-- TEMPLATE_ONLY_RENAME_END -->
+
+<!-- TEMPLATE_ONLY_RENAME_START -->
 ## Make it yours
 
 ```
@@ -22,8 +26,11 @@ rollout plans behind the architecture live in [docs/prd](./docs/prd) and
 ```
 
 One script renames everything — packages, namespaces, bundle ids, app display
-name, source directories. Run it on a clean working tree, review `git diff`,
-run the tests, commit, then delete `rename.sh`.
+name, source directories, and web package scopes. Run it on a clean working
+tree, review `git diff`, run the tests, and commit. The script removes itself
+after a successful rename so the generated app does not keep stale template
+identifiers.
+<!-- TEMPLATE_ONLY_RENAME_END -->
 
 ## What's inside
 
@@ -35,8 +42,8 @@ run the tests, commit, then delete `rename.sh`.
 - **core:*** modules: model (shared DTOs + AppError + ApiResult), common,
   connectivity, network (typed error-mapped client + optional bearer auth),
   database (Room 3), datastore, designsystem (Material 3 Expressive AppTheme +
-  tokens), navigation (feature registry contract), and ui (UiState + state
-  components).
+  tokens), navigation (feature registry + typed deep link contract), and ui
+  (UiState + state components).
 - **feature:notes**: the reference feature — full server <-> Room <-> domain
   <-> UI chain with offline reads, server-authoritative writes, and account
   cleanup.

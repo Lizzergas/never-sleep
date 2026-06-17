@@ -14,14 +14,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSerializable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -34,17 +33,21 @@ import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.lizz.myapptemplate.auth.AccountRoute
 import com.lizz.myapptemplate.auth.AuthFeature
+import com.lizz.myapptemplate.auth.domain.SessionRepository
+import com.lizz.myapptemplate.auth.domain.SessionState
 import com.lizz.myapptemplate.designsystem.WindowWidthClass
+import com.lizz.myapptemplate.navigation.DeepLinkAuthPolicy
+import com.lizz.myapptemplate.navigation.DeepLinkBackStackPolicy
+import com.lizz.myapptemplate.navigation.DeepLinkResolution
 import com.lizz.myapptemplate.navigation.FeatureRegistration
-import com.lizz.myapptemplate.navigation.StartRouteOverride
 import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.notes.NotesFeature
 import com.lizz.myapptemplate.onboarding.OnboardingFeature
 import com.lizz.myapptemplate.settings.SettingsFeature
 import com.lizz.myapptemplate.showcase.ShowcaseFeature
 import com.lizz.myapptemplate.showcase.ShowcaseHomeRoute
-import com.lizz.myapptemplate.ui.LoadingContent
 import com.lizz.myapptemplate.ui.rememberOptionalKoin
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.modules.SerializersModule
@@ -52,9 +55,9 @@ import kotlinx.serialization.modules.polymorphic
 
 /**
  * THE feature plug-in point for navigation. Each entry contributes its routes
- * (serializers), nav entries, showcase listing, and optional top-level
- * destination. To remove a feature, delete its line here, its app/shared
- * dependency, its Koin module in di/Koin.kt, and its include in
+ * (serializers), nav entries, deep links, showcase listing, and optional
+ * top-level destination. To remove a feature, delete its line here, its
+ * app/shared dependency, its Koin module in di/Koin.kt, and its include in
  * settings.gradle.kts.
  */
 val featureRegistrations: List<FeatureRegistration> = listOf(
@@ -65,29 +68,10 @@ val featureRegistrations: List<FeatureRegistration> = listOf(
     AuthFeature,
 )
 
-private val defaultStartRoute: NavKey = ShowcaseHomeRoute
+internal val defaultStartRoute: NavKey = ShowcaseHomeRoute
 
 @Composable
-fun AppNavHost() {
-    // Features may override the start destination (e.g. onboarding until its
-    // seen-flag is set). The lookup is optional — without one we start at the
-    // default immediately; with one we gate on the (suspend) resolution.
-    val startRouteOverride = rememberOptionalKoin<StartRouteOverride>()
-    var startRoute by remember {
-        mutableStateOf(if (startRouteOverride == null) defaultStartRoute else null)
-    }
-    if (startRouteOverride != null && startRoute == null) {
-        LaunchedEffect(Unit) {
-            startRoute = startRouteOverride.startRoute() ?: defaultStartRoute
-        }
-    }
-
-    val resolvedStartRoute = startRoute
-    if (resolvedStartRoute == null) {
-        LoadingContent()
-        return
-    }
-
+fun AppNavHost(startRoute: NavKey = defaultStartRoute) {
     val configuration = remember {
         SavedStateConfiguration {
             serializersModule =
@@ -98,30 +82,57 @@ fun AppNavHost() {
                 }
         }
     }
-    val topLevelDestinations =
-        remember { featureRegistrations.mapNotNull { it.topLevelDestination } }
+    val topLevelDestinations = remember {
+        featureRegistrations.mapNotNull { it.topLevelDestination }
+    }
     val fullScreenRoutes = remember { featureRegistrations.flatMap { it.fullScreenRoutes }.toSet() }
-    val topLevelRoutes =
-        remember(topLevelDestinations) { topLevelDestinations.map { it.route }.toSet() }
+    val topLevelRoutes = remember(topLevelDestinations) {
+        topLevelDestinations.map { it.route }.toSet()
+    }
+    val deepLinkCoordinator = rememberOptionalKoin<DeepLinkCoordinator>()
+    val initialDeepLinkRequest =
+        remember(deepLinkCoordinator) { deepLinkCoordinator?.currentRequest() }
+    val initialDeepLinkResolution = initialDeepLinkRequest
+        ?.resolution
+        ?.takeIf { it.authPolicy == DeepLinkAuthPolicy.Public }
+    val seededInitialRequest =
+        if (initialDeepLinkResolution != null) initialDeepLinkRequest else null
+    val initialRetainedDeepLink =
+        initialDeepLinkResolution?.takeIf {
+            it.backStackPolicy == DeepLinkBackStackPolicy.RetainedTopLevel &&
+                it.selectedTopLevelRoute in topLevelRoutes
+        }
+    val initialTransientDeepLink =
+        initialDeepLinkResolution?.takeIf {
+            it.backStackPolicy == DeepLinkBackStackPolicy.Transient
+        }
     val initialTopLevelRoute =
-        if (resolvedStartRoute in topLevelRoutes) resolvedStartRoute else defaultStartRoute
-    val startsOutsideTopLevel = resolvedStartRoute !in topLevelRoutes
+        initialRetainedDeepLink?.selectedTopLevelRoute
+            ?: if (startRoute in topLevelRoutes) startRoute else defaultStartRoute
+    val startsOutsideTopLevel = initialTransientDeepLink != null ||
+        (initialRetainedDeepLink == null && startRoute !in topLevelRoutes)
     val selectedTopLevelRouteState = rememberSerializable(
         stateSerializer = PolymorphicSerializer(NavKey::class),
         configuration = configuration,
     ) {
         mutableStateOf(initialTopLevelRoute)
     }
-    val transientActiveState = rememberSaveable(resolvedStartRoute) {
+    val transientActiveState = rememberSaveable(startRoute, initialDeepLinkRequest?.id) {
         mutableStateOf(startsOutsideTopLevel)
     }
-    val transientBackStack =
-        if (startsOutsideTopLevel) {
-            rememberNavBackStack(configuration, resolvedStartRoute)
-        } else {
-            null
+    val initialTransientStack =
+        when {
+            initialTransientDeepLink != null -> initialTransientDeepLink.stack
+            initialRetainedDeepLink == null && startRoute !in topLevelRoutes -> listOf(startRoute)
+            else -> listOf(defaultStartRoute)
         }
-    val topLevelBackStacks = rememberTopLevelBackStacks(configuration, topLevelDestinations)
+    val transientBackStack =
+        rememberNavBackStack(configuration, *initialTransientStack.toTypedArray())
+    val topLevelBackStacks = rememberTopLevelBackStacks(
+        configuration = configuration,
+        destinations = topLevelDestinations,
+        initialDeepLink = initialRetainedDeepLink,
+    )
     val controller = remember(
         topLevelBackStacks,
         selectedTopLevelRouteState,
@@ -136,6 +147,11 @@ fun AppNavHost() {
             transientActiveState = transientActiveState,
         )
     }
+    HandleDeepLinks(
+        coordinator = deepLinkCoordinator,
+        controller = controller,
+        initialRequest = seededInitialRequest,
+    )
     val currentRoute = controller.currentRoute
     val showChrome = topLevelDestinations.isNotEmpty() && currentRoute !in fullScreenRoutes
 
@@ -160,17 +176,16 @@ fun AppNavHost() {
             entryProvider = appEntryProvider,
         )
     }
-    val transientEntries = transientBackStack?.let { backStack ->
+    val transientEntries =
         rememberDecoratedNavEntries(
-            backStack = backStack,
+            backStack = transientBackStack,
             entryDecorators = listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator(),
             ),
             entryProvider = appEntryProvider,
         )
-    }
-    val currentEntries = if (controller.isTransientActive && transientEntries != null) {
+    val currentEntries = if (controller.isTransientActive) {
         transientEntries
     } else {
         entriesByTopLevel.getValue(controller.selectedTopLevelRoute)
@@ -192,6 +207,10 @@ fun AppNavHost() {
             NavDisplay(
                 entries = currentEntries,
                 modifier = modifier,
+                sizeTransform = null,
+                transitionSpec = appNavTransitionSpec(),
+                popTransitionSpec = appNavPopTransitionSpec(),
+                predictivePopTransitionSpec = appNavPredictivePopTransitionSpec(),
                 onBack = onBack,
             )
         }
@@ -210,12 +229,51 @@ fun AppNavHost() {
 private fun rememberTopLevelBackStacks(
     configuration: SavedStateConfiguration,
     destinations: List<TopLevelDestination>,
+    initialDeepLink: DeepLinkResolution?,
 ): Map<NavKey, NavBackStack<NavKey>> {
     val entries = destinations.map { destination ->
-        destination.route to rememberNavBackStack(configuration, destination.route)
+        val initialStack =
+            if (initialDeepLink?.selectedTopLevelRoute == destination.route) {
+                initialDeepLink.stack
+            } else {
+                listOf(destination.route)
+            }
+        destination.route to rememberNavBackStack(configuration, *initialStack.toTypedArray())
     }
     return remember(*entries.map { it.second }.toTypedArray()) {
         entries.toMap()
+    }
+}
+
+@Composable
+private fun HandleDeepLinks(
+    coordinator: DeepLinkCoordinator?,
+    controller: AppNavigationController,
+    initialRequest: DeepLinkRequestEvent?,
+) {
+    val sessionRepository = rememberOptionalKoin<SessionRepository>()
+    val session = sessionRepository
+        ?.sessionState
+        ?.collectAsStateWithLifecycle(initialValue = SessionState.Unknown)
+        ?.value
+        ?: SessionState.LoggedOut
+    val pendingRequest = coordinator
+        ?.requests
+        ?.collectAsStateWithLifecycle(initialValue = coordinator.currentRequest())
+        ?.value
+    val authGate = remember { DeepLinkAuthGate(accountRoute = AccountRoute) }
+
+    LaunchedEffect(initialRequest?.id) {
+        if (initialRequest != null) {
+            coordinator?.markHandled(initialRequest)
+        }
+    }
+    LaunchedEffect(pendingRequest?.id, session) {
+        if (pendingRequest != null && pendingRequest.id != initialRequest?.id) {
+            controller.openDeepLink(authGate.resolveForSession(pendingRequest.resolution, session))
+            coordinator.markHandled(pendingRequest)
+        }
+        authGate.consumeAfterLogin(session)?.let(controller::openDeepLink)
     }
 }
 
@@ -232,29 +290,27 @@ private fun AdaptiveShell(
         val widthClass = WindowWidthClass.fromWidth(maxWidth)
         when {
             !showChrome -> content(Modifier.fillMaxSize())
-
-            widthClass == WindowWidthClass.Compact ->
-                Scaffold(
-                    bottomBar = {
-                        NavigationBar {
-                            destinations.forEach { destination ->
-                                NavigationBarItem(
-                                    selected = selectedTopLevelRoute == destination.route,
-                                    onClick = { onSelect(destination) },
-                                    icon = {
-                                        Icon(
-                                            destination.icon,
-                                            contentDescription = destination.label,
-                                        )
-                                    },
-                                    label = { Text(destination.label) },
-                                )
-                            }
+            widthClass == WindowWidthClass.Compact -> Scaffold(
+                bottomBar = {
+                    NavigationBar {
+                        destinations.forEach { destination ->
+                            NavigationBarItem(
+                                selected = selectedTopLevelRoute == destination.route,
+                                onClick = { onSelect(destination) },
+                                icon = {
+                                    Icon(
+                                        destination.icon,
+                                        contentDescription = destination.label,
+                                    )
+                                },
+                                label = { Text(destination.label) },
+                            )
                         }
-                    },
-                ) { padding ->
-                    content(Modifier.fillMaxSize().padding(padding))
-                }
+                    }
+                },
+            ) { padding ->
+                content(Modifier.fillMaxSize().padding(padding))
+            }
 
             else ->
                 Row(modifier = Modifier.fillMaxSize()) {

@@ -18,7 +18,7 @@ feature/<name>/src/commonMain/kotlin/.../<name>/
     <Name>UiState.kt           ONE data class + sealed <Name>Event
     <Name>ViewModel.kt         ONE StateFlow<UiState> + onEvent(Event)
     <Name>Screen.kt            Screen (stateful) + Content (stateless, previewed)
-  <Name>Feature.kt             FeatureRegistration + Koin module
+  <Name>Feature.kt             FeatureRegistration + deep links + Koin module
 ```
 
 Dependency rule inside a feature: `presentation → domain ← data`.
@@ -64,6 +64,13 @@ The `domain` package imports no Ktor, Room, Compose, or Koin types.
   `koinViewModel()`/effects; `XxxContent(state, onEvent)` is stateless,
   has `@Preview`s, and is what UI tests target.
 - Collect with `collectAsStateWithLifecycle()`.
+- Prefer stable screen content with inline status over full-screen loading
+  surfaces once a route is known. App startup route resolution is host-owned:
+  Android/iOS keep their native splash/launch screen up, Desktop resolves
+  before opening the window, and shared Compose receives the resolved route.
+  Feature screens should keep headings, cached content, and current errors
+  visible during refresh/restore. Use core:ui timing helpers for delayed
+  indicators and status fades instead of ad hoc per-screen delays.
 
 ```kotlin
 data class NotesUiState(
@@ -121,6 +128,32 @@ items restores that destination's stack, and reselecting the current item pops
 that stack to its root. Root top-level screens do not render their own Back
 button; only deeper entries in a stack should expose Back/Up.
 
+Deep links are feature-owned public API. Each feature declares explicit
+`DeepLinkSpec`s in its `FeatureRegistration`; never derive URL paths from route
+class names. Platform hosts only capture URLs (`myapptemplate://open/...` in the
+template default) and forward the raw string to shared Kotlin: Android uses
+intents, iOS uses `onOpenURL`, and Desktop currently supports JVM startup args
+plus macOS LaunchServices URL events. Shared navigation parses, validates, maps
+to typed `NavKey` stacks, applies auth gating, and then mutates the retained
+top-level stack or transient full-screen stack. Route arguments remain typed
+route fields; screens and ViewModels never receive raw URLs.
+
+V1 template links:
+
+| URL                                              | Stack                                      |
+|--------------------------------------------------|--------------------------------------------|
+| `myapptemplate://open/home`                      | Home root                                  |
+| `myapptemplate://open/notes`                     | Notes root                                 |
+| `myapptemplate://open/settings`                  | Settings root                              |
+| `myapptemplate://open/account`                   | Account root                               |
+| `myapptemplate://open/showcase/design-system`    | Home -> Design System Gallery              |
+| `myapptemplate://open/showcase/network`          | Home -> Network Demo                       |
+
+Verified HTTPS Android App Links / iOS Universal Links should be enabled only
+in generated apps with a real domain, signing identity, and hosted association
+files. Keep the shared parser shape explicit so those URLs can map to the same
+typed resolutions without changing screens.
+
 ## Wiring (the 4-touchpoint plug-in contract)
 
 1. `settings.gradle.kts` — `include(":feature:<name>")`
@@ -140,7 +173,7 @@ after removing a feature, run the app and the tests, not just the compiler.
   Turbine. Use `runBlocking` (not `runTest`) when a real Ktor client with
   `HttpTimeout` is involved — virtual time trips the timeout.
 - presentation: compose-ui tests against `Content` (no Koin needed) and
-  app-level e2e through `App()` with `loadKoinModules` overrides
+  app-level e2e through `App(startRoute = ...)` with `loadKoinModules` overrides
   (see `app/shared/src/jvmTest/.../TestSupport.kt`).
 - Server: ktor-server-test-host route tests.
 

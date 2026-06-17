@@ -1,5 +1,7 @@
 package com.lizz.myapptemplate.di
 
+import com.lizz.myapptemplate.DeepLinkCoordinator
+import com.lizz.myapptemplate.appDeepLinkRegistry
 import com.lizz.myapptemplate.auth.authKoinModule
 import com.lizz.myapptemplate.connectivity.connectivityPlatformKoinModule
 import com.lizz.myapptemplate.database.databasePlatformKoinModule
@@ -23,6 +25,8 @@ val appModule = module {
     // The showcase home screen lists features from this catalog.
     // (Top-level destinations live in the shell's bar/rail, not here.)
     single { FeatureCatalog(featureRegistrations.flatMap { it.descriptors }) }
+    single { appDeepLinkRegistry() }
+    single { DeepLinkCoordinator(get()) }
     // Point this at your API; the template default is the local sample server.
     single { NetworkConfig(baseUrl = defaultServerBaseUrl()) }
 }

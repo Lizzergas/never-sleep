@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -39,8 +40,10 @@ class OnboardingE2eTest {
 
     @Test
     fun firstLaunchShowsOnboardingAndGetStartedLandsOnHome() {
+        val startRoute = runBlocking { resolveAppStartRoute() }
+
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = startRoute) }
         }
 
         // Fresh DataStore -> onboarding is the start destination.
@@ -63,9 +66,10 @@ class OnboardingE2eTest {
     @Test
     fun seenFlagSkipsOnboardingOnNextLaunch() {
         skipOnboardingForTests()
+        val startRoute = runBlocking { resolveAppStartRoute() }
 
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = startRoute) }
         }
 
         rule.waitUntil(timeoutMillis = 10_000) {

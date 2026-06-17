@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -24,8 +22,8 @@ import com.lizz.myapptemplate.auth.domain.SessionState
 import com.lizz.myapptemplate.auth.domain.User
 import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.Theme
+import com.lizz.myapptemplate.ui.DelayedVisibility
 import com.lizz.myapptemplate.ui.ErrorContent
-import com.lizz.myapptemplate.ui.LoadingContent
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Stateful wrapper: owns the ViewModel. All rendering is in [AccountContent]. */
@@ -50,19 +48,42 @@ fun AccountContent(
     onEvent: (AccountEvent) -> Unit,
 ) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .safeContentPadding()
-                .padding(Theme.spacing.md),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
+        Text("Account", style = MaterialTheme.typography.headlineMedium)
         when (val session = state.session) {
-            SessionState.Unknown -> LoadingContent()
-            SessionState.LoggedOut -> AuthForm(state, onEvent)
-            is SessionState.LoggedIn -> Profile(session.user, onLogout = { onEvent(AccountEvent.Logout) })
+            SessionState.Unknown -> RestorePendingContent()
+            SessionState.LoggedOut -> {
+                AccountIntro()
+                AuthForm(state, onEvent)
+            }
+
+            is SessionState.LoggedIn -> Profile(
+                session.user,
+                onLogout = { onEvent(AccountEvent.Logout) })
         }
     }
+}
+
+@Composable
+private fun RestorePendingContent() {
+    AccountIntro()
+    DelayedVisibility(visible = true) {
+        Text(
+            "Checking saved session...",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun AccountIntro() {
+    Text(
+        "Sign in to keep your notes available across devices.",
+        style = MaterialTheme.typography.bodyMedium,
+    )
 }
 
 @Composable
@@ -73,11 +94,6 @@ private fun AuthForm(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    Text("Account", style = MaterialTheme.typography.headlineMedium)
-    Text(
-        "Sign in to keep your notes available across devices.",
-        style = MaterialTheme.typography.bodyMedium,
-    )
     OutlinedTextField(
         value = email,
         onValueChange = { email = it },

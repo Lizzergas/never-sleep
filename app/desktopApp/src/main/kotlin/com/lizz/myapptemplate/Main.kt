@@ -3,15 +3,20 @@ package com.lizz.myapptemplate
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.lizz.myapptemplate.di.initKoin
+import kotlinx.coroutines.runBlocking
 
-fun main() {
+fun main(args: Array<String>) {
     initKoin()
+    val deepLinkBridge = DesktopDeepLinkBridge()
+    deepLinkBridge.installUriHandler()
+    deepLinkBridge.openStartupLinks(args)
+    val startRoute = runBlocking { resolveAppStartRoute() }
     application {
         Window(
             onCloseRequest = ::exitApplication,
             title = "MyAppTemplate",
         ) {
-            App()
+            App(startRoute = startRoute)
         }
     }
 }

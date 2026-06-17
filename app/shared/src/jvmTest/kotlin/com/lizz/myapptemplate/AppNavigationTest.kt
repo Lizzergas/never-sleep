@@ -47,7 +47,7 @@ class AppNavigationTest {
     fun showcaseListsFeaturesAndNavigatesToGalleryAndBack() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 
@@ -74,7 +74,7 @@ class AppNavigationTest {
     fun settingsThemeSelectionPersistsThroughTheRealChain() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 
@@ -93,7 +93,7 @@ class AppNavigationTest {
     fun topLevelRootsDoNotRenderBackAndHomeDetailStackIsRetained() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 
@@ -122,10 +122,46 @@ class AppNavigationTest {
     }
 
     @Test
+    fun showcaseDetailNavigationSettlesWithoutLeavingHomeContentMounted() {
+        rule.setContent {
+            TestAppOwner {
+                App(startRoute = defaultStartRoute)
+            }
+        }
+
+        rule.onNodeWithText("Network demo").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Load items").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Network demo").assertIsDisplayed()
+        rule.onNodeWithText("Load items").assertIsDisplayed()
+        rule.onNodeWithText("Home").assertIsSelected()
+        rule.onAllNodesWithText("Installed features").assertCountEquals(0)
+        rule.onAllNodesWithText("Design system gallery").assertCountEquals(0)
+
+        rule.onNodeWithText("Back").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Installed features").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Design system gallery").performClick()
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Typography").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Design system").assertIsDisplayed()
+        rule.onNodeWithText("Typography").assertIsDisplayed()
+        rule.onNodeWithText("Home").assertIsSelected()
+        rule.onAllNodesWithText("Installed features").assertCountEquals(0)
+        rule.onAllNodesWithText("Network demo").assertCountEquals(0)
+    }
+
+    @Test
     fun switchingFromSettingsToAccountDoesNotLeaveSettingsContentMounted() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 
@@ -141,5 +177,50 @@ class AppNavigationTest {
         rule.onNodeWithText("Email").assertIsDisplayed()
         rule.onAllNodesWithText("Theme").assertCountEquals(0)
         rule.onAllNodesWithText("Back").assertCountEquals(0)
+    }
+
+    @Test
+    fun pendingDeepLinkIsAppliedOnFirstComposition() {
+        check(openAppDeepLink("myapptemplate://open/notes"))
+
+        rule.setContent {
+            TestAppOwner {
+                App(startRoute = defaultStartRoute)
+            }
+        }
+
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Notes").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("New note").assertIsDisplayed()
+        rule.onAllNodesWithText("Installed features").assertCountEquals(0)
+    }
+
+    @Test
+    fun warmDeepLinkReplacesOwningStack() {
+        rule.setContent {
+            TestAppOwner {
+                App(startRoute = defaultStartRoute)
+            }
+        }
+
+        rule.onNodeWithText("Design system gallery").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Design system").assertIsDisplayed()
+
+        rule.runOnIdle {
+            check(openAppDeepLink("myapptemplate://open/showcase/network"))
+        }
+        rule.waitUntil(timeoutMillis = 10_000) {
+            rule.onAllNodesWithText("Network demo").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        rule.onNodeWithText("Network demo").assertIsDisplayed()
+        rule.onAllNodesWithText("Design system").assertCountEquals(0)
+
+        rule.onNodeWithText("Back").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Installed features").assertIsDisplayed()
     }
 }

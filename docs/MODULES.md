@@ -16,8 +16,8 @@ core/
   database/         Room 3 KMP setup: driver, per-platform builders, sample Note entity
   datastore/        DataStore<Preferences> factory + per-platform storage location
   designsystem/     Material 3 Expressive AppTheme, color schemes, typography, spacing, ThemeModeProvider
-  navigation/       FeatureRegistration contract, Navigator, FeatureCatalog
-  ui/               UiState + Loading/Error/Empty components, AppError user messages
+  navigation/       FeatureRegistration, Navigator, FeatureCatalog, deep link parsing
+  ui/               UiState + Loading/Error/Empty components, status timing helpers, AppError user messages
 feature/
   auth/             Account: register/login/logout, KVault token storage, 401 auto-refresh
   notes/            THE reference feature — full chain server<->Room<->domain<->UI (copy me)
@@ -25,10 +25,10 @@ feature/
   settings/         Theme mode persisted via core:datastore (smallest exemplar)
   showcase/         Start destination: feature catalog + designsystem gallery + network demo
 app/
-  shared/           App shell: AppTheme application, AppNavHost (registry), di/initKoin
-  androidApp/       Android entry (MainApplication starts Koin with androidContext)
-  desktopApp/       Desktop entry (main() starts Koin)
-  iosApp/           Xcode project (iOSApp.init starts Koin via doInitKoin)
+  shared/           App shell: AppTheme, start/deep-link resolver, AppNavHost, di/initKoin
+  androidApp/       Android entry: Koin startup + native splash + deep-link intents
+  desktopApp/       Desktop entry: Koin startup + route resolution + macOS deep-link capture
+  iosApp/           Xcode project: native LaunchScreen + Koin startup + URL forwarding
 server/             Ktor server with /api/* sample routes using core:model DTOs
 web/                Optional Bun workspace: Astro landing, Vite admin, TS API client
 ```
@@ -39,7 +39,8 @@ web/                Optional Bun workspace: Astro landing, Vite admin, TS API cl
 - `core:model` and `core:common` are UI-free; the server may depend on them.
 - `core:ui` may depend on `core:designsystem` (one-way, both are UI-foundation).
 - `app:shared` is the only module that sees everything; it owns theme
-  application, the navigation shell, and Koin startup.
+  application, the navigation shell, the start-route/deep-link resolver, and
+  Koin startup.
 - `web/` is not a Gradle module. Keep web tooling, package manifests, and
   generated artifacts inside `web/`; it talks to `server` over HTTP `/api/*`.
 
@@ -47,8 +48,9 @@ web/                Optional Bun workspace: Astro landing, Vite admin, TS API cl
 
 First create `feature/<name>` with `id("template.kmp.feature")` and implement a
 `FeatureRegistration` object (routes + entries + optional catalog descriptors +
-optional `topLevelDestination` for the bottom bar / rail) plus a Koin `Module`.
-Follow the package anatomy in ARCHITECTURE.md.
+optional `topLevelDestination` for the bottom bar / rail + optional explicit
+`DeepLinkSpec`s) plus a Koin `Module`. Follow the package anatomy in
+ARCHITECTURE.md.
 
 Then wire it in four places:
 
@@ -63,6 +65,14 @@ contributes catalog descriptors; top-level destinations appear in the shell's
 bottom bar / rail. Top-level destinations are retained shell tabs: do not render
 a screen-local Back button on the root route; use Back only for deeper entries
 inside that feature's stack.
+
+Deep links are aggregated from `FeatureRegistration.deepLinks`; Android, iOS,
+and Desktop only register/capture the template custom scheme and forward URL
+strings into shared Kotlin. Desktop support is macOS-first for packaged URL
+events, with JVM startup args available for manual launcher tests. The template
+ships `myapptemplate://open/...` links. Verified HTTPS App Links / Universal
+Links are intentionally left to generated apps with a real domain and app
+association files.
 
 ## Removing a feature
 

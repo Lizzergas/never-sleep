@@ -10,13 +10,17 @@ import com.lizz.myapptemplate.notes.domain.NotesRepository
 import com.lizz.myapptemplate.notes.presentation.NotesEvent
 import com.lizz.myapptemplate.notes.presentation.NotesUiState
 import com.lizz.myapptemplate.notes.presentation.NotesViewModel
+import com.lizz.myapptemplate.ui.UI_REFRESH_MINIMUM_VISIBLE_MILLIS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -49,9 +53,12 @@ private class ViewModelNotesRepository : NotesRepository {
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotesViewModelTest {
+    private lateinit var mainDispatcher: TestDispatcher
+
     @BeforeTest
     fun setUp() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        mainDispatcher = StandardTestDispatcher()
+        Dispatchers.setMain(mainDispatcher)
     }
 
     @AfterTest
@@ -60,23 +67,59 @@ class NotesViewModelTest {
     }
 
     @Test
-    fun failedRefreshKeepsPreviousErrorVisibleWhileRefreshing() =
-        runTest {
+    fun initialAutoRefreshFailureDoesNotPublishErrorBeforeMinimumWindow() =
+        runTest(mainDispatcher) {
             val repository = ViewModelNotesRepository()
             val viewModel = viewModel(repository)
+            runCurrent()
+
+            viewModel.state.test {
+                assertEquals(NotesUiState(isRefreshing = true), awaitItem())
+
+                repository.refreshResults.send(ApiResult.Failure(AppError.Network))
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(UI_REFRESH_MINIMUM_VISIBLE_MILLIS - 1L)
+                runCurrent()
+                expectNoEvents()
+
+                advanceTimeBy(1)
+                runCurrent()
+                assertEquals(
+                    NotesUiState(error = AppError.Network),
+                    awaitState(this) { !it.isRefreshing && it.error == AppError.Network },
+                )
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun failedRefreshKeepsPreviousErrorVisibleWhileRefreshing() =
+        runTest(mainDispatcher) {
+            val repository = ViewModelNotesRepository()
+            val viewModel = viewModel(repository)
+            runCurrent()
 
             viewModel.state.test {
                 awaitState(this) { it.isRefreshing }
                 repository.refreshResults.send(ApiResult.Failure(AppError.Network))
+                runCurrent()
+                advanceTimeBy(UI_REFRESH_MINIMUM_VISIBLE_MILLIS.toLong())
+                runCurrent()
                 awaitState(this) { !it.isRefreshing && it.error == AppError.Network }
 
                 viewModel.onEvent(NotesEvent.Refresh)
+                runCurrent()
 
                 assertEquals(
                     NotesUiState(isRefreshing = true, error = AppError.Network),
                     awaitState(this) { it.isRefreshing && it.error == AppError.Network },
                 )
                 repository.refreshResults.send(ApiResult.Failure(AppError.Network))
+                runCurrent()
+                advanceTimeBy(UI_REFRESH_MINIMUM_VISIBLE_MILLIS.toLong())
+                runCurrent()
                 awaitState(this) { !it.isRefreshing && it.error == AppError.Network }
                 cancelAndIgnoreRemainingEvents()
             }
@@ -84,18 +127,26 @@ class NotesViewModelTest {
 
     @Test
     fun successfulRefreshClearsExistingError() =
-        runTest {
+        runTest(mainDispatcher) {
             val repository = ViewModelNotesRepository()
             val viewModel = viewModel(repository)
+            runCurrent()
 
             viewModel.state.test {
                 awaitState(this) { it.isRefreshing }
                 repository.refreshResults.send(ApiResult.Failure(AppError.Network))
+                runCurrent()
+                advanceTimeBy(UI_REFRESH_MINIMUM_VISIBLE_MILLIS.toLong())
+                runCurrent()
                 awaitState(this) { !it.isRefreshing && it.error == AppError.Network }
 
                 viewModel.onEvent(NotesEvent.Refresh)
+                runCurrent()
                 awaitState(this) { it.isRefreshing && it.error == AppError.Network }
                 repository.refreshResults.send(ApiResult.Success(Unit))
+                runCurrent()
+                advanceTimeBy(UI_REFRESH_MINIMUM_VISIBLE_MILLIS.toLong())
+                runCurrent()
 
                 assertEquals(NotesUiState(), awaitState(this) { !it.isRefreshing && it.error == null })
                 cancelAndIgnoreRemainingEvents()
@@ -104,9 +155,10 @@ class NotesViewModelTest {
 
     @Test
     fun repeatedRefreshWhileAlreadyRefreshingIsCoalesced() =
-        runTest {
+        runTest(mainDispatcher) {
             val repository = ViewModelNotesRepository()
             val viewModel = viewModel(repository)
+            runCurrent()
 
             viewModel.state.test {
                 awaitState(this) { it.isRefreshing }
@@ -116,6 +168,9 @@ class NotesViewModelTest {
 
                 assertEquals(1, repository.refreshCalls)
                 repository.refreshResults.send(ApiResult.Success(Unit))
+                runCurrent()
+                advanceTimeBy(UI_REFRESH_MINIMUM_VISIBLE_MILLIS.toLong())
+                runCurrent()
                 awaitState(this) { !it.isRefreshing }
                 assertEquals(1, repository.refreshCalls)
                 cancelAndIgnoreRemainingEvents()
@@ -124,21 +179,27 @@ class NotesViewModelTest {
 
     @Test
     fun addAndDeleteFailuresStillReportErrors() =
-        runTest {
+        runTest(mainDispatcher) {
             val repository = ViewModelNotesRepository()
             val viewModel = viewModel(repository)
+            runCurrent()
 
             viewModel.state.test {
                 awaitState(this) { it.isRefreshing }
                 repository.refreshResults.send(ApiResult.Success(Unit))
+                runCurrent()
+                advanceTimeBy(UI_REFRESH_MINIMUM_VISIBLE_MILLIS.toLong())
+                runCurrent()
                 awaitState(this) { !it.isRefreshing }
 
                 repository.addResult = ApiResult.Failure(AppError.Validation(400))
                 viewModel.onEvent(NotesEvent.Add("hello"))
+                runCurrent()
                 awaitState(this) { it.error == AppError.Validation(400) }
 
                 repository.deleteResult = ApiResult.Failure(AppError.Timeout)
                 viewModel.onEvent(NotesEvent.Delete(1))
+                runCurrent()
                 awaitState(this) { it.error == AppError.Timeout }
                 cancelAndIgnoreRemainingEvents()
             }

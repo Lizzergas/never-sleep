@@ -4,7 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.auth.AccountRoute
+import com.lizz.myapptemplate.navigation.DeepLinkBackStackPolicy
+import com.lizz.myapptemplate.navigation.DeepLinkResolution
 import com.lizz.myapptemplate.notes.NotesRoute
+import com.lizz.myapptemplate.onboarding.OnboardingRoute
 import com.lizz.myapptemplate.settings.SettingsRoute
 import com.lizz.myapptemplate.showcase.DesignsystemGalleryRoute
 import com.lizz.myapptemplate.showcase.ShowcaseHomeRoute
@@ -116,13 +119,99 @@ class AppNavigationControllerTest {
         assertFalse(controller.goBack())
     }
 
+    @Test
+    fun topLevelDeepLinkSelectsAndPopsDestinationStackToRoot() {
+        val notesStack = NavBackStack<NavKey>(NotesRoute, DesignsystemGalleryRoute)
+        val settingsStack = NavBackStack<NavKey>(SettingsRoute, DesignsystemGalleryRoute)
+        val controller =
+            controller(
+                selected = SettingsRoute,
+                stacks =
+                    mapOf(
+                        ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
+                        NotesRoute to notesStack,
+                        SettingsRoute to settingsStack,
+                    ),
+            )
+
+        controller.openDeepLink(
+            DeepLinkResolution(
+                selectedTopLevelRoute = NotesRoute,
+                stack = listOf(NotesRoute),
+            ),
+        )
+
+        assertEquals(NotesRoute, controller.selectedTopLevelRoute)
+        assertEquals(listOf<NavKey>(NotesRoute), notesStack)
+        assertEquals(listOf<NavKey>(SettingsRoute, DesignsystemGalleryRoute), settingsStack)
+    }
+
+    @Test
+    fun detailDeepLinkReplacesOnlyOwningTopLevelStack() {
+        val homeStack = NavBackStack<NavKey>(ShowcaseHomeRoute)
+        val settingsStack = NavBackStack<NavKey>(SettingsRoute, DesignsystemGalleryRoute)
+        val controller =
+            controller(
+                selected = SettingsRoute,
+                stacks =
+                    mapOf(
+                        ShowcaseHomeRoute to homeStack,
+                        SettingsRoute to settingsStack,
+                    ),
+            )
+
+        controller.openDeepLink(
+            DeepLinkResolution(
+                selectedTopLevelRoute = ShowcaseHomeRoute,
+                stack = listOf(ShowcaseHomeRoute, DesignsystemGalleryRoute),
+            ),
+        )
+
+        assertEquals(ShowcaseHomeRoute, controller.selectedTopLevelRoute)
+        assertEquals(listOf<NavKey>(ShowcaseHomeRoute, DesignsystemGalleryRoute), homeStack)
+        assertEquals(listOf<NavKey>(SettingsRoute, DesignsystemGalleryRoute), settingsStack)
+    }
+
+    @Test
+    fun fullScreenDeepLinkUsesTransientStack() {
+        val transientStack = NavBackStack<NavKey>(ShowcaseHomeRoute)
+        val transientActiveState = mutableStateOf(false)
+        val controller =
+            controller(
+                selected = SettingsRoute,
+                stacks =
+                    mapOf(
+                        ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
+                        SettingsRoute to NavBackStack(SettingsRoute),
+                    ),
+                transientStack = transientStack,
+                transientActiveState = transientActiveState,
+            )
+
+        controller.openDeepLink(
+            DeepLinkResolution(
+                selectedTopLevelRoute = ShowcaseHomeRoute,
+                stack = listOf(OnboardingRoute),
+                backStackPolicy = DeepLinkBackStackPolicy.Transient,
+            ),
+        )
+
+        assertEquals(SettingsRoute, controller.selectedTopLevelRoute)
+        assertTrue(controller.isTransientActive)
+        assertEquals(listOf<NavKey>(OnboardingRoute), transientStack)
+    }
+
     private fun controller(
         selected: NavKey,
         stacks: Map<NavKey, NavBackStack<NavKey>>,
+        transientStack: NavBackStack<NavKey>? = null,
+        transientActiveState: androidx.compose.runtime.MutableState<Boolean>? = null,
     ): AppNavigationController =
         AppNavigationController(
             topLevelBackStacks = stacks,
             selectedTopLevelRouteState = mutableStateOf(selected),
             defaultTopLevelRoute = ShowcaseHomeRoute,
+            transientBackStack = transientStack,
+            transientActiveState = transientActiveState,
         )
 }

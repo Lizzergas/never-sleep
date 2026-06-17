@@ -80,7 +80,7 @@ class ConnectivityRetryE2eTest {
     @Test
     fun offlineBannerShowsAndDemoRetriesOnReconnect() {
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = defaultStartRoute) }
         }
 
         // Go offline: transport fails and the shell banner appears.

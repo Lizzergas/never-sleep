@@ -16,8 +16,10 @@
 set -euo pipefail
 
 OLD_PACKAGE="com.lizz.myapptemplate"
+OLD_PATH="com/lizz/myapptemplate"
 OLD_NAME="MyAppTemplate"
 OLD_LOWER="myapptemplate"
+SCRIPT_PATH="${BASH_SOURCE[0]}"
 
 NEW_NAME="${1:-}"
 if [[ -z "$NEW_NAME" ]]; then
@@ -37,6 +39,7 @@ if [[ ! "$NEW_PACKAGE" =~ ^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$ ]]; then
   echo "error: package must look like com.example.app (got '$NEW_PACKAGE')" >&2
   exit 1
 fi
+NEW_PATH="$(echo "$NEW_PACKAGE" | tr '.' '/')"
 
 if [[ ! -f settings.gradle.kts ]]; then
   echo "error: run from the repository root" >&2
@@ -56,9 +59,22 @@ git ls-files -z | while IFS= read -r -d '' f; do
   [[ -f "$f" ]] || continue
   grep -Iq . "$f" 2>/dev/null || continue   # skip binary files
   if grep -qiE "$OLD_LOWER" "$f"; then
-    perl -pi -e "s/\Q$OLD_PACKAGE\E/$NEW_PACKAGE/g; s/\Q$OLD_NAME\E/$NEW_NAME/g; s/\Q$OLD_LOWER\E/$NEW_LOWER/g" "$f"
+    perl -pi -e "s|\Q$OLD_PACKAGE\E|$NEW_PACKAGE|g; s|\Q$OLD_PATH\E|$NEW_PATH|g; s|\Q$OLD_NAME\E|$NEW_NAME|g; s|\Q$OLD_LOWER\E|$NEW_LOWER|g" "$f"
   fi
 done
+
+# 1b. Drop template-only onboarding sections from app docs after the repo is
+#     no longer a template checkout.
+for f in README.md AGENTS.md; do
+  [[ -f "$f" ]] || continue
+  perl -0pi -e 's/\n?<!-- TEMPLATE_ONLY_RENAME_START -->.*?<!-- TEMPLATE_ONLY_RENAME_END -->\n?/\n/gs; s/\n{3,}/\n\n/g' "$f"
+done
+if [[ -f README.md ]]; then
+  perl -0pi -e 's/A Kotlin\/Compose Multiplatform template targeting/A Kotlin\/Compose Multiplatform application targeting/' README.md
+fi
+if [[ -f AGENTS.md ]]; then
+  perl -0pi -e 's/Compose Multiplatform template \(Android, iOS, Desktop JVM, Ktor server\)/Compose Multiplatform app (Android, iOS, Desktop JVM, Ktor server)/' AGENTS.md
+fi
 
 # 2. Rename dotted-FQN directories (e.g. Room schema exports like
 #    core/database/schemas/com.lizz.myapptemplate.database.AppDatabase/).
@@ -67,8 +83,6 @@ find . -depth -type d -name "*${OLD_PACKAGE}*" -not -path "./.git/*" -not -path 
 done
 
 # 3. Move Kotlin/Java source trees to the new package path.
-OLD_PATH="com/lizz/myapptemplate"
-NEW_PATH="$(echo "$NEW_PACKAGE" | tr '.' '/')"
 find . -type d -path "*/$OLD_PATH" -not -path "./.git/*" -not -path "*/build/*" | while read -r dir; do
   src_root="${dir%/"$OLD_PATH"}"
   target="$src_root/$NEW_PATH"
@@ -80,10 +94,15 @@ find . -type d -path "*/$OLD_PATH" -not -path "./.git/*" -not -path "*/build/*" 
   rmdir -p "$dir" 2>/dev/null || true
 done
 
+# 4. This is a one-shot bootstrap script; removing it keeps the generated app
+#    free of stale template identifiers.
+if [[ -f "$SCRIPT_PATH" ]]; then
+  rm -- "$SCRIPT_PATH"
+fi
+
 echo
 echo "Done. Next steps:"
 echo "  1. Review:  git diff --stat"
 echo "  2. Verify:  ./gradlew :app:shared:jvmTest :server:test"
 echo "  3. Commit:  git add -A && git commit -m 'Rename template to $NEW_NAME'"
-echo "  4. Optionally: rm rename.sh (it has done its job),"
-echo "     and rename the repo folder itself: cd .. && mv $OLD_NAME $NEW_NAME"
+echo "  4. Rename the repo folder itself if desired: cd .. && mv $OLD_NAME $NEW_NAME"

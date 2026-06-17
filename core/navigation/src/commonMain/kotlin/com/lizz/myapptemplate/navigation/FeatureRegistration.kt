@@ -30,6 +30,9 @@ interface FeatureRegistration {
     /** Routes that render WITHOUT the shell's navigation chrome (e.g. onboarding, paywalls). */
     val fullScreenRoutes: Set<NavKey> get() = emptySet()
 
+    /** Public URL contracts owned by this feature. */
+    val deepLinks: List<DeepLinkSpec> get() = emptyList()
+
     /** Register every route type this feature owns (serializer registration). */
     fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>)
 
