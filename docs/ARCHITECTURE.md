@@ -18,7 +18,7 @@ feature/<name>/src/commonMain/kotlin/.../<name>/
     <Name>UiState.kt           ONE data class + sealed <Name>Event
     <Name>ViewModel.kt         ONE StateFlow<UiState> + onEvent(Event)
     <Name>Screen.kt            Screen (stateful) + Content (stateless, previewed)
-  <Name>Feature.kt             FeatureRegistration + Koin module
+  <Name>Feature.kt             FeatureRegistration + deep links + Koin module
 ```
 
 Dependency rule inside a feature: `presentation → domain ← data`.
@@ -127,6 +127,31 @@ one Navigation3 back stack per top-level destination; switching bottom-bar/rail
 items restores that destination's stack, and reselecting the current item pops
 that stack to its root. Root top-level screens do not render their own Back
 button; only deeper entries in a stack should expose Back/Up.
+
+Deep links are feature-owned public API. Each feature declares explicit
+`DeepLinkSpec`s in its `FeatureRegistration`; never derive URL paths from route
+class names. Platform hosts only capture URLs (`myapptemplate://open/...` in the
+template default) and forward the raw string to shared Kotlin. Shared navigation
+parses, validates, maps to typed `NavKey` stacks, applies auth gating, and then
+mutates the retained top-level stack or transient full-screen stack. Route
+arguments remain typed route fields; screens and ViewModels never receive raw
+URLs.
+
+V1 template links:
+
+| URL                                              | Stack                                      |
+|--------------------------------------------------|--------------------------------------------|
+| `myapptemplate://open/home`                      | Home root                                  |
+| `myapptemplate://open/notes`                     | Notes root                                 |
+| `myapptemplate://open/settings`                  | Settings root                              |
+| `myapptemplate://open/account`                   | Account root                               |
+| `myapptemplate://open/showcase/design-system`    | Home -> Design System Gallery              |
+| `myapptemplate://open/showcase/network`          | Home -> Network Demo                       |
+
+Verified HTTPS Android App Links / iOS Universal Links should be enabled only
+in generated apps with a real domain, signing identity, and hosted association
+files. Keep the shared parser shape explicit so those URLs can map to the same
+typed resolutions without changing screens.
 
 ## Wiring (the 4-touchpoint plug-in contract)
 

@@ -5,6 +5,9 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
+import com.lizz.myapptemplate.navigation.DeepLinkPattern
+import com.lizz.myapptemplate.navigation.DeepLinkResolution
+import com.lizz.myapptemplate.navigation.DeepLinkSpec
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.TopLevelDestination
@@ -25,7 +28,27 @@ data object SettingsRoute : NavKey
 
 object SettingsFeature : FeatureRegistration {
     override val topLevelDestination =
-        TopLevelDestination(route = SettingsRoute, label = "Settings", icon = Icons.Default.Settings)
+        TopLevelDestination(
+            route = SettingsRoute,
+            label = "Settings",
+            icon = Icons.Default.Settings
+        )
+
+    override val deepLinks = listOf(
+        DeepLinkSpec(
+            pattern = DeepLinkPattern(
+                scheme = "myapptemplate",
+                host = "open",
+                pathSegments = listOf("settings"),
+            ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = SettingsRoute,
+                    stack = listOf(SettingsRoute),
+                )
+            },
+        ),
+    )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(SettingsRoute::class)
@@ -43,7 +66,9 @@ object SettingsFeature : FeatureRegistration {
 
 val settingsKoinModule: Module =
     module {
-        single { DataStoreSettingsRepository(get()) } binds
-            arrayOf(SettingsRepository::class, ThemeModeProvider::class)
+        single { DataStoreSettingsRepository(get()) } binds arrayOf(
+            SettingsRepository::class,
+            ThemeModeProvider::class
+        )
         viewModelOf(::SettingsViewModel)
     }

@@ -42,9 +42,10 @@ commit. The script removes itself after a successful rename.
 
 - New modules use the `build-logic` convention plugins:
   `template.kmp.library`, `template.kmp.feature`, `template.compose`.
-- A feature = one `FeatureRegistration` object + one Koin module, wired through
-  `settings.gradle.kts`, `app/shared/build.gradle.kts`, `app/shared`'s
-  `AppNavHost.kt`, and `di/Koin.kt` (the 4-touchpoint contract).
+- A feature = one `FeatureRegistration` object (routes, entries, optional
+  deep links) + one Koin module, wired through `settings.gradle.kts`,
+  `app/shared/build.gradle.kts`, `app/shared`'s `AppNavHost.kt`, and
+  `di/Koin.kt` (the 4-touchpoint contract).
 - Networking returns `ApiResult`/`AppError` (never throws); screens render
   through `core:ui`'s `UiState` components.
 - Kotlin/Gradle versions live only in `gradle/libs.versions.toml`; web

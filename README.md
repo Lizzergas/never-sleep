@@ -42,8 +42,8 @@ identifiers.
 - **core:*** modules: model (shared DTOs + AppError + ApiResult), common,
   connectivity, network (typed error-mapped client + optional bearer auth),
   database (Room 3), datastore, designsystem (Material 3 Expressive AppTheme +
-  tokens), navigation (feature registry contract), and ui (UiState + state
-  components).
+  tokens), navigation (feature registry + typed deep link contract), and ui
+  (UiState + state components).
 - **feature:notes**: the reference feature — full server <-> Room <-> domain
   <-> UI chain with offline reads, server-authoritative writes, and account
   cleanup.

@@ -78,6 +78,8 @@ class NotesE2eTest {
 
     @Test
     fun addNoteThroughUiRoundTripsServerAndCache() {
+        val noteText = "buy oat milk"
+
         rule.setContent {
             TestAppOwner { App(startRoute = defaultStartRoute) }
         }
@@ -85,23 +87,28 @@ class NotesE2eTest {
         rule.onNodeWithText("Notes").performClick()
         rule.waitForIdle()
 
-        rule.onNode(hasSetTextAction() and hasText("New note")).performTextInput("buy oat milk")
+        rule.onNode(hasSetTextAction() and hasText("New note")).performTextInput(noteText)
         rule.onNodeWithText("Add").performClick()
 
-        // Server accepted it and the UI shows it (via the Room cache flow).
+        // Server accepted it and the Room cache holds it for offline reads.
         rule.waitUntil(timeoutMillis = 15_000) {
-            rule.onAllNodesWithText("buy oat milk").fetchSemanticsNodes().isNotEmpty()
+            cacheContainsNote(noteText)
         }
 
-        // And the cache really holds it — offline reads would survive.
-        val cached =
-            runBlocking {
-                GlobalContext
-                    .get()
-                    .get<NoteDao>()
-                    .observeAll()
-                    .first()
-            }
-        assertTrue(cached.any { it.text == "buy oat milk" })
+        // The UI shows the saved row from the cache flow, not just the draft field.
+        rule.waitUntil(timeoutMillis = 15_000) {
+            rule.onAllNodesWithText(noteText).fetchSemanticsNodes().isNotEmpty()
+        }
+        assertTrue(cacheContainsNote(noteText))
     }
+
+    private fun cacheContainsNote(text: String): Boolean =
+        runBlocking {
+            GlobalContext
+                .get()
+                .get<NoteDao>()
+                .observeAll()
+                .first()
+                .any { it.text == text }
+        }
 }

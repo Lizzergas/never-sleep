@@ -3,6 +3,8 @@ package com.lizz.myapptemplate
 import androidx.compose.runtime.MutableState
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.lizz.myapptemplate.navigation.DeepLinkBackStackPolicy
+import com.lizz.myapptemplate.navigation.DeepLinkResolution
 import com.lizz.myapptemplate.navigation.Navigator
 
 internal class AppNavigationController(
@@ -45,8 +47,7 @@ internal class AppNavigationController(
         get() = currentBackStack.lastOrNull()
 
     val canHandleRootBack: Boolean
-        get() =
-            !isTransientActive &&
+        get() = !isTransientActive &&
                 currentBackStack.size == 1 &&
                 selectedTopLevelRoute != defaultTopLevelRoute
 
@@ -94,11 +95,34 @@ internal class AppNavigationController(
         topLevelBackStacks.getValue(defaultTopLevelRoute).popToRoot()
     }
 
-    private fun selectedTopLevelBackStack(): NavBackStack<NavKey> = topLevelBackStacks.getValue(selectedTopLevelRoute)
+    fun openDeepLink(resolution: DeepLinkResolution) {
+        when (resolution.backStackPolicy) {
+            DeepLinkBackStackPolicy.RetainedTopLevel -> {
+                val backStack = topLevelBackStacks[resolution.selectedTopLevelRoute] ?: return
+                transientActiveState?.value = false
+                backStack.replaceWith(resolution.stack)
+                selectedTopLevelRouteState.value = resolution.selectedTopLevelRoute
+            }
+
+            DeepLinkBackStackPolicy.Transient -> {
+                val backStack = transientBackStack ?: return
+                backStack.replaceWith(resolution.stack)
+                transientActiveState?.value = true
+            }
+        }
+    }
+
+    private fun selectedTopLevelBackStack(): NavBackStack<NavKey> =
+        topLevelBackStacks.getValue(selectedTopLevelRoute)
 
     private fun MutableList<NavKey>.popToRoot() {
         while (size > 1) {
             removeLastOrNull()
         }
+    }
+
+    private fun MutableList<NavKey>.replaceWith(stack: List<NavKey>) {
+        clear()
+        addAll(stack)
     }
 }

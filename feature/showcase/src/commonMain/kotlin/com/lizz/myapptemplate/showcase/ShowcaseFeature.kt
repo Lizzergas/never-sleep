@@ -4,6 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.lizz.myapptemplate.navigation.DeepLinkPattern
+import com.lizz.myapptemplate.navigation.DeepLinkResolution
+import com.lizz.myapptemplate.navigation.DeepLinkSpec
 import com.lizz.myapptemplate.navigation.FeatureDescriptor
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
@@ -21,6 +24,48 @@ import org.koin.dsl.module
 object ShowcaseFeature : FeatureRegistration {
     override val topLevelDestination =
         TopLevelDestination(route = ShowcaseHomeRoute, label = "Home", icon = Icons.Default.Home)
+
+    override val deepLinks = listOf(
+        DeepLinkSpec(
+            pattern = DeepLinkPattern(
+                scheme = "myapptemplate",
+                host = "open",
+                pathSegments = listOf("home"),
+            ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = ShowcaseHomeRoute,
+                    stack = listOf(ShowcaseHomeRoute),
+                )
+            },
+        ),
+        DeepLinkSpec(
+            pattern = DeepLinkPattern(
+                scheme = "myapptemplate",
+                host = "open",
+                pathSegments = listOf("showcase", "design-system"),
+            ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = ShowcaseHomeRoute,
+                    stack = listOf(ShowcaseHomeRoute, DesignsystemGalleryRoute),
+                )
+            },
+        ),
+        DeepLinkSpec(
+            pattern = DeepLinkPattern(
+                scheme = "myapptemplate",
+                host = "open",
+                pathSegments = listOf("showcase", "network"),
+            ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = ShowcaseHomeRoute,
+                    stack = listOf(ShowcaseHomeRoute, NetworkDemoRoute),
+                )
+            },
+        ),
+    )
 
     // The home screen is the app's start destination, so the showcase lists
     // only its gallery as an openable feature.

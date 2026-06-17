@@ -11,6 +11,9 @@ import com.lizz.myapptemplate.auth.domain.ValidateCredentialsUseCase
 import com.lizz.myapptemplate.auth.presentation.AccountScreen
 import com.lizz.myapptemplate.auth.presentation.SessionViewModel
 import com.lizz.myapptemplate.common.UserDataCleaner
+import com.lizz.myapptemplate.navigation.DeepLinkPattern
+import com.lizz.myapptemplate.navigation.DeepLinkResolution
+import com.lizz.myapptemplate.navigation.DeepLinkSpec
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
 import com.lizz.myapptemplate.navigation.TopLevelDestination
@@ -31,6 +34,23 @@ data object AccountRoute : NavKey
 object AuthFeature : FeatureRegistration {
     override val topLevelDestination =
         TopLevelDestination(route = AccountRoute, label = "Account", icon = Icons.Default.Person)
+
+    override val deepLinks = listOf(
+        DeepLinkSpec(
+            pattern =
+                DeepLinkPattern(
+                    scheme = "myapptemplate",
+                    host = "open",
+                    pathSegments = listOf("account"),
+                ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = AccountRoute,
+                    stack = listOf(AccountRoute),
+                )
+            },
+        ),
+    )
 
     override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
         builder.subclass(AccountRoute::class)
