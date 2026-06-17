@@ -1,6 +1,6 @@
 # Plan: Desktop Deep Links PRD
 
-Status: Draft / planned. Date: 2026-06-17.
+Status: Draft / macOS-first implementation. Date: 2026-06-17.
 
 ## Problem Statement
 
@@ -47,6 +47,11 @@ Platform strategy:
   forwards them after Koin init.
 - A desktop-only warm-instance bridge forwards second-process URL launches to
   the running app and exits.
+
+Implementation note: the first implementation pass is macOS-first for packaged
+protocol registration. Desktop startup URL args are implemented generically for
+manual launcher tests, but Windows/Linux installer registration and
+cross-platform single-instance forwarding remain follow-up work.
 
 ## User Stories
 

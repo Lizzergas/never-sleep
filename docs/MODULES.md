@@ -27,7 +27,7 @@ feature/
 app/
   shared/           App shell: AppTheme, start/deep-link resolver, AppNavHost, di/initKoin
   androidApp/       Android entry: Koin startup + native splash + deep-link intents
-  desktopApp/       Desktop entry: Koin startup + route resolution before Window
+  desktopApp/       Desktop entry: Koin startup + route resolution + macOS deep-link capture
   iosApp/           Xcode project: native LaunchScreen + Koin startup + URL forwarding
 server/             Ktor server with /api/* sample routes using core:model DTOs
 web/                Optional Bun workspace: Astro landing, Vite admin, TS API client
@@ -66,11 +66,13 @@ bottom bar / rail. Top-level destinations are retained shell tabs: do not render
 a screen-local Back button on the root route; use Back only for deeper entries
 inside that feature's stack.
 
-Deep links are aggregated from `FeatureRegistration.deepLinks`; Android and iOS
-only register/capture the template custom scheme and forward URL strings into
-shared Kotlin. The template ships `myapptemplate://open/...` links. Verified
-HTTPS App Links / Universal Links are intentionally left to generated apps with
-a real domain and app association files.
+Deep links are aggregated from `FeatureRegistration.deepLinks`; Android, iOS,
+and Desktop only register/capture the template custom scheme and forward URL
+strings into shared Kotlin. Desktop support is macOS-first for packaged URL
+events, with JVM startup args available for manual launcher tests. The template
+ships `myapptemplate://open/...` links. Verified HTTPS App Links / Universal
+Links are intentionally left to generated apps with a real domain and app
+association files.
 
 ## Removing a feature
 

@@ -19,7 +19,7 @@ internal fun <T : Any> appNavPopTransitionSpec(): AnimatedContentTransitionScope
     { appNavFadeThroughTransform() }
 
 internal fun <T : Any> appNavPredictivePopTransitionSpec():
-        AnimatedContentTransitionScope<Scene<T>>.(@NavigationEvent.SwipeEdge Int) -> ContentTransform =
+    AnimatedContentTransitionScope<Scene<T>>.(@NavigationEvent.SwipeEdge Int) -> ContentTransform =
     { _ -> appNavFadeThroughTransform() }
 
 private fun appNavFadeThroughTransform(): ContentTransform =

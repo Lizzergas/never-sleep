@@ -28,8 +28,8 @@ data class DeepLinkPattern(
 
     internal fun matches(request: DeepLinkRequest): Boolean =
         scheme == request.scheme &&
-                host == request.host &&
-                pathSegments == request.pathSegments
+            host == request.host &&
+            pathSegments == request.pathSegments
 }
 
 data class DeepLinkResolution(

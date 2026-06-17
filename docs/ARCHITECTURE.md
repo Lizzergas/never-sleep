@@ -131,11 +131,12 @@ button; only deeper entries in a stack should expose Back/Up.
 Deep links are feature-owned public API. Each feature declares explicit
 `DeepLinkSpec`s in its `FeatureRegistration`; never derive URL paths from route
 class names. Platform hosts only capture URLs (`myapptemplate://open/...` in the
-template default) and forward the raw string to shared Kotlin. Shared navigation
-parses, validates, maps to typed `NavKey` stacks, applies auth gating, and then
-mutates the retained top-level stack or transient full-screen stack. Route
-arguments remain typed route fields; screens and ViewModels never receive raw
-URLs.
+template default) and forward the raw string to shared Kotlin: Android uses
+intents, iOS uses `onOpenURL`, and Desktop currently supports JVM startup args
+plus macOS LaunchServices URL events. Shared navigation parses, validates, maps
+to typed `NavKey` stacks, applies auth gating, and then mutates the retained
+top-level stack or transient full-screen stack. Route arguments remain typed
+route fields; screens and ViewModels never receive raw URLs.
 
 V1 template links:
 

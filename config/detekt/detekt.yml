@@ -12,8 +12,8 @@ style:
     ignoreAnnotated: [ 'Composable' ]
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
-  UnusedPrivateMember:
-    ignoreAnnotated: [ 'Preview' ]
+  UnusedPrivateFunction:
+    allowedNames: '.*Preview.*'
   ReturnCount:
     max: 4
 
