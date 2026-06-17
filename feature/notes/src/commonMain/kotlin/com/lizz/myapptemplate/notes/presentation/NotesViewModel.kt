@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.lizz.myapptemplate.model.ApiResult
 import com.lizz.myapptemplate.notes.domain.AddNoteUseCase
 import com.lizz.myapptemplate.notes.domain.NotesRepository
+import com.lizz.myapptemplate.ui.UI_REFRESH_MINIMUM_VISIBLE_MILLIS
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,7 +38,7 @@ class NotesViewModel(
                 _state.update { it.copy(notes = notes) }
             }
         }
-        refresh()
+        refresh(RefreshOrigin.Initial)
     }
 
     fun onEvent(event: NotesEvent) {
@@ -49,15 +52,22 @@ class NotesViewModel(
 
             is NotesEvent.Delete -> launchReporting { repository.delete(event.id) }
 
-            NotesEvent.Refresh -> refresh()
+            NotesEvent.Refresh -> refresh(RefreshOrigin.User)
         }
     }
 
-    private fun refresh() {
+    private fun refresh(origin: RefreshOrigin) {
         if (_state.value.isRefreshing) return
-        _state.update { it.copy(isRefreshing = true) }
+        _state.update { state ->
+            state.copy(
+                isRefreshing = true,
+                error = if (origin == RefreshOrigin.Initial) null else state.error,
+            )
+        }
         viewModelScope.launch {
+            val minimumRefreshWindow = async { delay(UI_REFRESH_MINIMUM_VISIBLE_MILLIS.toLong()) }
             val result = repository.refresh()
+            minimumRefreshWindow.await()
             _state.update {
                 it.copy(
                     isRefreshing = false,
@@ -75,5 +85,10 @@ class NotesViewModel(
                 _state.update { it.copy(error = result.error) }
             }
         }
+    }
+
+    private enum class RefreshOrigin {
+        Initial,
+        User,
     }
 }

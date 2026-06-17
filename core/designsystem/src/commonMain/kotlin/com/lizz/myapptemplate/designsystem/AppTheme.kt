@@ -9,7 +9,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 
 /**
  * The single theming entry point for the whole app.
- * Apply at the shell (App()) — screens only consume MaterialTheme/Theme tokens.
+ * Apply at the shell — screens only consume MaterialTheme/Theme tokens.
  *
  * With [dynamicColor] (default), Android 12+ uses Material You wallpaper
  * colors; every other platform falls back to the brand palette in Color.kt.

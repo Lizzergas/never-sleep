@@ -79,7 +79,7 @@ class NotesE2eTest {
     @Test
     fun addNoteThroughUiRoundTripsServerAndCache() {
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = defaultStartRoute) }
         }
 
         rule.onNodeWithText("Notes").performClick()

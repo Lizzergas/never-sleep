@@ -13,14 +13,11 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSerializable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
@@ -37,15 +34,12 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lizz.myapptemplate.auth.AuthFeature
 import com.lizz.myapptemplate.designsystem.WindowWidthClass
 import com.lizz.myapptemplate.navigation.FeatureRegistration
-import com.lizz.myapptemplate.navigation.StartRouteOverride
 import com.lizz.myapptemplate.navigation.TopLevelDestination
 import com.lizz.myapptemplate.notes.NotesFeature
 import com.lizz.myapptemplate.onboarding.OnboardingFeature
 import com.lizz.myapptemplate.settings.SettingsFeature
 import com.lizz.myapptemplate.showcase.ShowcaseFeature
 import com.lizz.myapptemplate.showcase.ShowcaseHomeRoute
-import com.lizz.myapptemplate.ui.LoadingContent
-import com.lizz.myapptemplate.ui.rememberOptionalKoin
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -65,29 +59,10 @@ val featureRegistrations: List<FeatureRegistration> = listOf(
     AuthFeature,
 )
 
-private val defaultStartRoute: NavKey = ShowcaseHomeRoute
+internal val defaultStartRoute: NavKey = ShowcaseHomeRoute
 
 @Composable
-fun AppNavHost() {
-    // Features may override the start destination (e.g. onboarding until its
-    // seen-flag is set). The lookup is optional — without one we start at the
-    // default immediately; with one we gate on the (suspend) resolution.
-    val startRouteOverride = rememberOptionalKoin<StartRouteOverride>()
-    var startRoute by remember {
-        mutableStateOf(if (startRouteOverride == null) defaultStartRoute else null)
-    }
-    if (startRouteOverride != null && startRoute == null) {
-        LaunchedEffect(Unit) {
-            startRoute = startRouteOverride.startRoute() ?: defaultStartRoute
-        }
-    }
-
-    val resolvedStartRoute = startRoute
-    if (resolvedStartRoute == null) {
-        LoadingContent()
-        return
-    }
-
+fun AppNavHost(startRoute: NavKey = defaultStartRoute) {
     val configuration = remember {
         SavedStateConfiguration {
             serializersModule =
@@ -98,26 +73,28 @@ fun AppNavHost() {
                 }
         }
     }
-    val topLevelDestinations =
-        remember { featureRegistrations.mapNotNull { it.topLevelDestination } }
+    val topLevelDestinations = remember {
+        featureRegistrations.mapNotNull { it.topLevelDestination }
+    }
     val fullScreenRoutes = remember { featureRegistrations.flatMap { it.fullScreenRoutes }.toSet() }
-    val topLevelRoutes =
-        remember(topLevelDestinations) { topLevelDestinations.map { it.route }.toSet() }
+    val topLevelRoutes = remember(topLevelDestinations) {
+        topLevelDestinations.map { it.route }.toSet()
+    }
     val initialTopLevelRoute =
-        if (resolvedStartRoute in topLevelRoutes) resolvedStartRoute else defaultStartRoute
-    val startsOutsideTopLevel = resolvedStartRoute !in topLevelRoutes
+        if (startRoute in topLevelRoutes) startRoute else defaultStartRoute
+    val startsOutsideTopLevel = startRoute !in topLevelRoutes
     val selectedTopLevelRouteState = rememberSerializable(
         stateSerializer = PolymorphicSerializer(NavKey::class),
         configuration = configuration,
     ) {
         mutableStateOf(initialTopLevelRoute)
     }
-    val transientActiveState = rememberSaveable(resolvedStartRoute) {
+    val transientActiveState = rememberSaveable(startRoute) {
         mutableStateOf(startsOutsideTopLevel)
     }
     val transientBackStack =
         if (startsOutsideTopLevel) {
-            rememberNavBackStack(configuration, resolvedStartRoute)
+            rememberNavBackStack(configuration, startRoute)
         } else {
             null
         }
@@ -232,30 +209,27 @@ private fun AdaptiveShell(
         val widthClass = WindowWidthClass.fromWidth(maxWidth)
         when {
             !showChrome -> content(Modifier.fillMaxSize())
-
-            widthClass == WindowWidthClass.Compact ->
-                Scaffold(
-                    bottomBar = {
-                        NavigationBar {
-                            destinations.forEach { destination ->
-                                NavigationBarItem(
-                                    selected = selectedTopLevelRoute == destination.route,
-                                    onClick = { onSelect(destination) },
-                                    icon = {
-                                        Icon(
-                                            destination.icon,
-                                            contentDescription = destination.label,
-                                        )
-                                    },
-                                    label = { Text(destination.label) },
-                                )
-                            }
+            widthClass == WindowWidthClass.Compact -> Scaffold(
+                bottomBar = {
+                    NavigationBar {
+                        destinations.forEach { destination ->
+                            NavigationBarItem(
+                                selected = selectedTopLevelRoute == destination.route,
+                                onClick = { onSelect(destination) },
+                                icon = {
+                                    Icon(
+                                        destination.icon,
+                                        contentDescription = destination.label,
+                                    )
+                                },
+                                label = { Text(destination.label) },
+                            )
                         }
-                    },
-                ) { padding ->
-                    content(Modifier.fillMaxSize().padding(padding))
-                }
-
+                    }
+                },
+            ) { padding ->
+                content(Modifier.fillMaxSize().padding(padding))
+            }
             else ->
                 Row(modifier = Modifier.fillMaxSize()) {
                     NavigationRail {

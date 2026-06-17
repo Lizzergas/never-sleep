@@ -64,6 +64,13 @@ The `domain` package imports no Ktor, Room, Compose, or Koin types.
   `koinViewModel()`/effects; `XxxContent(state, onEvent)` is stateless,
   has `@Preview`s, and is what UI tests target.
 - Collect with `collectAsStateWithLifecycle()`.
+- Prefer stable screen content with inline status over full-screen loading
+  surfaces once a route is known. App startup route resolution is host-owned:
+  Android/iOS keep their native splash/launch screen up, Desktop resolves
+  before opening the window, and shared Compose receives the resolved route.
+  Feature screens should keep headings, cached content, and current errors
+  visible during refresh/restore. Use core:ui timing helpers for delayed
+  indicators and status fades instead of ad hoc per-screen delays.
 
 ```kotlin
 data class NotesUiState(
@@ -140,7 +147,7 @@ after removing a feature, run the app and the tests, not just the compiler.
   Turbine. Use `runBlocking` (not `runTest`) when a real Ktor client with
   `HttpTimeout` is involved — virtual time trips the timeout.
 - presentation: compose-ui tests against `Content` (no Koin needed) and
-  app-level e2e through `App()` with `loadKoinModules` overrides
+  app-level e2e through `App(startRoute = ...)` with `loadKoinModules` overrides
   (see `app/shared/src/jvmTest/.../TestSupport.kt`).
 - Server: ktor-server-test-host route tests.
 

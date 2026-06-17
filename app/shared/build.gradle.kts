@@ -56,7 +56,7 @@ kotlin {
             implementation(projects.core.connectivity)
             implementation(projects.core.database)
             implementation(projects.core.datastore)
-            implementation(projects.core.navigation)
+            api(projects.core.navigation)
             api(projects.core.network)
             implementation(projects.core.ui)
             implementation(projects.feature.auth)
@@ -72,6 +72,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.kotlinx.coroutinesCore)
 
             // DI
             implementation(project.dependencies.platform(libs.koin.bom))

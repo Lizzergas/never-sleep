@@ -3,6 +3,7 @@ package com.lizz.myapptemplate.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -41,7 +42,6 @@ fun <T> UiStateContent(
     error: @Composable (AppError) -> Unit = { ErrorContent(it, onRetry) },
     content: @Composable (T) -> Unit,
 ) {
-    val effectsSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
     Box(
         modifier = modifier.animateContentSize(
@@ -51,7 +51,8 @@ fun <T> UiStateContent(
         AnimatedContent(
             targetState = state,
             transitionSpec = {
-                fadeIn(animationSpec = effectsSpec) togetherWith fadeOut(animationSpec = effectsSpec)
+                fadeIn(animationSpec = tween(UI_STATUS_FADE_IN_MILLIS)) togetherWith
+                    fadeOut(animationSpec = tween(UI_STATUS_FADE_OUT_MILLIS))
             },
             label = "ui-state-content",
         ) { targetState ->
@@ -97,7 +98,6 @@ fun ErrorContent(
     isRetrying: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val effectsSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
     val scaleSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     Column(
@@ -129,8 +129,8 @@ fun ErrorContent(
                 AnimatedContent(
                     targetState = isRetrying,
                     transitionSpec = {
-                        fadeIn(animationSpec = effectsSpec) togetherWith
-                            fadeOut(animationSpec = effectsSpec)
+                        fadeIn(animationSpec = tween(UI_STATUS_FADE_IN_MILLIS)) togetherWith
+                            fadeOut(animationSpec = tween(UI_STATUS_FADE_OUT_MILLIS))
                     },
                     label = "retry-button-content",
                 ) { retrying ->

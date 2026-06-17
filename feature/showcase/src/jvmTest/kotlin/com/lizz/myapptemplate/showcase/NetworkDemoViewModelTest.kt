@@ -21,11 +21,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.yield
 import kotlinx.io.IOException
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -46,7 +46,7 @@ class NetworkDemoViewModelTest {
 
     @Test
     fun initialStateIsIdle() =
-        runTest {
+        runBlocking {
             val viewModel = viewModel(successEngine())
 
             assertEquals(NetworkDemoUiState(), viewModel.state.value)
@@ -54,7 +54,7 @@ class NetworkDemoViewModelTest {
 
     @Test
     fun loadEmitsLoadingThenSuccess() =
-        runTest {
+        runBlocking {
             val proceed = Channel<Unit>(Channel.UNLIMITED)
             val viewModel =
                 viewModel(
@@ -81,7 +81,7 @@ class NetworkDemoViewModelTest {
 
     @Test
     fun loadEmitsLoadingThenError() =
-        runTest {
+        runBlocking {
             val proceed = Channel<Unit>(Channel.UNLIMITED)
             val viewModel =
                 viewModel(
@@ -108,7 +108,7 @@ class NetworkDemoViewModelTest {
 
     @Test
     fun reconnectRetriesAfterNetworkError() =
-        runTest {
+        runBlocking {
             val connectivity = FakeConnectivityMonitor()
             var calls = 0
             val viewModel =
@@ -141,7 +141,7 @@ class NetworkDemoViewModelTest {
 
     @Test
     fun reconnectDoesNotRetryAfterValidationError() =
-        runTest {
+        runBlocking {
             val connectivity = FakeConnectivityMonitor()
             var calls = 0
             val viewModel =
@@ -160,7 +160,7 @@ class NetworkDemoViewModelTest {
                 awaitState(this) { it.items == UiState.Error(AppError.Validation(400)) }
 
                 connectivity.setOnline(true)
-                advanceUntilIdle()
+                yield()
                 assertEquals(1, calls)
                 cancelAndIgnoreRemainingEvents()
             }

@@ -69,7 +69,7 @@ class NetworkDemoE2eTest {
     @Test
     fun networkDemoLoadsItemsFromTheRealServer() {
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = defaultStartRoute) }
         }
 
         rule.onNodeWithText("Network demo").performClick()
@@ -93,7 +93,7 @@ class NetworkDemoE2eTest {
         )
 
         rule.setContent {
-            TestAppOwner { App() }
+            TestAppOwner { App(startRoute = defaultStartRoute) }
         }
 
         rule.onNodeWithText("Network demo").performClick()

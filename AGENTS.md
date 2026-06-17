@@ -10,6 +10,7 @@ Optional web surfaces live under **web/** as a separate Bun workspace. When
 working there, read **web/AGENTS.md** first and keep Node/Vite/Astro/Oxc
 tooling out of the Gradle module graph unless explicitly requested.
 
+<!-- TEMPLATE_ONLY_RENAME_START -->
 ## Renaming the template (do this first in a new app)
 
 ```
@@ -17,9 +18,11 @@ tooling out of the Gradle module graph unless explicitly requested.
 ./rename.sh MyCoolApp org.acme.cool   # custom package
 ```
 
-Rewrites `com.lizz.myapptemplate` / `MyAppTemplate` / `myapptemplate` in all
-tracked files and moves the source trees. Requires a clean working tree;
-review with `git diff`, verify, commit, then delete `rename.sh`.
+Rewrites `com.lizz.myapptemplate` / `com/lizz/myapptemplate` /
+`MyAppTemplate` / `myapptemplate` in all tracked files and moves the source
+trees. Requires a clean working tree; review with `git diff`, verify, and
+commit. The script removes itself after a successful rename.
+<!-- TEMPLATE_ONLY_RENAME_END -->
 
 ## Commands
 

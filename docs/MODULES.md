@@ -17,7 +17,7 @@ core/
   datastore/        DataStore<Preferences> factory + per-platform storage location
   designsystem/     Material 3 Expressive AppTheme, color schemes, typography, spacing, ThemeModeProvider
   navigation/       FeatureRegistration contract, Navigator, FeatureCatalog
-  ui/               UiState + Loading/Error/Empty components, AppError user messages
+  ui/               UiState + Loading/Error/Empty components, status timing helpers, AppError user messages
 feature/
   auth/             Account: register/login/logout, KVault token storage, 401 auto-refresh
   notes/            THE reference feature — full chain server<->Room<->domain<->UI (copy me)
@@ -25,10 +25,10 @@ feature/
   settings/         Theme mode persisted via core:datastore (smallest exemplar)
   showcase/         Start destination: feature catalog + designsystem gallery + network demo
 app/
-  shared/           App shell: AppTheme application, AppNavHost (registry), di/initKoin
-  androidApp/       Android entry (MainApplication starts Koin with androidContext)
-  desktopApp/       Desktop entry (main() starts Koin)
-  iosApp/           Xcode project (iOSApp.init starts Koin via doInitKoin)
+  shared/           App shell: AppTheme application, start-route resolver, AppNavHost (registry), di/initKoin
+  androidApp/       Android entry: Koin startup + native splash before Compose
+  desktopApp/       Desktop entry: Koin startup + route resolution before Window
+  iosApp/           Xcode project: native LaunchScreen + Koin startup before Compose
 server/             Ktor server with /api/* sample routes using core:model DTOs
 web/                Optional Bun workspace: Astro landing, Vite admin, TS API client
 ```
@@ -39,7 +39,7 @@ web/                Optional Bun workspace: Astro landing, Vite admin, TS API cl
 - `core:model` and `core:common` are UI-free; the server may depend on them.
 - `core:ui` may depend on `core:designsystem` (one-way, both are UI-foundation).
 - `app:shared` is the only module that sees everything; it owns theme
-  application, the navigation shell, and Koin startup.
+  application, the navigation shell, the start-route resolver, and Koin startup.
 - `web/` is not a Gradle module. Keep web tooling, package manifests, and
   generated artifacts inside `web/`; it talks to `server` over HTTP `/api/*`.
 

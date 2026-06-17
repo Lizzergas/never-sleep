@@ -47,7 +47,7 @@ class AppNavigationTest {
     fun showcaseListsFeaturesAndNavigatesToGalleryAndBack() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 
@@ -74,7 +74,7 @@ class AppNavigationTest {
     fun settingsThemeSelectionPersistsThroughTheRealChain() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 
@@ -93,7 +93,7 @@ class AppNavigationTest {
     fun topLevelRootsDoNotRenderBackAndHomeDetailStackIsRetained() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 
@@ -125,7 +125,7 @@ class AppNavigationTest {
     fun switchingFromSettingsToAccountDoesNotLeaveSettingsContentMounted() {
         rule.setContent {
             TestAppOwner {
-                App()
+                App(startRoute = defaultStartRoute)
             }
         }
 

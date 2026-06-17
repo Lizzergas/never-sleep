@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.connectivity.ConnectivityMonitor
 import com.lizz.myapptemplate.designsystem.AppTheme
 import com.lizz.myapptemplate.designsystem.ThemeMode
@@ -15,19 +16,24 @@ import com.lizz.myapptemplate.ui.OfflineBanner
 import com.lizz.myapptemplate.ui.rememberOptionalKoin
 
 @Composable
-@Preview
-fun App() {
+fun App(startRoute: NavKey) {
     val themeMode = rememberThemeMode()
-    val isOnline = rememberOnlineStatus()
 
     AppTheme(themeMode = themeMode) {
         Surface(modifier = Modifier.fillMaxSize()) {
+            val isOnline = rememberOnlineStatus()
             Column {
                 OfflineBanner(visible = !isOnline)
-                AppNavHost()
+                AppNavHost(startRoute = startRoute)
             }
         }
     }
+}
+
+@Composable
+@Preview
+private fun AppPreview() {
+    App(startRoute = defaultStartRoute)
 }
 
 @Composable
