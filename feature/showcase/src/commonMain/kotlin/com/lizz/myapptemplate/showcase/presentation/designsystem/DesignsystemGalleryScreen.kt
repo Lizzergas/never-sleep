@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,15 +26,13 @@ import com.lizz.myapptemplate.designsystem.Theme
 
 /** Renders the design system tokens live: colors, typography, spacing. */
 @Composable
-fun DesignsystemGalleryScreen(onBack: () -> Unit) {
+fun DesignsystemGalleryScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.md),
     ) {
-        Text("Design system", style = MaterialTheme.typography.headlineMedium)
-
         Text("Colors", style = MaterialTheme.typography.titleMedium)
         ColorRow("primary", MaterialTheme.colorScheme.primary)
         ColorRow("primaryContainer", MaterialTheme.colorScheme.primaryContainer)
@@ -54,8 +51,6 @@ fun DesignsystemGalleryScreen(onBack: () -> Unit) {
         SpacingBar("md", Theme.spacing.md)
         SpacingBar("lg", Theme.spacing.lg)
         SpacingBar("xl", Theme.spacing.xl)
-
-        Button(onClick = onBack) { Text("Back") }
     }
 }
 
@@ -69,10 +64,9 @@ private fun ColorRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier =
-                Modifier
-                    .size(Theme.spacing.lg)
-                    .background(color, RoundedCornerShape(4.dp)),
+            modifier = Modifier
+                .size(Theme.spacing.lg)
+                .background(color, RoundedCornerShape(4.dp)),
         )
         Text(name, style = MaterialTheme.typography.bodyMedium)
     }
@@ -88,11 +82,10 @@ private fun SpacingBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier =
-                Modifier
-                    .width(width)
-                    .height(Theme.spacing.sm)
-                    .background(MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .width(width)
+                .height(Theme.spacing.sm)
+                .background(MaterialTheme.colorScheme.primary),
         )
         Text("$name ($width)", style = MaterialTheme.typography.labelSmall)
     }
@@ -102,6 +95,6 @@ private fun SpacingBar(
 @Composable
 private fun DesignsystemGalleryPreview() {
     AppTheme {
-        DesignsystemGalleryScreen(onBack = {})
+        DesignsystemGalleryScreen()
     }
 }

@@ -13,8 +13,7 @@ fun databaseBuilder(): RoomDatabase.Builder<AppDatabase> =
 // and Koin may be stopped/restarted within one process.
 private val iosDatabase: AppDatabase by lazy { buildAppDatabase(databaseBuilder()) }
 
-actual val databasePlatformKoinModule: Module =
-    module {
-        single<AppDatabase> { iosDatabase }
-        single<NoteDao> { get<AppDatabase>().noteDao() }
-    }
+actual val databasePlatformKoinModule: Module = module {
+    single<AppDatabase> { iosDatabase }
+    single<NoteDao> { get<AppDatabase>().noteDao() }
+}

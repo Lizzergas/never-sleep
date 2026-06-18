@@ -45,47 +45,46 @@ internal class FakeAuthBackend {
     var validRefresh = "refresh-1"
     private var counter = 1
 
-    val engine =
-        MockEngine { request ->
-            val json = headersOf(HttpHeaders.ContentType, "application/json")
-            val auth = request.headers[HttpHeaders.Authorization]
-            when (request.url.encodedPath) {
-                "/api/auth/login" ->
-                    respond(tokenBody(), HttpStatusCode.OK, json)
+    val engine = MockEngine { request ->
+        val json = headersOf(HttpHeaders.ContentType, "application/json")
+        val auth = request.headers[HttpHeaders.Authorization]
+        when (request.url.encodedPath) {
+            "/api/auth/login" ->
+                respond(tokenBody(), HttpStatusCode.OK, json)
 
-                "/api/auth/refresh" -> {
-                    val body = String(request.body.toByteArray())
-                    if (body.contains(validRefresh)) {
-                        counter += 1
-                        validAccess = "access-$counter"
-                        validRefresh = "refresh-$counter"
-                        respond(tokenBody(), HttpStatusCode.OK, json)
-                    } else {
-                        respond("""{"error":"stale"}""", HttpStatusCode.Unauthorized, json)
-                    }
+            "/api/auth/refresh" -> {
+                val body = String(request.body.toByteArray())
+                if (body.contains(validRefresh)) {
+                    counter += 1
+                    validAccess = "access-$counter"
+                    validRefresh = "refresh-$counter"
+                    respond(tokenBody(), HttpStatusCode.OK, json)
+                } else {
+                    respond("""{"error":"stale"}""", HttpStatusCode.Unauthorized, json)
+                }
+            }
+
+            "/api/me" ->
+                if (auth == "Bearer $validAccess") {
+                    respond("""{"id":"u1","email":"user@test.dev"}""", HttpStatusCode.OK, json)
+                } else {
+                    respond("""{"error":"unauthorized"}""", HttpStatusCode.Unauthorized, json)
                 }
 
-                "/api/me" ->
-                    if (auth == "Bearer $validAccess") {
-                        respond("""{"id":"u1","email":"user@test.dev"}""", HttpStatusCode.OK, json)
-                    } else {
-                        respond("""{"error":"unauthorized"}""", HttpStatusCode.Unauthorized, json)
-                    }
+            "/api/items" ->
+                if (auth == "Bearer $validAccess") {
+                    respond(
+                        """[{"id":1,"title":"secret","description":"requires auth"}]""",
+                        HttpStatusCode.OK,
+                        json,
+                    )
+                } else {
+                    respond("""{"error":"unauthorized"}""", HttpStatusCode.Unauthorized, json)
+                }
 
-                "/api/items" ->
-                    if (auth == "Bearer $validAccess") {
-                        respond(
-                            """[{"id":1,"title":"secret","description":"requires auth"}]""",
-                            HttpStatusCode.OK,
-                            json,
-                        )
-                    } else {
-                        respond("""{"error":"unauthorized"}""", HttpStatusCode.Unauthorized, json)
-                    }
-
-                else -> respond("""{"error":"not found"}""", HttpStatusCode.NotFound, json)
-            }
+            else -> respond("""{"error":"not found"}""", HttpStatusCode.NotFound, json)
         }
+    }
 
     private fun tokenBody() = """{"accessToken":"$validAccess","refreshToken":"$validRefresh"}"""
 }
@@ -120,11 +119,10 @@ class SessionRepositoryImplTest {
     fun restoreWithExpiredAccessRefreshesAndLogsIn() =
         runBlocking<Unit> {
             val backend = FakeAuthBackend()
-            val storage =
-                FakeTokenStorage().apply {
-                    // Stored access token is stale, refresh token still valid.
-                    tokens = TokenPair(accessToken = "expired", refreshToken = backend.validRefresh)
-                }
+            val storage = FakeTokenStorage().apply {
+                // Stored access token is stale, refresh token still valid.
+                tokens = TokenPair(accessToken = "expired", refreshToken = backend.validRefresh)
+            }
             val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
 
             repository.restore()
@@ -137,10 +135,9 @@ class SessionRepositoryImplTest {
     fun failedRefreshLogsOutAndClearsStorage() =
         runBlocking<Unit> {
             val backend = FakeAuthBackend()
-            val storage =
-                FakeTokenStorage().apply {
-                    tokens = TokenPair(accessToken = "expired", refreshToken = "stale-refresh")
-                }
+            val storage = FakeTokenStorage().apply {
+                tokens = TokenPair(accessToken = "expired", refreshToken = "stale-refresh")
+            }
             val repository = SessionRepositoryImpl(NetworkConfig(), storage, backend.engine)
 
             val refreshed = repository.refreshTokens("stale-refresh")
@@ -155,13 +152,12 @@ class SessionRepositoryImplTest {
         runBlocking<Unit> {
             val backend = FakeAuthBackend()
             var changes = 0
-            val repository =
-                SessionRepositoryImpl(
-                    NetworkConfig(),
-                    FakeTokenStorage(),
-                    backend.engine,
-                    onSessionChanged = { changes += 1 },
-                )
+            val repository = SessionRepositoryImpl(
+                NetworkConfig(),
+                FakeTokenStorage(),
+                backend.engine,
+                onSessionChanged = { changes += 1 },
+            )
 
             repository.login("user@test.dev", "password123")
             assertEquals(1, changes)
@@ -173,10 +169,9 @@ class SessionRepositoryImplTest {
     @Test
     fun transientRestoreFailureKeepsStoredTokens() =
         runBlocking<Unit> {
-            val storage =
-                FakeTokenStorage().apply {
-                    tokens = TokenPair(accessToken = "access-1", refreshToken = "refresh-1")
-                }
+            val storage = FakeTokenStorage().apply {
+                tokens = TokenPair(accessToken = "access-1", refreshToken = "refresh-1")
+            }
             // Server unreachable: every call fails with a network error.
             val deadEngine = MockEngine { throw IOException("connection refused") }
             val repository = SessionRepositoryImpl(NetworkConfig(), storage, deadEngine)
@@ -200,8 +195,7 @@ class SessionRepositoryImplTest {
             backend.validAccess = "access-rotated"
             // The stored refresh token is still valid, so the Auth plugin should
             // refresh transparently and the call must succeed.
-            val appClient =
-                createHttpClient(NetworkConfig(), backend.engine, authTokenProvider = repository)
+            val appClient = createHttpClient(NetworkConfig(), backend.engine, authTokenProvider = repository)
 
             val result = appClient.safeGet<List<Item>>("/api/items")
 

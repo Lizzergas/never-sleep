@@ -12,14 +12,13 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val repository: SettingsRepository,
 ) : ViewModel() {
-    val state: StateFlow<SettingsUiState> =
-        repository.themeMode
-            .map { SettingsUiState(themeMode = it) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = SettingsUiState(),
-            )
+    val state: StateFlow<SettingsUiState> = repository.themeMode
+        .map { SettingsUiState(themeMode = it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = SettingsUiState(),
+        )
 
     fun onEvent(event: SettingsEvent) {
         when (event) {

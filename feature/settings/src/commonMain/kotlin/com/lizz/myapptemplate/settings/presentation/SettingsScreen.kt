@@ -42,18 +42,15 @@ fun SettingsContent(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineMedium)
-
         Text("Theme", style = MaterialTheme.typography.titleMedium)
         ThemeMode.entries.forEach { mode ->
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = state.themeMode == mode,
-                            onClick = { onEvent(SettingsEvent.SetThemeMode(mode)) },
-                        ).padding(Theme.spacing.xs),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = state.themeMode == mode,
+                        onClick = { onEvent(SettingsEvent.SetThemeMode(mode)) },
+                    ).padding(Theme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(

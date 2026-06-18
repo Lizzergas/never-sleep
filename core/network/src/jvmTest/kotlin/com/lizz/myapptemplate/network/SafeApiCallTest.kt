@@ -46,11 +46,10 @@ class SafeApiCallTest {
     @Test
     fun successDecodesTypedBody() =
         runTest {
-            val client =
-                clientReturning(
-                    HttpStatusCode.OK,
-                    """[{"id":1,"title":"a","description":"b"}]""",
-                )
+            val client = clientReturning(
+                HttpStatusCode.OK,
+                """[{"id":1,"title":"a","description":"b"}]""",
+            )
 
             val result = client.safeGet<List<Item>>("/items")
 
@@ -95,9 +94,8 @@ class SafeApiCallTest {
     @Test
     fun malformedBodyMapsToSerialization() =
         runTest {
-            val result =
-                clientReturning(HttpStatusCode.OK, """{"not":"a list"}""")
-                    .safeGet<List<Item>>("/items")
+            val result = clientReturning(HttpStatusCode.OK, """{"not":"a list"}""")
+                .safeGet<List<Item>>("/items")
 
             val failure = assertIs<ApiResult.Failure>(result)
             assertIs<AppError.Serialization>(failure.error)
@@ -106,9 +104,8 @@ class SafeApiCallTest {
     @Test
     fun ioFailureMapsToNetwork() =
         runTest {
-            val result =
-                clientThrowing(IOException("connection refused"))
-                    .safeGet<List<Item>>("/items")
+            val result = clientThrowing(IOException("connection refused"))
+                .safeGet<List<Item>>("/items")
 
             val failure = assertIs<ApiResult.Failure>(result)
             assertEquals(AppError.Network, failure.error)
@@ -117,9 +114,8 @@ class SafeApiCallTest {
     @Test
     fun requestTimeoutMapsToTimeout() =
         runTest {
-            val result =
-                clientThrowing(HttpRequestTimeoutException("/items", 1))
-                    .safeGet<List<Item>>("/items")
+            val result = clientThrowing(HttpRequestTimeoutException("/items", 1))
+                .safeGet<List<Item>>("/items")
 
             val failure = assertIs<ApiResult.Failure>(result)
             assertEquals(AppError.Timeout, failure.error)
@@ -129,18 +125,16 @@ class SafeApiCallTest {
     fun factoryAttachesBearerTokenFromAuthTokenProvider() =
         runTest {
             var seenAuth: String? = null
-            val engine =
-                MockEngine { request ->
-                    seenAuth = request.headers[HttpHeaders.Authorization]
-                    respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
-                }
+            val engine = MockEngine { request ->
+                seenAuth = request.headers[HttpHeaders.Authorization]
+                respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
 
-            val provider =
-                object : AuthTokenProvider {
-                    override suspend fun loadTokens() = BearerTokens("token-123", "refresh-123")
+            val provider = object : AuthTokenProvider {
+                override suspend fun loadTokens() = BearerTokens("token-123", "refresh-123")
 
-                    override suspend fun refreshTokens(oldRefreshToken: String?) = null
-                }
+                override suspend fun refreshTokens(oldRefreshToken: String?) = null
+            }
             val client = createHttpClient(NetworkConfig(), engine, provider)
             client.safeGet<List<Item>>("/items")
 

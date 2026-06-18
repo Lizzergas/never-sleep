@@ -33,17 +33,16 @@ class JvmConnectivityMonitor(
 ) : ConnectivityMonitor {
     private val monitorScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    override val isOnline: Flow<Boolean> =
-        flow {
-            while (true) {
-                emit(probe())
-                delay(pollIntervalMs.milliseconds)
-            }
-        }.distinctUntilChanged()
-            .flowOn(Dispatchers.IO)
-            // One upstream regardless of collector count: the shell banner and
-            // any screen share a single poll loop.
-            .shareIn(monitorScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
+    override val isOnline: Flow<Boolean> = flow {
+        while (true) {
+            emit(probe())
+            delay(pollIntervalMs.milliseconds)
+        }
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.IO)
+        // One upstream regardless of collector count: the shell banner and
+        // any screen share a single poll loop.
+        .shareIn(monitorScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
 
     private suspend fun probe(): Boolean =
         withContext(Dispatchers.IO) {
@@ -58,7 +57,6 @@ class JvmConnectivityMonitor(
         }
 }
 
-actual val connectivityPlatformKoinModule: Module =
-    module {
-        single<ConnectivityMonitor> { JvmConnectivityMonitor() }
-    }
+actual val connectivityPlatformKoinModule: Module = module {
+    single<ConnectivityMonitor> { JvmConnectivityMonitor() }
+}

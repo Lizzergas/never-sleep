@@ -51,7 +51,6 @@ fun AccountContent(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
-        Text("Account", style = MaterialTheme.typography.headlineMedium)
         when (val session = state.session) {
             SessionState.Unknown -> RestorePendingContent()
             SessionState.LoggedOut -> {
@@ -61,7 +60,8 @@ fun AccountContent(
 
             is SessionState.LoggedIn -> Profile(
                 session.user,
-                onLogout = { onEvent(AccountEvent.Logout) })
+                onLogout = { onEvent(AccountEvent.Logout) },
+            )
         }
     }
 }

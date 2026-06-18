@@ -20,10 +20,9 @@ class SettingsRepositoryTest {
         runTest {
             val file = Files.createTempDirectory("ds").resolve("t.preferences_pb").toString()
             val scope = CoroutineScope(Job() + Dispatchers.Default)
-            val repository =
-                DataStoreSettingsRepository(
-                    PreferenceDataStoreFactory.createWithPath(scope = scope) { file.toPath() },
-                )
+            val repository = DataStoreSettingsRepository(
+                PreferenceDataStoreFactory.createWithPath(scope = scope) { file.toPath() },
+            )
 
             assertEquals(ThemeMode.System, repository.themeMode.first())
             scope.cancel()
@@ -36,20 +35,18 @@ class SettingsRepositoryTest {
 
             // First "process": write Dark
             val scope1 = CoroutineScope(Job() + Dispatchers.Default)
-            val repository1 =
-                DataStoreSettingsRepository(
-                    PreferenceDataStoreFactory.createWithPath(scope = scope1) { file.toPath() },
-                )
+            val repository1 = DataStoreSettingsRepository(
+                PreferenceDataStoreFactory.createWithPath(scope = scope1) { file.toPath() },
+            )
             repository1.setThemeMode(ThemeMode.Dark)
             assertEquals(ThemeMode.Dark, repository1.themeMode.first())
             scope1.cancel()
 
             // Simulated restart: a fresh DataStore over the same file
             val scope2 = CoroutineScope(Job() + Dispatchers.Default)
-            val repository2 =
-                DataStoreSettingsRepository(
-                    PreferenceDataStoreFactory.createWithPath(scope = scope2) { file.toPath() },
-                )
+            val repository2 = DataStoreSettingsRepository(
+                PreferenceDataStoreFactory.createWithPath(scope = scope2) { file.toPath() },
+            )
             assertEquals(ThemeMode.Dark, repository2.themeMode.first())
             scope2.cancel()
         }

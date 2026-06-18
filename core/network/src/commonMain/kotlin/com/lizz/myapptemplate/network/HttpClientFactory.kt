@@ -46,12 +46,11 @@ private fun HttpClientConfig<*>.applyTemplateDefaults(
         connectTimeoutMillis = config.connectTimeoutMs
     }
     install(Logging) {
-        logger =
-            object : Logger {
-                override fun log(message: String) {
-                    KermitLogger.d(tag = "HttpClient") { message }
-                }
+        logger = object : Logger {
+            override fun log(message: String) {
+                KermitLogger.d(tag = "HttpClient") { message }
             }
+        }
         level = LogLevel.INFO
     }
     if (authTokenProvider != null) {

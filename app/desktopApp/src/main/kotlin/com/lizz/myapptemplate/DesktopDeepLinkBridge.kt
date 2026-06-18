@@ -11,11 +11,10 @@ internal fun interface DesktopUriHandlerInstaller {
 
 internal object AwtDesktopUriHandlerInstaller : DesktopUriHandlerInstaller {
     override fun install(onUri: (String) -> Unit): Boolean {
-        val desktop =
-            runCatching {
-                if (!Desktop.isDesktopSupported()) return false
-                Desktop.getDesktop()
-            }.getOrElse { return false }
+        val desktop = runCatching {
+            if (!Desktop.isDesktopSupported()) return false
+            Desktop.getDesktop()
+        }.getOrElse { return false }
 
         if (!desktop.isSupported(Desktop.Action.APP_OPEN_URI)) return false
 

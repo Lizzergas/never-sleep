@@ -47,9 +47,8 @@ class FileTokenStorage(
     }
 }
 
-actual val tokenStoragePlatformKoinModule: Module =
-    module {
-        single<TokenStorage> {
-            FileTokenStorage(appStorageFile("tokens.properties"))
-        }
+actual val tokenStoragePlatformKoinModule: Module = module {
+    single<TokenStorage> {
+        FileTokenStorage(appStorageFile("tokens.properties"))
     }
+}

@@ -32,7 +32,6 @@ class KVaultTokenStorage(
     }
 }
 
-actual val tokenStoragePlatformKoinModule: Module =
-    module {
-        single<TokenStorage> { KVaultTokenStorage(KVault(androidContext())) }
-    }
+actual val tokenStoragePlatformKoinModule: Module = module {
+    single<TokenStorage> { KVaultTokenStorage(KVault(androidContext())) }
+}

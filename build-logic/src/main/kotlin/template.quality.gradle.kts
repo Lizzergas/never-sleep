@@ -1,4 +1,6 @@
 import buildlogic.QualityFilters
+import buildlogic.KotlinAssignmentWrappingCheckTask
+import buildlogic.KotlinAssignmentWrappingFormatTask
 import dev.detekt.gradle.extensions.DetektExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
@@ -28,6 +30,33 @@ extensions.configure<KtlintExtension> {
         // path is required (kept config-cache-safe in QualityFilters).
         exclude(QualityFilters.generatedSources)
     }
+}
+
+val kotlinAssignmentWrappingFiles =
+    layout.projectDirectory.asFileTree.matching {
+        include("src/**/*.kt")
+        include("*.gradle.kts")
+        exclude("build/**")
+    }
+
+val kotlinAssignmentWrappingFormat =
+    tasks.register<KotlinAssignmentWrappingFormatTask>("kotlinAssignmentWrappingFormat") {
+        sourceFiles.from(kotlinAssignmentWrappingFiles)
+        maxLineLength.set(120)
+    }
+
+val kotlinAssignmentWrappingCheck =
+    tasks.register<KotlinAssignmentWrappingCheckTask>("kotlinAssignmentWrappingCheck") {
+        sourceFiles.from(kotlinAssignmentWrappingFiles)
+        maxLineLength.set(120)
+    }
+
+tasks.named("ktlintFormat") {
+    finalizedBy(kotlinAssignmentWrappingFormat)
+}
+
+tasks.named("ktlintCheck") {
+    dependsOn(kotlinAssignmentWrappingCheck)
 }
 
 kover {

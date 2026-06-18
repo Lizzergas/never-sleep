@@ -18,7 +18,7 @@ feature/<name>/src/commonMain/kotlin/.../<name>/
     <Name>UiState.kt           ONE data class + sealed <Name>Event
     <Name>ViewModel.kt         ONE StateFlow<UiState> + onEvent(Event)
     <Name>Screen.kt            Screen (stateful) + Content (stateless, previewed)
-  <Name>Feature.kt             FeatureRegistration + deep links + Koin module
+  <Name>Feature.kt             FeatureRegistration + route chrome + deep links + Koin module
 ```
 
 Dependency rule inside a feature: `presentation → domain ← data`.
@@ -119,24 +119,40 @@ that caches per-user data binds one, and feature:auth invokes them all on
 login/logout so nothing leaks across accounts.
 
 In composables, use `rememberOptionalKoin<T>()` (core:ui) for optional
-lookups; in `FeatureRegistration`, declare full-screen routes (no bottom
-bar/rail chrome) via `fullScreenRoutes` — onboarding does this for its pager.
+lookups. In `FeatureRegistration`, declare `destinations` for every
+host-rendered route. `AppDestination(kind = TopLevel)` plus
+`PrimaryNavigationItem` creates shell tabs, `Detail` routes get host-owned
+Back/Up top bars when pushed, and `FullScreen` routes render without the shell
+— onboarding does this for its pager.
 
 Top-level destinations are shell tabs, not detail pages. The app shell retains
 one Navigation3 back stack per top-level destination; switching bottom-bar/rail
 items restores that destination's stack, and reselecting the current item pops
-that stack to its root. Root top-level screens do not render their own Back
-button; only deeper entries in a stack should expose Back/Up.
+that stack to its root. Feature screens are content-only for navigation UI:
+do not render route titles or Back buttons inside screen content. Compose and
+native hosts render top bars and Back/Up from `AppDestination.topBar`.
+
+Android, Desktop, and iOS < 26 use the full Compose Navigation3 shell. iOS 26+
+uses a native SwiftUI shell for platform chrome: `TabView` for top-level
+destinations and one native `NavigationStack` per tab, so Liquid Glass tab bars,
+titles, and back gestures are real system UI. Compose still renders the screen
+content and owns ViewModels/data flow. Feature registrations provide the shared
+`AppDestination` metadata for top bars, stable IDs, primary navigation labels,
+Material icons, SF Symbols, and top-level/detail/full-screen kind, plus
+`registerRouteContent` entries that render those same typed `NavKey`s inside
+the native host.
 
 Deep links are feature-owned public API. Each feature declares explicit
 `DeepLinkSpec`s in its `FeatureRegistration`; never derive URL paths from route
 class names. Platform hosts only capture URLs (`myapptemplate://open/...` in the
 template default) and forward the raw string to shared Kotlin: Android uses
-intents, iOS uses `onOpenURL`, and Desktop currently supports JVM startup args
-plus macOS LaunchServices URL events. Shared navigation parses, validates, maps
-to typed `NavKey` stacks, applies auth gating, and then mutates the retained
-top-level stack or transient full-screen stack. Route arguments remain typed
-route fields; screens and ViewModels never receive raw URLs.
+intents, iOS < 26 forwards into the Compose shell, iOS 26+ converts the shared
+resolution into a native selected-tab plus stack command, and Desktop currently
+supports JVM startup args plus macOS LaunchServices URL events. Shared
+navigation parses, validates, maps to typed `NavKey` stacks, applies auth
+gating, and then mutates either the retained Compose stack, transient
+full-screen stack, or native iOS tab stack. Route arguments remain typed route
+fields; screens and ViewModels never receive raw URLs.
 
 V1 template links:
 
@@ -160,6 +176,11 @@ typed resolutions without changing screens.
 2. `app/shared/build.gradle.kts` — add `implementation(projects.feature.<name>)`
 3. `AppNavHost.kt` — add the `FeatureRegistration` to `featureRegistrations`
 4. `di/Koin.kt` — add the feature's Koin module to `initKoin`
+
+If the route should render inside the iOS 26 native shell, also add a matching
+`registerRouteContent` entry in the feature registration. The same
+`AppDestination` entry feeds both the Compose shell and native iOS shell, so
+avoid screen-local route titles or Back buttons.
 
 Removal is the same touchpoints in reverse. Leftover *code* references become
 compile errors pointing at the spot; leftover *runtime* wiring (Koin lookups,
@@ -185,3 +206,6 @@ after removing a feature, run the app and the tests, not just the compiler.
   memoize; tests override with temp files.
 - ktlint filter lambdas must live in plain Kotlin (not .gradle.kts) or they
   break the configuration cache.
+- ktlint's official multiline-expression-wrapping rule conflicts with the
+  template's preferred `val x = listOf(` style; keep that rule disabled and use
+  the Gradle `kotlinAssignmentWrapping*` tasks wired through `template.quality`.

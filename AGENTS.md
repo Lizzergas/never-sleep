@@ -34,9 +34,12 @@ commit. The script removes itself after a successful rename.
 - Web workspace: `cd web && bun install`; run landing with
   `bun run dev:landing`, admin with `bun run dev:admin`, and checks with
   `bun run lint && bun run typecheck && bun run test && bun run build`.
-- Lint (detekt + ktlint): `./gradlew qualityCheck` — run whenever you want;
-  enforced ONLY by the CI `quality` job, never by commit/push hooks.
-  Auto-fix formatting: `./gradlew ktlintFormat`. Coverage: `./gradlew koverHtmlReport`.
+- Canonical Kotlin check: `./gradlew qualityCheck` (detekt + ktlint + the
+  template assignment-wrapping guard). Enforced ONLY by the CI `quality` job,
+  never by commit/push hooks.
+- Canonical Kotlin format: `./gradlew ktlintFormat`. Use this before commit
+  and from Android Studio/IDE external tools; built-in Reformat Code is not the
+  final authority for this template. Coverage: `./gradlew koverHtmlReport`.
 
 ## Conventions
 

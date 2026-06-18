@@ -27,14 +27,13 @@ import org.koin.compose.viewmodel.koinViewModel
  * components. Start the server with: ./gradlew :server:run
  */
 @Composable
-fun NetworkDemoScreen(onBack: () -> Unit) {
+fun NetworkDemoScreen() {
     val viewModel = koinViewModel<NetworkDemoViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     NetworkDemoContent(
         state = state,
         onEvent = viewModel::onEvent,
-        onBack = onBack,
     )
 }
 
@@ -42,7 +41,6 @@ fun NetworkDemoScreen(onBack: () -> Unit) {
 fun NetworkDemoContent(
     state: NetworkDemoUiState,
     onEvent: (NetworkDemoEvent) -> Unit,
-    onBack: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -50,11 +48,10 @@ fun NetworkDemoContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
-        Text("Network demo", style = MaterialTheme.typography.headlineMedium)
         Text(
             "GET /api/items from the template server, decoded into shared " +
-                    "core:model DTOs. Failures map to typed AppError values " +
-                    "rendered by core:ui state components.",
+                "core:model DTOs. Failures map to typed AppError values " +
+                "rendered by core:ui state components.",
             style = MaterialTheme.typography.bodyMedium,
         )
 
@@ -88,7 +85,7 @@ fun NetworkDemoContent(
                                     Text(item.title, style = MaterialTheme.typography.titleMedium)
                                     Text(
                                         item.description,
-                                        style = MaterialTheme.typography.bodyMedium
+                                        style = MaterialTheme.typography.bodyMedium,
                                     )
                                 }
                             }
@@ -96,7 +93,5 @@ fun NetworkDemoContent(
                     }
                 }
         }
-
-        Button(onClick = onBack) { Text("Back") }
     }
 }

@@ -24,14 +24,12 @@ kotlin {
 
     android {
         namespace = "com.lizz.myapptemplate.app.shared"
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
+        compileSdk = libs.versions.android.compileSdk
+            .get()
+            .toInt()
+        minSdk = libs.versions.android.minSdk
+            .get()
+            .toInt()
 
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
@@ -66,6 +64,7 @@ kotlin {
             implementation(projects.feature.showcase)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
+            implementation(libs.compose.materialIconsCore)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)

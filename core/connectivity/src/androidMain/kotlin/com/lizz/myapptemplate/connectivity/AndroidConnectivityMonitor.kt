@@ -25,43 +25,40 @@ class AndroidConnectivityMonitor(
 ) : ConnectivityMonitor {
     private val monitorScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    override val isOnline: Flow<Boolean> =
-        callbackFlow {
-            val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    override val isOnline: Flow<Boolean> = callbackFlow {
+        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-            fun currentlyOnline(): Boolean {
-                val capabilities = manager.activeNetwork?.let { manager.getNetworkCapabilities(it) }
-                return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+        fun currentlyOnline(): Boolean {
+            val capabilities = manager.activeNetwork?.let { manager.getNetworkCapabilities(it) }
+            return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+        }
+
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                trySend(true)
             }
 
-            val callback =
-                object : ConnectivityManager.NetworkCallback() {
-                    override fun onAvailable(network: Network) {
-                        trySend(true)
-                    }
+            override fun onLost(network: Network) {
+                trySend(currentlyOnline())
+            }
 
-                    override fun onLost(network: Network) {
-                        trySend(currentlyOnline())
-                    }
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                trySend(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED))
+            }
+        }
 
-                    override fun onCapabilitiesChanged(
-                        network: Network,
-                        networkCapabilities: NetworkCapabilities,
-                    ) {
-                        trySend(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED))
-                    }
-                }
-
-            trySend(currentlyOnline())
-            manager.registerDefaultNetworkCallback(callback)
-            awaitClose { manager.unregisterNetworkCallback(callback) }
-        }.distinctUntilChanged()
-            // One upstream regardless of collector count: the shell banner and
-            // any screen share a single poll loop / system callback.
-            .shareIn(monitorScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
+        trySend(currentlyOnline())
+        manager.registerDefaultNetworkCallback(callback)
+        awaitClose { manager.unregisterNetworkCallback(callback) }
+    }.distinctUntilChanged()
+        // One upstream regardless of collector count: the shell banner and
+        // any screen share a single poll loop / system callback.
+        .shareIn(monitorScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
 }
 
-actual val connectivityPlatformKoinModule: Module =
-    module {
-        single<ConnectivityMonitor> { AndroidConnectivityMonitor(androidContext()) }
-    }
+actual val connectivityPlatformKoinModule: Module = module {
+    single<ConnectivityMonitor> { AndroidConnectivityMonitor(androidContext()) }
+}

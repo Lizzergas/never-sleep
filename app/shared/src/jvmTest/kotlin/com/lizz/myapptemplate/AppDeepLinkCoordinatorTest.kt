@@ -41,12 +41,11 @@ class AppDeepLinkCoordinatorTest {
 
     @Test
     fun authGateStoresProtectedLinksUntilLoginCompletes() {
-        val protectedResolution =
-            DeepLinkResolution(
-                selectedTopLevelRoute = NotesRoute,
-                stack = listOf(NotesRoute),
-                authPolicy = DeepLinkAuthPolicy.RequiresAuthenticatedSession,
-            )
+        val protectedResolution = DeepLinkResolution(
+            selectedTopLevelRoute = NotesRoute,
+            stack = listOf(NotesRoute),
+            authPolicy = DeepLinkAuthPolicy.RequiresAuthenticatedSession,
+        )
         val gate = DeepLinkAuthGate(accountRoute = AccountRoute)
 
         assertEquals(
@@ -63,11 +62,10 @@ class AppDeepLinkCoordinatorTest {
 
     @Test
     fun publicLinksBypassAuthGate() {
-        val publicResolution =
-            DeepLinkResolution(
-                selectedTopLevelRoute = NotesRoute,
-                stack = listOf(NotesRoute),
-            )
+        val publicResolution = DeepLinkResolution(
+            selectedTopLevelRoute = NotesRoute,
+            stack = listOf(NotesRoute),
+        )
         val gate = DeepLinkAuthGate(accountRoute = AccountRoute)
 
         assertEquals(publicResolution, gate.resolveForSession(publicResolution, SessionState.LoggedOut))
@@ -76,27 +74,24 @@ class AppDeepLinkCoordinatorTest {
 
     @Test
     fun coordinatorCanUseFeatureOwnedAuthRequiredSpecs() {
-        val registry =
-            DeepLinkRegistry(
-                specs =
-                    listOf(
-                        DeepLinkSpec(
-                            pattern =
-                                DeepLinkPattern(
-                                    scheme = "myapptemplate",
-                                    host = "open",
-                                    pathSegments = listOf("protected"),
-                                ),
-                            authPolicy = DeepLinkAuthPolicy.RequiresAuthenticatedSession,
-                            buildResolution = {
-                                DeepLinkResolution(
-                                    selectedTopLevelRoute = NotesRoute,
-                                    stack = listOf(NotesRoute),
-                                )
-                            },
-                        ),
+        val registry = DeepLinkRegistry(
+            specs = listOf(
+                DeepLinkSpec(
+                    pattern = DeepLinkPattern(
+                        scheme = "myapptemplate",
+                        host = "open",
+                        pathSegments = listOf("protected"),
                     ),
-            )
+                    authPolicy = DeepLinkAuthPolicy.RequiresAuthenticatedSession,
+                    buildResolution = {
+                        DeepLinkResolution(
+                            selectedTopLevelRoute = NotesRoute,
+                            stack = listOf(NotesRoute),
+                        )
+                    },
+                ),
+            ),
+        )
         val coordinator = DeepLinkCoordinator(registry)
 
         assertTrue(coordinator.openUrl("myapptemplate://open/protected"))

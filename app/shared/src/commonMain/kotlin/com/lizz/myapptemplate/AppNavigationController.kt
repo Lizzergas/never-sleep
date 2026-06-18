@@ -14,20 +14,19 @@ internal class AppNavigationController(
     private val transientBackStack: NavBackStack<NavKey>? = null,
     private val transientActiveState: MutableState<Boolean>? = null,
 ) {
-    val navigator: Navigator =
-        object : Navigator {
-            override fun navigate(route: NavKey) {
-                this@AppNavigationController.navigate(route)
-            }
-
-            override fun goBack() {
-                this@AppNavigationController.goBack()
-            }
-
-            override fun resetToStart() {
-                this@AppNavigationController.resetToStart()
-            }
+    val navigator: Navigator = object : Navigator {
+        override fun navigate(route: NavKey) {
+            this@AppNavigationController.navigate(route)
         }
+
+        override fun goBack() {
+            this@AppNavigationController.goBack()
+        }
+
+        override fun resetToStart() {
+            this@AppNavigationController.resetToStart()
+        }
+    }
 
     val selectedTopLevelRoute: NavKey
         get() = selectedTopLevelRouteState.value
@@ -36,20 +35,22 @@ internal class AppNavigationController(
         get() = transientActiveState?.value == true && transientBackStack != null
 
     val currentBackStack: NavBackStack<NavKey>
-        get() =
-            if (isTransientActive) {
-                transientBackStack ?: selectedTopLevelBackStack()
-            } else {
-                selectedTopLevelBackStack()
-            }
+        get() = if (isTransientActive) {
+            transientBackStack ?: selectedTopLevelBackStack()
+        } else {
+            selectedTopLevelBackStack()
+        }
 
     val currentRoute: NavKey?
         get() = currentBackStack.lastOrNull()
 
     val canHandleRootBack: Boolean
         get() = !isTransientActive &&
-            currentBackStack.size == 1 &&
-            selectedTopLevelRoute != defaultTopLevelRoute
+                currentBackStack.size == 1 &&
+                selectedTopLevelRoute != defaultTopLevelRoute
+
+    val canNavigateUp: Boolean
+        get() = currentBackStack.size > 1 || isTransientActive
 
     fun selectTopLevel(route: NavKey) {
         require(route in topLevelBackStacks) { "Unknown top-level route: $route" }
@@ -112,7 +113,8 @@ internal class AppNavigationController(
         }
     }
 
-    private fun selectedTopLevelBackStack(): NavBackStack<NavKey> = topLevelBackStacks.getValue(selectedTopLevelRoute)
+    private fun selectedTopLevelBackStack(): NavBackStack<NavKey> =
+        topLevelBackStacks.getValue(selectedTopLevelRoute)
 
     private fun MutableList<NavKey>.popToRoot() {
         while (size > 1) {

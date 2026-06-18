@@ -9,11 +9,10 @@ import org.koin.dsl.module
  * Provides the app-wide HttpClient. The app's Koin setup must also provide a
  * [NetworkConfig] (see appModule) — override it to point at your API.
  */
-val networkKoinModule: Module =
-    module {
-        single {
-            createHttpClient(config = get(), authTokenProvider = getOrNull())
-        } withOptions {
-            onClose { it?.close() }
-        }
+val networkKoinModule: Module = module {
+    single {
+        createHttpClient(config = get(), authTokenProvider = getOrNull())
+    } withOptions {
+        onClose { it?.close() }
     }
+}

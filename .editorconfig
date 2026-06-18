@@ -10,6 +10,9 @@ indent_size = 4
 [*.{kt,kts}]
 max_line_length = 120
 ktlint_standard_filename = disabled
+# Disabled because ktlint's official rule prefers splitting some assignments
+# that this template intentionally keeps as `val x = listOf(` when it fits.
+# The repo-specific Gradle `kotlinAssignmentWrapping*` tasks enforce that style.
 ktlint_standard_multiline-expression-wrapping = disabled
 # Compose: composables are PascalCase functions
 ktlint_function_naming_ignore_when_annotated_with = Composable

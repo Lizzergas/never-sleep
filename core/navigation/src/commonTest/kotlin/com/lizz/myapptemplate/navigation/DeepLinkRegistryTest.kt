@@ -9,26 +9,23 @@ import kotlin.test.assertNull
 class DeepLinkRegistryTest {
     @Test
     fun resolvesMatchingCustomSchemeUrl() {
-        val registry =
-            DeepLinkRegistry(
-                specs =
-                    listOf(
-                        DeepLinkSpec(
-                            pattern =
-                                DeepLinkPattern(
-                                    scheme = "myapptemplate",
-                                    host = "open",
-                                    pathSegments = listOf("home"),
-                                ),
-                            buildResolution = {
-                                DeepLinkResolution(
-                                    selectedTopLevelRoute = TestHomeRoute,
-                                    stack = listOf(TestHomeRoute),
-                                )
-                            },
-                        ),
+        val registry = DeepLinkRegistry(
+            specs = listOf(
+                DeepLinkSpec(
+                    pattern = DeepLinkPattern(
+                        scheme = "myapptemplate",
+                        host = "open",
+                        pathSegments = listOf("home"),
                     ),
-            )
+                    buildResolution = {
+                        DeepLinkResolution(
+                            selectedTopLevelRoute = TestHomeRoute,
+                            stack = listOf(TestHomeRoute),
+                        )
+                    },
+                ),
+            ),
+        )
 
         val resolution = registry.resolve("myapptemplate://open/home")
 
@@ -43,40 +40,36 @@ class DeepLinkRegistryTest {
 
     @Test
     fun rejectsMalformedUnknownDuplicateAndOversizedUrls() {
-        val registry =
-            DeepLinkRegistry(
-                specs =
-                    listOf(
-                        DeepLinkSpec(
-                            pattern =
-                                DeepLinkPattern(
-                                    scheme = "myapptemplate",
-                                    host = "open",
-                                    pathSegments = listOf("home"),
-                                ),
-                            buildResolution = {
-                                DeepLinkResolution(
-                                    selectedTopLevelRoute = TestHomeRoute,
-                                    stack = listOf(TestHomeRoute),
-                                )
-                            },
-                        ),
-                        DeepLinkSpec(
-                            pattern =
-                                DeepLinkPattern(
-                                    scheme = "myapptemplate",
-                                    host = "open",
-                                    pathSegments = listOf("home"),
-                                ),
-                            buildResolution = {
-                                DeepLinkResolution(
-                                    selectedTopLevelRoute = TestSettingsRoute,
-                                    stack = listOf(TestSettingsRoute),
-                                )
-                            },
-                        ),
+        val registry = DeepLinkRegistry(
+            specs = listOf(
+                DeepLinkSpec(
+                    pattern = DeepLinkPattern(
+                        scheme = "myapptemplate",
+                        host = "open",
+                        pathSegments = listOf("home"),
                     ),
-            )
+                    buildResolution = {
+                        DeepLinkResolution(
+                            selectedTopLevelRoute = TestHomeRoute,
+                            stack = listOf(TestHomeRoute),
+                        )
+                    },
+                ),
+                DeepLinkSpec(
+                    pattern = DeepLinkPattern(
+                        scheme = "myapptemplate",
+                        host = "open",
+                        pathSegments = listOf("home"),
+                    ),
+                    buildResolution = {
+                        DeepLinkResolution(
+                            selectedTopLevelRoute = TestSettingsRoute,
+                            stack = listOf(TestSettingsRoute),
+                        )
+                    },
+                ),
+            ),
+        )
 
         assertNull(registry.resolve("not a url"))
         assertNull(registry.resolve("myapptemplate://open/unknown"))

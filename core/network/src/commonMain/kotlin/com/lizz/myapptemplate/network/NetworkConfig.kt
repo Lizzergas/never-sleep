@@ -18,8 +18,7 @@ data class NetworkConfig(
     val connectTimeoutMs: Long = DEFAULT_CONNECT_TIMEOUT_MS,
 )
 
-val DefaultJson =
-    Json {
-        ignoreUnknownKeys = true
-        explicitNulls = false
-    }
+val DefaultJson = Json {
+    ignoreUnknownKeys = true
+    explicitNulls = false
+}

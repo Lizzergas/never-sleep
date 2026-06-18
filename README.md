@@ -72,6 +72,9 @@ identifiers.
 - Everything JVM-side: `./gradlew jvmTest :server:test`
 - Full verification used by CI/local release checks:
   `./gradlew qualityCheck jvmTest :server:test :app:androidApp:assembleDebug :app:shared:compileKotlinIosArm64 koverHtmlReport`
+- Canonical Kotlin formatting is `./gradlew ktlintFormat`; canonical Kotlin
+  checking is `./gradlew qualityCheck`. Android Studio's built-in Reformat Code
+  is useful while editing, but Gradle is the final formatting authority.
 - Highlights: Ktor error-mapping and bearer refresh (`core:network` /
   `feature:auth`), DataStore persistence (`feature:settings` and
   `feature:onboarding`), state components (`core:ui`), Room round-trip

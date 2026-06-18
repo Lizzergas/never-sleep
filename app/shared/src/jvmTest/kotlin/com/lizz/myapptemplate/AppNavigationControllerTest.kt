@@ -18,18 +18,16 @@ import kotlin.test.assertTrue
 
 class AppNavigationControllerTest {
     @Test
-    fun switchingTopLevelDestinationsPreservesPreviousStack() {
+    fun switchingTopLevelRoutesPreservesPreviousStack() {
         val settingsStack = NavBackStack<NavKey>(SettingsRoute, DesignsystemGalleryRoute)
-        val controller =
-            controller(
-                selected = SettingsRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
-                        SettingsRoute to settingsStack,
-                        AccountRoute to NavBackStack(AccountRoute),
-                    ),
-            )
+        val controller = controller(
+            selected = SettingsRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
+                SettingsRoute to settingsStack,
+                AccountRoute to NavBackStack(AccountRoute),
+            ),
+        )
 
         controller.selectTopLevel(AccountRoute)
 
@@ -39,17 +37,15 @@ class AppNavigationControllerTest {
     }
 
     @Test
-    fun switchingBackToTopLevelDestinationRestoresItsStack() {
-        val controller =
-            controller(
-                selected = AccountRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
-                        SettingsRoute to NavBackStack(SettingsRoute, DesignsystemGalleryRoute),
-                        AccountRoute to NavBackStack(AccountRoute),
-                    ),
-            )
+    fun switchingBackToTopLevelRouteRestoresItsStack() {
+        val controller = controller(
+            selected = AccountRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
+                SettingsRoute to NavBackStack(SettingsRoute, DesignsystemGalleryRoute),
+                AccountRoute to NavBackStack(AccountRoute),
+            ),
+        )
 
         controller.selectTopLevel(SettingsRoute)
 
@@ -58,18 +54,16 @@ class AppNavigationControllerTest {
     }
 
     @Test
-    fun reselectingSelectedTopLevelDestinationPopsOnlyThatStackToRoot() {
+    fun reselectingSelectedTopLevelRoutePopsOnlyThatStackToRoot() {
         val notesStack = NavBackStack<NavKey>(NotesRoute, DesignsystemGalleryRoute)
         val homeStack = NavBackStack<NavKey>(ShowcaseHomeRoute, DesignsystemGalleryRoute)
-        val controller =
-            controller(
-                selected = NotesRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to homeStack,
-                        NotesRoute to notesStack,
-                    ),
-            )
+        val controller = controller(
+            selected = NotesRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to homeStack,
+                NotesRoute to notesStack,
+            ),
+        )
 
         controller.selectTopLevel(NotesRoute)
 
@@ -80,15 +74,13 @@ class AppNavigationControllerTest {
     @Test
     fun resetToStartSelectsHomeAndLeavesHomeAtRoot() {
         val homeStack = NavBackStack<NavKey>(ShowcaseHomeRoute, DesignsystemGalleryRoute)
-        val controller =
-            controller(
-                selected = SettingsRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to homeStack,
-                        SettingsRoute to NavBackStack(SettingsRoute, DesignsystemGalleryRoute),
-                    ),
-            )
+        val controller = controller(
+            selected = SettingsRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to homeStack,
+                SettingsRoute to NavBackStack(SettingsRoute, DesignsystemGalleryRoute),
+            ),
+        )
 
         controller.resetToStart()
 
@@ -98,15 +90,13 @@ class AppNavigationControllerTest {
 
     @Test
     fun goBackPopsDetailFirstThenSwitchesNonHomeRootToHome() {
-        val controller =
-            controller(
-                selected = SettingsRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
-                        SettingsRoute to NavBackStack(SettingsRoute, DesignsystemGalleryRoute),
-                    ),
-            )
+        val controller = controller(
+            selected = SettingsRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
+                SettingsRoute to NavBackStack(SettingsRoute, DesignsystemGalleryRoute),
+            ),
+        )
 
         assertTrue(controller.goBack())
         assertEquals(SettingsRoute, controller.selectedTopLevelRoute)
@@ -123,16 +113,14 @@ class AppNavigationControllerTest {
     fun topLevelDeepLinkSelectsAndPopsDestinationStackToRoot() {
         val notesStack = NavBackStack<NavKey>(NotesRoute, DesignsystemGalleryRoute)
         val settingsStack = NavBackStack<NavKey>(SettingsRoute, DesignsystemGalleryRoute)
-        val controller =
-            controller(
-                selected = SettingsRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
-                        NotesRoute to notesStack,
-                        SettingsRoute to settingsStack,
-                    ),
-            )
+        val controller = controller(
+            selected = SettingsRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
+                NotesRoute to notesStack,
+                SettingsRoute to settingsStack,
+            ),
+        )
 
         controller.openDeepLink(
             DeepLinkResolution(
@@ -150,15 +138,13 @@ class AppNavigationControllerTest {
     fun detailDeepLinkReplacesOnlyOwningTopLevelStack() {
         val homeStack = NavBackStack<NavKey>(ShowcaseHomeRoute)
         val settingsStack = NavBackStack<NavKey>(SettingsRoute, DesignsystemGalleryRoute)
-        val controller =
-            controller(
-                selected = SettingsRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to homeStack,
-                        SettingsRoute to settingsStack,
-                    ),
-            )
+        val controller = controller(
+            selected = SettingsRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to homeStack,
+                SettingsRoute to settingsStack,
+            ),
+        )
 
         controller.openDeepLink(
             DeepLinkResolution(
@@ -176,17 +162,15 @@ class AppNavigationControllerTest {
     fun fullScreenDeepLinkUsesTransientStack() {
         val transientStack = NavBackStack<NavKey>(ShowcaseHomeRoute)
         val transientActiveState = mutableStateOf(false)
-        val controller =
-            controller(
-                selected = SettingsRoute,
-                stacks =
-                    mapOf(
-                        ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
-                        SettingsRoute to NavBackStack(SettingsRoute),
-                    ),
-                transientStack = transientStack,
-                transientActiveState = transientActiveState,
-            )
+        val controller = controller(
+            selected = SettingsRoute,
+            stacks = mapOf(
+                ShowcaseHomeRoute to NavBackStack(ShowcaseHomeRoute),
+                SettingsRoute to NavBackStack(SettingsRoute),
+            ),
+            transientStack = transientStack,
+            transientActiveState = transientActiveState,
+        )
 
         controller.openDeepLink(
             DeepLinkResolution(

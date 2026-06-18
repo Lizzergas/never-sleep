@@ -26,25 +26,23 @@ private const val STOP_TIMEOUT_MS = 5_000L
 class IosConnectivityMonitor : ConnectivityMonitor {
     private val monitorScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    override val isOnline: Flow<Boolean> =
-        callbackFlow {
-            val monitor = nw_path_monitor_create()
-            nw_path_monitor_set_update_handler(monitor) { path ->
-                trySend(nw_path_get_status(path) == nw_path_status_satisfied)
-            }
-            nw_path_monitor_set_queue(
-                monitor,
-                dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u),
-            )
-            nw_path_monitor_start(monitor)
-            awaitClose { nw_path_monitor_cancel(monitor) }
-        }.distinctUntilChanged()
-            // One upstream regardless of collector count: the shell banner and
-            // any screen share a single poll loop / system callback.
-            .shareIn(monitorScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
+    override val isOnline: Flow<Boolean> = callbackFlow {
+        val monitor = nw_path_monitor_create()
+        nw_path_monitor_set_update_handler(monitor) { path ->
+            trySend(nw_path_get_status(path) == nw_path_status_satisfied)
+        }
+        nw_path_monitor_set_queue(
+            monitor,
+            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u),
+        )
+        nw_path_monitor_start(monitor)
+        awaitClose { nw_path_monitor_cancel(monitor) }
+    }.distinctUntilChanged()
+        // One upstream regardless of collector count: the shell banner and
+        // any screen share a single poll loop / system callback.
+        .shareIn(monitorScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
 }
 
-actual val connectivityPlatformKoinModule: Module =
-    module {
-        single<ConnectivityMonitor> { IosConnectivityMonitor() }
-    }
+actual val connectivityPlatformKoinModule: Module = module {
+    single<ConnectivityMonitor> { IosConnectivityMonitor() }
+}

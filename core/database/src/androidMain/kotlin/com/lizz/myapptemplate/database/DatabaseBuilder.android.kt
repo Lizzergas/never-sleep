@@ -17,13 +17,12 @@ fun databaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
 private val instanceLock = Any()
 private var instance: AppDatabase? = null
 
-actual val databasePlatformKoinModule: Module =
-    module {
-        single<AppDatabase> {
-            synchronized(instanceLock) {
-                instance ?: buildAppDatabase(databaseBuilder(androidContext().applicationContext))
-                    .also { instance = it }
-            }
+actual val databasePlatformKoinModule: Module = module {
+    single<AppDatabase> {
+        synchronized(instanceLock) {
+            instance ?: buildAppDatabase(databaseBuilder(androidContext().applicationContext))
+                .also { instance = it }
         }
-        single<NoteDao> { get<AppDatabase>().noteDao() }
     }
+    single<NoteDao> { get<AppDatabase>().noteDao() }
+}

@@ -36,7 +36,6 @@ class AccountContentTest {
             }
         }
 
-        rule.onNodeWithText("Account").assertIsDisplayed()
         rule.onNodeWithText("Sign in to keep your notes available across devices.").assertIsDisplayed()
         rule.onAllNodesWithText("Checking saved session...").assertCountEquals(0)
         rule
@@ -77,7 +76,6 @@ class AccountContentTest {
             }
         }
 
-        rule.onNodeWithText("Account").assertIsDisplayed()
         rule.onNodeWithText("Email").assertIsDisplayed()
         rule.onNodeWithText("Password (min 8 chars)").assertIsDisplayed()
         rule.onNodeWithText("Log in").assertIsDisplayed()
@@ -95,7 +93,6 @@ class AccountContentTest {
             }
         }
 
-        rule.onNodeWithText("Account").assertIsDisplayed()
         rule.onNodeWithText("Profile").assertIsDisplayed()
         rule.onNodeWithText("Signed in as user@test.dev").assertIsDisplayed()
         rule.onNodeWithText("Log out").assertIsDisplayed()
@@ -106,12 +103,11 @@ class AccountContentTest {
         rule.setContent {
             AppTheme {
                 AccountContent(
-                    state =
-                        AccountUiState(
-                            session = SessionState.LoggedOut,
-                            isSubmitting = true,
-                            error = AppError.Network,
-                        ),
+                    state = AccountUiState(
+                        session = SessionState.LoggedOut,
+                        isSubmitting = true,
+                        error = AppError.Network,
+                    ),
                     onEvent = {},
                 )
             }

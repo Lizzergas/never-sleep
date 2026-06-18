@@ -11,12 +11,17 @@ import com.lizz.myapptemplate.auth.domain.ValidateCredentialsUseCase
 import com.lizz.myapptemplate.auth.presentation.AccountScreen
 import com.lizz.myapptemplate.auth.presentation.SessionViewModel
 import com.lizz.myapptemplate.common.UserDataCleaner
+import com.lizz.myapptemplate.navigation.AppDestination
 import com.lizz.myapptemplate.navigation.DeepLinkPattern
 import com.lizz.myapptemplate.navigation.DeepLinkResolution
 import com.lizz.myapptemplate.navigation.DeepLinkSpec
+import com.lizz.myapptemplate.navigation.DestinationKind
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
-import com.lizz.myapptemplate.navigation.TopLevelDestination
+import com.lizz.myapptemplate.navigation.PrimaryNavigationItem
+import com.lizz.myapptemplate.navigation.RouteContentRegistryBuilder
+import com.lizz.myapptemplate.navigation.TopBarConfig
+import com.lizz.myapptemplate.navigation.TopBarMode
 import com.lizz.myapptemplate.network.AuthTokenProvider
 import com.lizz.myapptemplate.network.clearBearerTokens
 import io.ktor.client.HttpClient
@@ -32,17 +37,27 @@ import org.koin.dsl.module
 data object AccountRoute : NavKey
 
 object AuthFeature : FeatureRegistration {
-    override val topLevelDestination =
-        TopLevelDestination(route = AccountRoute, label = "Account", icon = Icons.Default.Person)
+    override val destinations = listOf(
+        AppDestination(
+            route = AccountRoute,
+            id = "account",
+            kind = DestinationKind.TopLevel,
+            topBar = TopBarConfig(title = "Account", mode = TopBarMode.Large),
+            primaryNavigation = PrimaryNavigationItem(
+                label = "Account",
+                materialIcon = Icons.Default.Person,
+                systemImage = "person.fill",
+            ),
+        ),
+    )
 
     override val deepLinks = listOf(
         DeepLinkSpec(
-            pattern =
-                DeepLinkPattern(
-                    scheme = "myapptemplate",
-                    host = "open",
-                    pathSegments = listOf("account"),
-                ),
+            pattern = DeepLinkPattern(
+                scheme = "myapptemplate",
+                host = "open",
+                pathSegments = listOf("account"),
+            ),
             buildResolution = {
                 DeepLinkResolution(
                     selectedTopLevelRoute = AccountRoute,
@@ -64,24 +79,32 @@ object AuthFeature : FeatureRegistration {
             AccountScreen()
         }
     }
+
+    override fun registerRouteContent(
+        registry: RouteContentRegistryBuilder,
+        navigator: Navigator,
+    ) {
+        registry.entry<AccountRoute> {
+            AccountScreen()
+        }
+    }
 }
 
-val authKoinModule: Module =
-    module {
-        includes(tokenStoragePlatformKoinModule)
-        single {
-            // Lazy lookups: the app HttpClient itself depends on this
-            // repository (as AuthTokenProvider), so resolve at call time.
-            val koin = getKoin()
-            SessionRepositoryImpl(
-                config = get(),
-                storage = get(),
-                onSessionChanged = {
-                    koin.get<HttpClient>().clearBearerTokens()
-                    koin.getAll<UserDataCleaner>().forEach { it.clearUserData() }
-                },
-            )
-        } binds arrayOf(SessionRepository::class, AuthTokenProvider::class)
-        factory { ValidateCredentialsUseCase() }
-        viewModelOf(::SessionViewModel)
-    }
+val authKoinModule: Module = module {
+    includes(tokenStoragePlatformKoinModule)
+    single {
+        // Lazy lookups: the app HttpClient itself depends on this
+        // repository (as AuthTokenProvider), so resolve at call time.
+        val koin = getKoin()
+        SessionRepositoryImpl(
+            config = get(),
+            storage = get(),
+            onSessionChanged = {
+                koin.get<HttpClient>().clearBearerTokens()
+                koin.getAll<UserDataCleaner>().forEach { it.clearUserData() }
+            },
+        )
+    } binds arrayOf(SessionRepository::class, AuthTokenProvider::class)
+    factory { ValidateCredentialsUseCase() }
+    viewModelOf(::SessionViewModel)
+}

@@ -19,12 +19,11 @@ class DataStoreSettingsRepository(
     private val dataStore: DataStore<Preferences>,
 ) : SettingsRepository,
     ThemeModeProvider {
-    override val themeMode: Flow<ThemeMode> =
-        dataStore.safeData().map { preferences ->
-            preferences[THEME_MODE_KEY]
-                ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
-                ?: ThemeMode.System
-        }
+    override val themeMode: Flow<ThemeMode> = dataStore.safeData().map { preferences ->
+        preferences[THEME_MODE_KEY]
+            ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
+            ?: ThemeMode.System
+    }
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[THEME_MODE_KEY] = mode.name }

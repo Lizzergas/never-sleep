@@ -20,12 +20,11 @@ class NotesStore {
         userId: String,
         text: String,
     ): NoteDto {
-        val note =
-            NoteDto(
-                id = nextId.getAndIncrement(),
-                text = text,
-                createdAtEpochMillis = System.currentTimeMillis(),
-            )
+        val note = NoteDto(
+            id = nextId.getAndIncrement(),
+            text = text,
+            createdAtEpochMillis = System.currentTimeMillis(),
+        )
         notesByUser.compute(userId) { _, existing ->
             listOf(note) + (existing ?: emptyList())
         }

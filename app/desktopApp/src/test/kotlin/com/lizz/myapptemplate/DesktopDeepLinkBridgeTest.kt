@@ -10,25 +10,23 @@ class DesktopDeepLinkBridgeTest {
     fun startupArgsForwardSupportedDeepLinksOnly() {
         val opened = mutableListOf<String>()
         val logs = mutableListOf<String>()
-        val bridge =
-            DesktopDeepLinkBridge(
-                openUrl = {
-                    opened += it
-                    true
-                },
-                log = logs::add,
-                uriHandlerInstaller = DesktopUriHandlerInstaller { true },
-            )
+        val bridge = DesktopDeepLinkBridge(
+            openUrl = {
+                opened += it
+                true
+            },
+            log = logs::add,
+            uriHandlerInstaller = DesktopUriHandlerInstaller { true },
+        )
 
-        val openedCount =
-            bridge.openStartupLinks(
-                arrayOf(
-                    "myapptemplate://open/notes",
-                    "--ignored",
-                    "https://example.com/open/notes",
-                    "myapptemplate://open/showcase/network",
-                ),
-            )
+        val openedCount = bridge.openStartupLinks(
+            arrayOf(
+                "myapptemplate://open/notes",
+                "--ignored",
+                "https://example.com/open/notes",
+                "myapptemplate://open/showcase/network",
+            ),
+        )
 
         assertEquals(2, openedCount)
         assertEquals(
@@ -45,27 +43,25 @@ class DesktopDeepLinkBridgeTest {
     fun startupArgsIgnoreNonCandidatesBeforeForwarding() {
         val opened = mutableListOf<String>()
         val logs = mutableListOf<String>()
-        val bridge =
-            DesktopDeepLinkBridge(
-                openUrl = {
-                    opened += it
-                    true
-                },
-                log = logs::add,
-                uriHandlerInstaller = DesktopUriHandlerInstaller { true },
-            )
+        val bridge = DesktopDeepLinkBridge(
+            openUrl = {
+                opened += it
+                true
+            },
+            log = logs::add,
+            uriHandlerInstaller = DesktopUriHandlerInstaller { true },
+        )
         val oversized = "myapptemplate://" + "a".repeat(2_048)
 
-        val openedCount =
-            bridge.openStartupLinks(
-                arrayOf(
-                    "",
-                    "   ",
-                    "MYAPPTEMPLATE://open/notes",
-                    "otherapp://open/notes",
-                    oversized,
-                ),
-            )
+        val openedCount = bridge.openStartupLinks(
+            arrayOf(
+                "",
+                "   ",
+                "MYAPPTEMPLATE://open/notes",
+                "otherapp://open/notes",
+                oversized,
+            ),
+        )
 
         assertEquals(0, openedCount)
         assertEquals(emptyList(), opened)
@@ -76,15 +72,14 @@ class DesktopDeepLinkBridgeTest {
     fun unsupportedSameSchemeUrlsAreForwardedAndLoggedAsIgnored() {
         val opened = mutableListOf<String>()
         val logs = mutableListOf<String>()
-        val bridge =
-            DesktopDeepLinkBridge(
-                openUrl = {
-                    opened += it
-                    false
-                },
-                log = logs::add,
-                uriHandlerInstaller = DesktopUriHandlerInstaller { true },
-            )
+        val bridge = DesktopDeepLinkBridge(
+            openUrl = {
+                opened += it
+                false
+            },
+            log = logs::add,
+            uriHandlerInstaller = DesktopUriHandlerInstaller { true },
+        )
 
         val openedCount = bridge.openStartupLinks(arrayOf("myapptemplate://open/unknown"))
 
@@ -98,15 +93,14 @@ class DesktopDeepLinkBridgeTest {
     fun installedUriHandlerUsesSameForwardingPath() {
         val installer = CapturingUriHandlerInstaller()
         val opened = mutableListOf<String>()
-        val bridge =
-            DesktopDeepLinkBridge(
-                openUrl = {
-                    opened += it
-                    true
-                },
-                log = {},
-                uriHandlerInstaller = installer,
-            )
+        val bridge = DesktopDeepLinkBridge(
+            openUrl = {
+                opened += it
+                true
+            },
+            log = {},
+            uriHandlerInstaller = installer,
+        )
 
         assertTrue(bridge.installUriHandler())
 
@@ -125,12 +119,11 @@ class DesktopDeepLinkBridgeTest {
 
     @Test
     fun unsupportedUriHandlerInstallReturnsFalse() {
-        val bridge =
-            DesktopDeepLinkBridge(
-                openUrl = { true },
-                log = {},
-                uriHandlerInstaller = DesktopUriHandlerInstaller { false },
-            )
+        val bridge = DesktopDeepLinkBridge(
+            openUrl = { true },
+            log = {},
+            uriHandlerInstaller = DesktopUriHandlerInstaller { false },
+        )
 
         assertFalse(bridge.installUriHandler())
     }

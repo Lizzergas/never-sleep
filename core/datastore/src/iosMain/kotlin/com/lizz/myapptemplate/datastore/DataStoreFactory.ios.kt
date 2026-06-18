@@ -13,7 +13,6 @@ fun createIosPreferencesDataStore(): DataStore<Preferences> =
 // may be stopped/restarted within one process.
 private val iosDataStore: DataStore<Preferences> by lazy { createIosPreferencesDataStore() }
 
-actual val datastorePlatformKoinModule: Module =
-    module {
-        single<DataStore<Preferences>> { iosDataStore }
-    }
+actual val datastorePlatformKoinModule: Module = module {
+    single<DataStore<Preferences>> { iosDataStore }
+}

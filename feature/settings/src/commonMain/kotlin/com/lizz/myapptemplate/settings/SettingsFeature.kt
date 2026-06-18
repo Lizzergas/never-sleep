@@ -5,12 +5,17 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
+import com.lizz.myapptemplate.navigation.AppDestination
 import com.lizz.myapptemplate.navigation.DeepLinkPattern
 import com.lizz.myapptemplate.navigation.DeepLinkResolution
 import com.lizz.myapptemplate.navigation.DeepLinkSpec
+import com.lizz.myapptemplate.navigation.DestinationKind
 import com.lizz.myapptemplate.navigation.FeatureRegistration
 import com.lizz.myapptemplate.navigation.Navigator
-import com.lizz.myapptemplate.navigation.TopLevelDestination
+import com.lizz.myapptemplate.navigation.PrimaryNavigationItem
+import com.lizz.myapptemplate.navigation.RouteContentRegistryBuilder
+import com.lizz.myapptemplate.navigation.TopBarConfig
+import com.lizz.myapptemplate.navigation.TopBarMode
 import com.lizz.myapptemplate.settings.data.DataStoreSettingsRepository
 import com.lizz.myapptemplate.settings.domain.SettingsRepository
 import com.lizz.myapptemplate.settings.presentation.SettingsScreen
@@ -27,12 +32,19 @@ import org.koin.dsl.module
 data object SettingsRoute : NavKey
 
 object SettingsFeature : FeatureRegistration {
-    override val topLevelDestination =
-        TopLevelDestination(
+    override val destinations = listOf(
+        AppDestination(
             route = SettingsRoute,
-            label = "Settings",
-            icon = Icons.Default.Settings,
-        )
+            id = "settings",
+            kind = DestinationKind.TopLevel,
+            topBar = TopBarConfig(title = "Settings", mode = TopBarMode.Large),
+            primaryNavigation = PrimaryNavigationItem(
+                label = "Settings",
+                materialIcon = Icons.Default.Settings,
+                systemImage = "gearshape.fill",
+            ),
+        ),
+    )
 
     override val deepLinks = listOf(
         DeepLinkSpec(
@@ -62,13 +74,21 @@ object SettingsFeature : FeatureRegistration {
             SettingsScreen()
         }
     }
+
+    override fun registerRouteContent(
+        registry: RouteContentRegistryBuilder,
+        navigator: Navigator,
+    ) {
+        registry.entry<SettingsRoute> {
+            SettingsScreen()
+        }
+    }
 }
 
-val settingsKoinModule: Module =
-    module {
-        single { DataStoreSettingsRepository(get()) } binds arrayOf(
-            SettingsRepository::class,
-            ThemeModeProvider::class,
-        )
-        viewModelOf(::SettingsViewModel)
-    }
+val settingsKoinModule: Module = module {
+    single { DataStoreSettingsRepository(get()) } binds arrayOf(
+        SettingsRepository::class,
+        ThemeModeProvider::class,
+    )
+    viewModelOf(::SettingsViewModel)
+}

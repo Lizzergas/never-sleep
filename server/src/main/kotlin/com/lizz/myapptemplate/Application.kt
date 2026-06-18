@@ -78,17 +78,16 @@ fun Application.module(
     }
 }
 
-private val sampleItems =
-    listOf(
-        Item(
-            id = 1,
-            title = "Shared DTOs",
-            description = "This list was decoded from core:model types",
-        ),
-        Item(
-            id = 2,
-            title = "Content negotiation",
-            description = "Server serializes with kotlinx.serialization",
-        ),
-        Item(id = 3, title = "Typed errors", description = "Clients map failures to AppError"),
-    )
+private val sampleItems = listOf(
+    Item(
+        id = 1,
+        title = "Shared DTOs",
+        description = "This list was decoded from core:model types",
+    ),
+    Item(
+        id = 2,
+        title = "Content negotiation",
+        description = "Server serializes with kotlinx.serialization",
+    ),
+    Item(id = 3, title = "Typed errors", description = "Clients map failures to AppError"),
+)
