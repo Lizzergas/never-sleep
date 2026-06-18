@@ -79,12 +79,11 @@ fun testConnectivityModule(monitor: FakeConnectivityMonitor): Module =
  */
 @Composable
 fun TestAppOwner(content: @Composable () -> Unit) {
-    val owner =
-        remember {
-            object : ViewModelStoreOwner {
-                override val viewModelStore = ViewModelStore()
-            }
+    val owner = remember {
+        object : ViewModelStoreOwner {
+            override val viewModelStore = ViewModelStore()
         }
+    }
     CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
         content()
     }

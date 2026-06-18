@@ -31,7 +31,6 @@ class KVaultTokenStorage(
     }
 }
 
-actual val tokenStoragePlatformKoinModule: Module =
-    module {
-        single<TokenStorage> { KVaultTokenStorage(KVault(serviceName = "com.lizz.myapptemplate.auth")) }
-    }
+actual val tokenStoragePlatformKoinModule: Module = module {
+    single<TokenStorage> { KVaultTokenStorage(KVault(serviceName = "com.lizz.myapptemplate.auth")) }
+}

@@ -18,20 +18,18 @@ class ValidateCredentialsUseCase {
         password: String,
     ): Result =
         Result(
-            emailError =
-                when {
-                    email.isBlank() -> "Email is required"
-                    !email.contains("@") || email.startsWith("@") || email.endsWith("@") ->
-                        "Enter a valid email address"
-                    else -> null
-                },
-            passwordError =
-                when {
-                    password.isBlank() -> "Password is required"
-                    password.length < MIN_PASSWORD_LENGTH ->
-                        "Password must be at least $MIN_PASSWORD_LENGTH characters"
-                    else -> null
-                },
+            emailError = when {
+                email.isBlank() -> "Email is required"
+                !email.contains("@") || email.startsWith("@") || email.endsWith("@") ->
+                    "Enter a valid email address"
+                else -> null
+            },
+            passwordError = when {
+                password.isBlank() -> "Password is required"
+                password.length < MIN_PASSWORD_LENGTH ->
+                    "Password must be at least $MIN_PASSWORD_LENGTH characters"
+                else -> null
+            },
         )
 
     private companion object {

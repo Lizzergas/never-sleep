@@ -31,11 +31,10 @@ class NotesRoutesTest {
     }
 
     private suspend fun HttpClient.registerAndGetToken(email: String): String {
-        val tokens: TokenPair =
-            post("/api/auth/register") {
-                contentType(ContentType.Application.Json)
-                setBody(AuthRequest(email, "password123"))
-            }.body()
+        val tokens: TokenPair = post("/api/auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(AuthRequest(email, "password123"))
+        }.body()
         return tokens.accessToken
     }
 
@@ -53,13 +52,12 @@ class NotesRoutesTest {
             val client = jsonClient()
             val token = client.registerAndGetToken("notes@test.dev")
 
-            val created: NoteDto =
-                client
-                    .post("/api/notes") {
-                        bearerAuth(token)
-                        contentType(ContentType.Application.Json)
-                        setBody(CreateNoteRequest("hello notes"))
-                    }.body()
+            val created: NoteDto = client
+                .post("/api/notes") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(CreateNoteRequest("hello notes"))
+                }.body()
             assertEquals("hello notes", created.text)
 
             val listed: List<NoteDto> = client.get("/api/notes") { bearerAuth(token) }.body()
@@ -79,12 +77,11 @@ class NotesRoutesTest {
             val client = jsonClient()
             val token = client.registerAndGetToken("blank@test.dev")
 
-            val response =
-                client.post("/api/notes") {
-                    bearerAuth(token)
-                    contentType(ContentType.Application.Json)
-                    setBody(CreateNoteRequest("   "))
-                }
+            val response = client.post("/api/notes") {
+                bearerAuth(token)
+                contentType(ContentType.Application.Json)
+                setBody(CreateNoteRequest("   "))
+            }
 
             assertEquals(HttpStatusCode.UnprocessableEntity, response.status)
         }

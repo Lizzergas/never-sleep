@@ -86,13 +86,12 @@ class SessionRepositoryImpl(
     override suspend fun refreshTokens(oldRefreshToken: String?): BearerTokens? {
         val refreshToken = oldRefreshToken ?: storage.read()?.refreshToken ?: return null
         return when (
-            val result =
-                safeApiCall<TokenPair> {
-                    bareClient.post("/api/auth/refresh") {
-                        contentType(ContentType.Application.Json)
-                        setBody(RefreshRequest(refreshToken))
-                    }
+            val result = safeApiCall<TokenPair> {
+                bareClient.post("/api/auth/refresh") {
+                    contentType(ContentType.Application.Json)
+                    setBody(RefreshRequest(refreshToken))
                 }
+            }
         ) {
             is ApiResult.Success -> {
                 storage.write(result.data)
@@ -113,21 +112,19 @@ class SessionRepositoryImpl(
         email: String,
         password: String,
     ): ApiResult<User> {
-        val tokens =
-            safeApiCall<TokenPair> {
-                bareClient.post(path) {
-                    contentType(ContentType.Application.Json)
-                    setBody(AuthRequest(email, password))
-                }
+        val tokens = safeApiCall<TokenPair> {
+            bareClient.post(path) {
+                contentType(ContentType.Application.Json)
+                setBody(AuthRequest(email, password))
             }
-        val result =
-            when (tokens) {
-                is ApiResult.Failure -> tokens
-                is ApiResult.Success -> {
-                    storage.write(tokens.data)
-                    establishSession(tokens.data)
-                }
+        }
+        val result = when (tokens) {
+            is ApiResult.Failure -> tokens
+            is ApiResult.Success -> {
+                storage.write(tokens.data)
+                establishSession(tokens.data)
             }
+        }
         if (result is ApiResult.Success) {
             // New identity: drop cached bearer tokens + per-user feature caches.
             onSessionChanged()
@@ -141,14 +138,13 @@ class SessionRepositoryImpl(
      */
     private suspend fun establishSession(tokens: TokenPair): ApiResult<User> {
         val first = fetchMe(tokens.accessToken)
-        val result =
-            if (first is ApiResult.Failure && first.error == AppError.Unauthorized) {
-                refreshTokens(tokens.refreshToken)
-                    ?.let { refreshed -> fetchMe(refreshed.accessToken) }
-                    ?: first
-            } else {
-                first
-            }
+        val result = if (first is ApiResult.Failure && first.error == AppError.Unauthorized) {
+            refreshTokens(tokens.refreshToken)
+                ?.let { refreshed -> fetchMe(refreshed.accessToken) }
+                ?: first
+        } else {
+            first
+        }
         if (result is ApiResult.Success) {
             _sessionState.value = SessionState.LoggedIn(result.data)
         }

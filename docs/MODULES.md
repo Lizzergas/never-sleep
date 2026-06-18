@@ -16,7 +16,7 @@ core/
   database/         Room 3 KMP setup: driver, per-platform builders, sample Note entity
   datastore/        DataStore<Preferences> factory + per-platform storage location
   designsystem/     Material 3 Expressive AppTheme, color schemes, typography, spacing, ThemeModeProvider
-  navigation/       FeatureRegistration, Navigator, FeatureCatalog, deep link parsing
+  navigation/       FeatureRegistration, route chrome, Navigator, FeatureCatalog, deep links, native screen registry
   ui/               UiState + Loading/Error/Empty components, status timing helpers, AppError user messages
 feature/
   auth/             Account: register/login/logout, KVault token storage, 401 auto-refresh
@@ -25,10 +25,10 @@ feature/
   settings/         Theme mode persisted via core:datastore (smallest exemplar)
   showcase/         Start destination: feature catalog + designsystem gallery + network demo
 app/
-  shared/           App shell: AppTheme, start/deep-link resolver, AppNavHost, di/initKoin
+  shared/           App shell: AppTheme, start/deep-link resolver, AppNavHost, native host bridge, di/initKoin
   androidApp/       Android entry: Koin startup + native splash + deep-link intents
   desktopApp/       Desktop entry: Koin startup + route resolution + macOS deep-link capture
-  iosApp/           Xcode project: native LaunchScreen + Koin startup + URL forwarding
+  iosApp/           Xcode project: native LaunchScreen + iOS 26 SwiftUI shell + URL forwarding
 server/             Ktor server with /api/* sample routes using core:model DTOs
 web/                Optional Bun workspace: Astro landing, Vite admin, TS API client
 ```
@@ -48,9 +48,9 @@ web/                Optional Bun workspace: Astro landing, Vite admin, TS API cl
 
 First create `feature/<name>` with `id("template.kmp.feature")` and implement a
 `FeatureRegistration` object (routes + entries + optional catalog descriptors +
-optional `topLevelDestination` for the bottom bar / rail + optional explicit
-`DeepLinkSpec`s) plus a Koin `Module`. Follow the package anatomy in
-ARCHITECTURE.md.
+shared `destinations` for top bars, primary navigation, and full-screen routes +
+optional explicit `DeepLinkSpec`s + shared route content for iOS 26 native
+hosting) plus a Koin `Module`. Follow the package anatomy in ARCHITECTURE.md.
 
 Then wire it in four places:
 
@@ -61,18 +61,26 @@ Then wire it in four places:
 4. `app/shared .../di/Koin.kt`: add the feature's Koin module to `initKoin`
 
 The showcase home lists the feature automatically when its registration
-contributes catalog descriptors; top-level destinations appear in the shell's
-bottom bar / rail. Top-level destinations are retained shell tabs: do not render
-a screen-local Back button on the root route; use Back only for deeper entries
-inside that feature's stack.
+contributes catalog descriptors; `AppDestination(kind = TopLevel)` entries with
+`PrimaryNavigationItem` appear in the shell's bottom bar / rail. Top-level
+destinations are retained shell tabs. Screens should not render route titles or
+Back buttons themselves; the Compose shell and native iOS shell render top bars
+and primary navigation from `AppDestination`.
+
+iOS 26+ uses a native SwiftUI `TabView` and per-tab `NavigationStack` so Liquid
+Glass navigation UI is system-owned. Android, Desktop, and iOS < 26 keep the
+Compose Navigation3 shell. Any route exposed to the native iOS shell needs a
+stable `AppDestination` entry and a matching `registerRouteContent` entry in
+the feature registration.
 
 Deep links are aggregated from `FeatureRegistration.deepLinks`; Android, iOS,
 and Desktop only register/capture the template custom scheme and forward URL
-strings into shared Kotlin. Desktop support is macOS-first for packaged URL
-events, with JVM startup args available for manual launcher tests. The template
-ships `myapptemplate://open/...` links. Verified HTTPS App Links / Universal
-Links are intentionally left to generated apps with a real domain and app
-association files.
+strings into shared Kotlin. On iOS 26+, shared Kotlin returns a native
+selected-tab plus stack command instead of mutating the Compose shell. Desktop
+support is macOS-first for packaged URL events, with JVM startup args available
+for manual launcher tests. The template ships `myapptemplate://open/...` links.
+Verified HTTPS App Links / Universal Links are intentionally left to generated
+apps with a real domain and app association files.
 
 ## Removing a feature
 

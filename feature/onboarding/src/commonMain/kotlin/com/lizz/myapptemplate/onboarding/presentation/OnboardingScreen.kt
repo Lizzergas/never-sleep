@@ -32,21 +32,20 @@ private data class OnboardingPage(
     val description: String,
 )
 
-private val pages =
-    listOf(
-        OnboardingPage(
-            "Welcome",
-            "Keep your notes and preferences ready across your devices.",
-        ),
-        OnboardingPage(
-            "Stay organized",
-            "Create, refresh, and manage notes from a clean shared workspace.",
-        ),
-        OnboardingPage(
-            "Make it yours",
-            "Choose your theme, sign in, and start with the workflow that fits you.",
-        ),
-    )
+private val pages = listOf(
+    OnboardingPage(
+        "Welcome",
+        "Keep your notes and preferences ready across your devices.",
+    ),
+    OnboardingPage(
+        "Stay organized",
+        "Create, refresh, and manage notes from a clean shared workspace.",
+    ),
+    OnboardingPage(
+        "Make it yours",
+        "Choose your theme, sign in, and start with the workflow that fits you.",
+    ),
+)
 
 /** Stateful wrapper: owns the ViewModel and collects one-off effects. */
 @Composable
@@ -97,18 +96,16 @@ fun OnboardingContent(onEvent: (OnboardingEvent) -> Unit) {
             horizontalArrangement = Arrangement.Center,
         ) {
             repeat(pages.size) { index ->
-                val color =
-                    if (index == pagerState.currentPage) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    }
+                val color = if (index == pagerState.currentPage) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                }
                 Box(
-                    modifier =
-                        Modifier
-                            .padding(Theme.spacing.xs)
-                            .size(Theme.spacing.sm)
-                            .background(color, CircleShape),
+                    modifier = Modifier
+                        .padding(Theme.spacing.xs)
+                        .size(Theme.spacing.sm)
+                        .background(color, CircleShape),
                 )
             }
         }

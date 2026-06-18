@@ -56,13 +56,12 @@ class NetworkDemoViewModelTest {
     fun loadEmitsLoadingThenSuccess() =
         runBlocking {
             val proceed = Channel<Unit>(Channel.UNLIMITED)
-            val viewModel =
-                viewModel(
-                    MockEngine {
-                        proceed.receive()
-                        respond(ITEMS_BODY, HttpStatusCode.OK, jsonHeaders)
-                    },
-                )
+            val viewModel = viewModel(
+                MockEngine {
+                    proceed.receive()
+                    respond(ITEMS_BODY, HttpStatusCode.OK, jsonHeaders)
+                },
+            )
 
             viewModel.state.test {
                 assertEquals(NetworkDemoUiState(), awaitItem())
@@ -83,13 +82,12 @@ class NetworkDemoViewModelTest {
     fun loadEmitsLoadingThenError() =
         runBlocking {
             val proceed = Channel<Unit>(Channel.UNLIMITED)
-            val viewModel =
-                viewModel(
-                    MockEngine {
-                        proceed.receive()
-                        throw IOException("offline")
-                    },
-                )
+            val viewModel = viewModel(
+                MockEngine {
+                    proceed.receive()
+                    throw IOException("offline")
+                },
+            )
 
             viewModel.state.test {
                 assertEquals(NetworkDemoUiState(), awaitItem())
@@ -111,17 +109,16 @@ class NetworkDemoViewModelTest {
         runBlocking {
             val connectivity = FakeConnectivityMonitor()
             var calls = 0
-            val viewModel =
-                viewModel(
-                    MockEngine {
-                        calls += 1
-                        if (calls == 1) {
-                            throw IOException("offline")
-                        }
-                        respond(ITEMS_BODY, HttpStatusCode.OK, jsonHeaders)
-                    },
-                    connectivity,
-                )
+            val viewModel = viewModel(
+                MockEngine {
+                    calls += 1
+                    if (calls == 1) {
+                        throw IOException("offline")
+                    }
+                    respond(ITEMS_BODY, HttpStatusCode.OK, jsonHeaders)
+                },
+                connectivity,
+            )
 
             viewModel.state.test {
                 assertEquals(NetworkDemoUiState(), awaitItem())
@@ -144,14 +141,13 @@ class NetworkDemoViewModelTest {
         runBlocking {
             val connectivity = FakeConnectivityMonitor()
             var calls = 0
-            val viewModel =
-                viewModel(
-                    MockEngine {
-                        calls += 1
-                        respond("""{"error":"bad request"}""", HttpStatusCode.BadRequest, jsonHeaders)
-                    },
-                    connectivity,
-                )
+            val viewModel = viewModel(
+                MockEngine {
+                    calls += 1
+                    respond("""{"error":"bad request"}""", HttpStatusCode.BadRequest, jsonHeaders)
+                },
+                connectivity,
+            )
 
             viewModel.state.test {
                 assertEquals(NetworkDemoUiState(), awaitItem())

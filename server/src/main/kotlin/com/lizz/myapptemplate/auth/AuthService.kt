@@ -45,10 +45,9 @@ class AuthService(
     ): AuthResult {
         // bcrypt at cost 12 burns ~100-300ms of CPU: keep it off Ktor's
         // call-processing threads or a handful of logins stalls every endpoint.
-        val hash =
-            withContext(Dispatchers.IO) {
-                BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
-            }
+        val hash = withContext(Dispatchers.IO) {
+            BCrypt.withDefaults().hashToString(BCRYPT_COST, password.toCharArray())
+        }
         val user = users.create(email, hash) ?: return AuthResult.EmailTaken
         return AuthResult.Success(issueTokens(user.id))
     }
@@ -58,10 +57,9 @@ class AuthService(
         password: String,
     ): AuthResult {
         val user = users.findByEmail(email) ?: return AuthResult.InvalidCredentials
-        val verified =
-            withContext(Dispatchers.IO) {
-                BCrypt.verifyer().verify(password.toCharArray(), user.passwordHash).verified
-            }
+        val verified = withContext(Dispatchers.IO) {
+            BCrypt.verifyer().verify(password.toCharArray(), user.passwordHash).verified
+        }
         return if (verified) AuthResult.Success(issueTokens(user.id)) else AuthResult.InvalidCredentials
     }
 
@@ -75,17 +73,15 @@ class AuthService(
         val now = System.currentTimeMillis()
         // Opportunistic sweep so abandoned sessions don't accumulate forever.
         refreshTokens.entries.removeIf { it.value.expiresAtMillis < now }
-        val accessToken =
-            JWT
-                .create()
-                .withIssuer(config.issuer)
-                .withAudience(config.audience)
-                .withClaim(USER_ID_CLAIM, userId)
-                .withExpiresAt(Date(now + config.accessTtlSeconds * MILLIS_PER_SECOND))
-                .sign(algorithm)
+        val accessToken = JWT
+            .create()
+            .withIssuer(config.issuer)
+            .withAudience(config.audience)
+            .withClaim(USER_ID_CLAIM, userId)
+            .withExpiresAt(Date(now + config.accessTtlSeconds * MILLIS_PER_SECOND))
+            .sign(algorithm)
         val refreshToken = UUID.randomUUID().toString()
-        refreshTokens[refreshToken] =
-            RefreshEntry(userId, now + config.refreshTtlSeconds * MILLIS_PER_SECOND)
+        refreshTokens[refreshToken] = RefreshEntry(userId, now + config.refreshTtlSeconds * MILLIS_PER_SECOND)
         return TokenPair(accessToken = accessToken, refreshToken = refreshToken)
     }
 

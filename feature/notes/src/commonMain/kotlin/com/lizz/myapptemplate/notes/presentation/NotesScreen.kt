@@ -85,8 +85,6 @@ fun NotesContent(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
-        Text("Notes", style = MaterialTheme.typography.headlineMedium)
-
         Row(
             horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
@@ -178,22 +176,20 @@ private fun NotesContentPreview() {
         NotesContent(
             draft = "",
             onDraftChange = {},
-            state =
-                NotesUiState(
-                    notes =
-                        listOf(
-                            Note(
-                                1,
-                                "Ship the template",
-                                Instant.fromEpochMilliseconds(1_750_000_000_000)
-                            ),
-                            Note(
-                                2,
-                                "Copy this feature for new screens",
-                                Instant.fromEpochMilliseconds(1_750_000_500_000),
-                            ),
-                        ),
+            state = NotesUiState(
+                notes = listOf(
+                    Note(
+                        1,
+                        "Ship the template",
+                        Instant.fromEpochMilliseconds(1_750_000_000_000),
+                    ),
+                    Note(
+                        2,
+                        "Copy this feature for new screens",
+                        Instant.fromEpochMilliseconds(1_750_000_500_000),
+                    ),
                 ),
+            ),
             onEvent = {},
         )
     }

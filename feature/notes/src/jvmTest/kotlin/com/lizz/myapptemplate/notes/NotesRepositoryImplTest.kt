@@ -36,31 +36,30 @@ class NotesRepositoryImplTest {
     }
 
     private fun repository(database: AppDatabase): NotesRepositoryImpl {
-        val engine =
-            MockEngine { request ->
-                if (!serverUp.get()) throw kotlinx.io.IOException("offline")
-                val json = headersOf(HttpHeaders.ContentType, "application/json")
-                when {
-                    request.method == HttpMethod.Get ->
-                        respond(
-                            """[{"id":1,"text":"from server","createdAtEpochMillis":1750000000000}]""",
-                            HttpStatusCode.OK,
-                            json,
-                        )
+        val engine = MockEngine { request ->
+            if (!serverUp.get()) throw kotlinx.io.IOException("offline")
+            val json = headersOf(HttpHeaders.ContentType, "application/json")
+            when {
+                request.method == HttpMethod.Get ->
+                    respond(
+                        """[{"id":1,"text":"from server","createdAtEpochMillis":1750000000000}]""",
+                        HttpStatusCode.OK,
+                        json,
+                    )
 
-                    request.method == HttpMethod.Post ->
-                        respond(
-                            """{"id":2,"text":"created","createdAtEpochMillis":1750000001000}""",
-                            HttpStatusCode.OK,
-                            json,
-                        )
+                request.method == HttpMethod.Post ->
+                    respond(
+                        """{"id":2,"text":"created","createdAtEpochMillis":1750000001000}""",
+                        HttpStatusCode.OK,
+                        json,
+                    )
 
-                    request.method == HttpMethod.Delete ->
-                        respond("", HttpStatusCode.NoContent, json)
+                request.method == HttpMethod.Delete ->
+                    respond("", HttpStatusCode.NoContent, json)
 
-                    else -> respond("{}", HttpStatusCode.NotFound, json)
-                }
+                else -> respond("{}", HttpStatusCode.NotFound, json)
             }
+        }
         return NotesRepositoryImpl(createHttpClient(NetworkConfig(), engine), database.noteDao())
     }
 

@@ -13,7 +13,6 @@ fun createJvmPreferencesDataStore(): DataStore<Preferences> =
 // may be stopped/restarted within one process (tests, dev tooling).
 private val jvmDataStore: DataStore<Preferences> by lazy { createJvmPreferencesDataStore() }
 
-actual val datastorePlatformKoinModule: Module =
-    module {
-        single<DataStore<Preferences>> { jvmDataStore }
-    }
+actual val datastorePlatformKoinModule: Module = module {
+    single<DataStore<Preferences>> { jvmDataStore }
+}

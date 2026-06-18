@@ -21,11 +21,10 @@ fun OfflineBanner(
 ) {
     AnimatedVisibility(visible = visible, modifier = modifier) {
         Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.errorContainer)
-                    .padding(Theme.spacing.sm),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.errorContainer)
+                .padding(Theme.spacing.sm),
             contentAlignment = Alignment.Center,
         ) {
             Text(

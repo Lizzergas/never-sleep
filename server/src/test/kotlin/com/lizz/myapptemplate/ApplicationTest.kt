@@ -29,10 +29,9 @@ class ApplicationTest {
     fun helloEndpointReturnsTypedDto() =
         testApplication {
             application { module() }
-            val client =
-                createClient {
-                    install(ContentNegotiation) { json() }
-                }
+            val client = createClient {
+                install(ContentNegotiation) { json() }
+            }
 
             val response = client.get("/api/hello")
 
@@ -46,10 +45,9 @@ class ApplicationTest {
     fun itemsEndpointReturnsTypedList() =
         testApplication {
             application { module() }
-            val client =
-                createClient {
-                    install(ContentNegotiation) { json() }
-                }
+            val client = createClient {
+                install(ContentNegotiation) { json() }
+            }
 
             val response = client.get("/api/items")
 

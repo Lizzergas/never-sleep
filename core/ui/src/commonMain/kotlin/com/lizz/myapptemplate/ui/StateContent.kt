@@ -101,11 +101,10 @@ fun ErrorContent(
     val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
     val scaleSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .animateContentSize(animationSpec = spatialSpec)
-                .padding(Theme.spacing.lg),
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(animationSpec = spatialSpec)
+            .padding(Theme.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {

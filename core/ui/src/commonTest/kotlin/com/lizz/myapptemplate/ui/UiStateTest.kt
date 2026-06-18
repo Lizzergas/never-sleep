@@ -29,16 +29,15 @@ class UiStateTest {
 
     @Test
     fun everyAppErrorHasAUserMessage() {
-        val errors =
-            listOf(
-                AppError.Network,
-                AppError.Timeout,
-                AppError.Unauthorized,
-                AppError.Server(500),
-                AppError.Validation(404),
-                AppError.Serialization("x"),
-                AppError.Unknown(null),
-            )
+        val errors = listOf(
+            AppError.Network,
+            AppError.Timeout,
+            AppError.Unauthorized,
+            AppError.Server(500),
+            AppError.Validation(404),
+            AppError.Serialization("x"),
+            AppError.Unknown(null),
+        )
         errors.forEach { error ->
             kotlin.test.assertTrue(error.userMessage().isNotBlank(), "no message for $error")
         }

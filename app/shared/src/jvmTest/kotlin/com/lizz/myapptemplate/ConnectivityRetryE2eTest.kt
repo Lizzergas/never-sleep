@@ -45,18 +45,17 @@ class ConnectivityRetryE2eTest {
     fun setUp() {
         if (GlobalContext.getOrNull() == null) initKoin()
         // HttpClient whose transport we can break on demand.
-        val flakyEngine =
-            MockEngine {
-                if (networkUp.get()) {
-                    respond(
-                        """[{"id":1,"title":"Recovered item","description":"loaded after reconnect"}]""",
-                        HttpStatusCode.OK,
-                        headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                } else {
-                    throw IOException("network down")
-                }
+        val flakyEngine = MockEngine {
+            if (networkUp.get()) {
+                respond(
+                    """[{"id":1,"title":"Recovered item","description":"loaded after reconnect"}]""",
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            } else {
+                throw IOException("network down")
             }
+        }
         loadKoinModules(
             listOf(
                 testDataStoreModule(dataStoreScope),

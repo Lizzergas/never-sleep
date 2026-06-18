@@ -5,6 +5,54 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 
+enum class DestinationKind {
+    TopLevel,
+    Detail,
+    FullScreen,
+}
+
+enum class TopBarMode {
+    Large,
+    Inline,
+    Hidden,
+}
+
+data class TopBarConfig(
+    val title: String,
+    val mode: TopBarMode = TopBarMode.Inline,
+)
+
+data class PrimaryNavigationItem(
+    val label: String,
+    val materialIcon: ImageVector,
+    val systemImage: String,
+)
+
+/** Shared route destination metadata consumed by Compose and native platform shells. */
+data class AppDestination(
+    val route: NavKey,
+    val id: String,
+    val kind: DestinationKind = DestinationKind.Detail,
+    val topBar: TopBarConfig,
+    val primaryNavigation: PrimaryNavigationItem? = null,
+) {
+    init {
+        require(kind != DestinationKind.TopLevel || primaryNavigation != null) {
+            "Top-level destinations require a primaryNavigation item: $id"
+        }
+    }
+
+    val title: String get() = topBar.title
+
+    val systemImage: String? get() = primaryNavigation?.systemImage
+
+    val isTopLevel: Boolean get() = kind == DestinationKind.TopLevel
+
+    val isFullScreen: Boolean get() = kind == DestinationKind.FullScreen
+
+    val usesLargeTitle: Boolean get() = topBar.mode == TopBarMode.Large
+}
+
 /**
  * The plug-in contract every feature module implements once.
  *
@@ -20,15 +68,8 @@ interface FeatureRegistration {
     /** Listed in the showcase feature catalog; empty hides the feature from it. */
     val descriptors: List<FeatureDescriptor> get() = emptyList()
 
-    /**
-     * Non-null places this feature in the adaptive shell's primary navigation
-     * (bottom bar on compact, rail on medium/expanded). Don't also list the
-     * same route as a descriptor — the shell already surfaces it.
-     */
-    val topLevelDestination: TopLevelDestination? get() = null
-
-    /** Routes that render WITHOUT the shell's navigation chrome (e.g. onboarding, paywalls). */
-    val fullScreenRoutes: Set<NavKey> get() = emptySet()
+    /** Destination metadata owned by this feature and consumed by app hosts. */
+    val destinations: List<AppDestination> get() = emptyList()
 
     /** Public URL contracts owned by this feature. */
     val deepLinks: List<DeepLinkSpec> get() = emptyList()
@@ -41,6 +82,12 @@ interface FeatureRegistration {
         scope: EntryProviderScope<NavKey>,
         navigator: Navigator,
     )
+
+    /** Register shared route content for hosts that own top bars/navigation UI. */
+    fun registerRouteContent(
+        registry: RouteContentRegistryBuilder,
+        navigator: Navigator,
+    ) = Unit
 }
 
 /** A feature as shown in the showcase catalog. */
@@ -54,11 +101,4 @@ data class FeatureDescriptor(
 /** All listed features, provided via DI by the app shell. */
 data class FeatureCatalog(
     val features: List<FeatureDescriptor>,
-)
-
-/** An entry in the adaptive shell's primary navigation. */
-data class TopLevelDestination(
-    val route: NavKey,
-    val label: String,
-    val icon: ImageVector,
 )

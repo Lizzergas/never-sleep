@@ -63,17 +63,15 @@ class AuthE2eTest {
     fun setUp() {
         // Short-lived access tokens: fresh ones work for the immediate
         // /api/me call, but expire before the refresh-restore test below.
-        server =
-            embeddedServer(Netty, port = 0) {
-                module(jwtConfig = JwtConfig(secret = "test-secret", accessTtlSeconds = 2))
-            }.start(wait = false)
-        val port =
-            runBlocking {
-                server.engine
-                    .resolvedConnectors()
-                    .first()
-                    .port
-            }
+        server = embeddedServer(Netty, port = 0) {
+            module(jwtConfig = JwtConfig(secret = "test-secret", accessTtlSeconds = 2))
+        }.start(wait = false)
+        val port = runBlocking {
+            server.engine
+                .resolvedConnectors()
+                .first()
+                .port
+        }
 
         if (GlobalContext.getOrNull() == null) initKoin()
         loadKoinModules(
@@ -148,11 +146,10 @@ class AuthE2eTest {
             // Let the 2s access token expire; a fresh repository restoring
             // from storage must then go through /api/auth/refresh.
             Thread.sleep(2_500)
-            val restored =
-                SessionRepositoryImpl(
-                    config = koin.get<NetworkConfig>(),
-                    storage = tokenStorage,
-                )
+            val restored = SessionRepositoryImpl(
+                config = koin.get<NetworkConfig>(),
+                storage = tokenStorage,
+            )
             restored.restore()
             check(restored.sessionState.value is SessionState.LoggedIn) {
                 "expected LoggedIn after refresh-restore, was ${restored.sessionState.value}"

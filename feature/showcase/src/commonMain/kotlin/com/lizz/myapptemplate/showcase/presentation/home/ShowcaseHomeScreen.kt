@@ -68,17 +68,16 @@ fun ShowcaseHomeContent(
 private fun ShowcaseHomeContentPreview() {
     AppTheme {
         ShowcaseHomeContent(
-            catalog =
-                FeatureCatalog(
-                    listOf(
-                        FeatureDescriptor(
-                            id = "preview",
-                            title = "Design system gallery",
-                            description = "Colors, typography and spacing tokens rendered live",
-                            startRoute = DesignsystemGalleryRoute,
-                        ),
+            catalog = FeatureCatalog(
+                listOf(
+                    FeatureDescriptor(
+                        id = "preview",
+                        title = "Design system gallery",
+                        description = "Colors, typography and spacing tokens rendered live",
+                        startRoute = DesignsystemGalleryRoute,
                     ),
                 ),
+            ),
             onOpenFeature = {},
         )
     }

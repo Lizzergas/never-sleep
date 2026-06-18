@@ -1,7 +1,9 @@
 package com.lizz.myapptemplate.di
 
 import com.lizz.myapptemplate.DeepLinkCoordinator
+import com.lizz.myapptemplate.IosDeepLinkCommandBridge
 import com.lizz.myapptemplate.appDeepLinkRegistry
+import com.lizz.myapptemplate.auth.AccountRoute
 import com.lizz.myapptemplate.auth.authKoinModule
 import com.lizz.myapptemplate.connectivity.connectivityPlatformKoinModule
 import com.lizz.myapptemplate.database.databasePlatformKoinModule
@@ -27,6 +29,7 @@ val appModule = module {
     single { FeatureCatalog(featureRegistrations.flatMap { it.descriptors }) }
     single { appDeepLinkRegistry() }
     single { DeepLinkCoordinator(get()) }
+    single { IosDeepLinkCommandBridge(registry = get(), accountRoute = AccountRoute) }
     // Point this at your API; the template default is the local sample server.
     single { NetworkConfig(baseUrl = defaultServerBaseUrl()) }
 }

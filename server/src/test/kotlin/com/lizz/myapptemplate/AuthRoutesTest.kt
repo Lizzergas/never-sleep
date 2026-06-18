@@ -77,11 +77,10 @@ class AuthRoutesTest {
             val client = authClient()
             client.register()
 
-            val response =
-                client.post("/api/auth/login") {
-                    contentType(io.ktor.http.ContentType.Application.Json)
-                    setBody(AuthRequest("user@example.com", "password123"))
-                }
+            val response = client.post("/api/auth/login") {
+                contentType(io.ktor.http.ContentType.Application.Json)
+                setBody(AuthRequest("user@example.com", "password123"))
+            }
 
             assertEquals(HttpStatusCode.OK, response.status)
         }
@@ -92,11 +91,10 @@ class AuthRoutesTest {
             val client = authClient()
             client.register()
 
-            val response =
-                client.post("/api/auth/login") {
-                    contentType(io.ktor.http.ContentType.Application.Json)
-                    setBody(AuthRequest("user@example.com", "wrong-password"))
-                }
+            val response = client.post("/api/auth/login") {
+                contentType(io.ktor.http.ContentType.Application.Json)
+                setBody(AuthRequest("user@example.com", "wrong-password"))
+            }
 
             assertEquals(HttpStatusCode.Unauthorized, response.status)
         }
@@ -130,12 +128,11 @@ class AuthRoutesTest {
             val client = authClient()
             val original: TokenPair = client.register().body()
 
-            val refreshed: TokenPair =
-                client
-                    .post("/api/auth/refresh") {
-                        contentType(io.ktor.http.ContentType.Application.Json)
-                        setBody(RefreshRequest(original.refreshToken))
-                    }.body()
+            val refreshed: TokenPair = client
+                .post("/api/auth/refresh") {
+                    contentType(io.ktor.http.ContentType.Application.Json)
+                    setBody(RefreshRequest(original.refreshToken))
+                }.body()
 
             assertNotEquals(original.refreshToken, refreshed.refreshToken)
             // New access token still works
@@ -154,11 +151,10 @@ class AuthRoutesTest {
                 setBody(RefreshRequest(original.refreshToken))
             }
 
-            val reuse =
-                client.post("/api/auth/refresh") {
-                    contentType(io.ktor.http.ContentType.Application.Json)
-                    setBody(RefreshRequest(original.refreshToken))
-                }
+            val reuse = client.post("/api/auth/refresh") {
+                contentType(io.ktor.http.ContentType.Application.Json)
+                setBody(RefreshRequest(original.refreshToken))
+            }
 
             assertEquals(HttpStatusCode.Unauthorized, reuse.status)
         }

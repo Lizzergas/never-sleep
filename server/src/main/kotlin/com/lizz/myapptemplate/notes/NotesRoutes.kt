@@ -18,12 +18,11 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 
 private val RoutingContext.userId: String?
-    get() =
-        call
-            .principal<JWTPrincipal>()
-            ?.payload
-            ?.getClaim(AuthService.USER_ID_CLAIM)
-            ?.asString()
+    get() = call
+        .principal<JWTPrincipal>()
+        ?.payload
+        ?.getClaim(AuthService.USER_ID_CLAIM)
+        ?.asString()
 
 fun Route.notesRoutes(store: NotesStore) {
     authenticate(JWT_AUTH) {

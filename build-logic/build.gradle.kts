@@ -11,4 +11,5 @@ dependencies {
     compileOnly(libs.detekt.gradlePlugin)
     compileOnly(libs.ktlint.gradlePlugin)
     compileOnly(libs.kover.gradlePlugin)
+    testImplementation(kotlin("test"))
 }

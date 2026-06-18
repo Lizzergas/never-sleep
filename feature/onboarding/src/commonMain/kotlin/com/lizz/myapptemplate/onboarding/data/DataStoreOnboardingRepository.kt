@@ -21,8 +21,7 @@ class DataStoreOnboardingRepository(
     private val dataStore: DataStore<Preferences>,
 ) : OnboardingRepository,
     StartRouteOverride {
-    override val hasSeenOnboarding: Flow<Boolean> =
-        dataStore.safeData().map { it[SEEN_KEY] == true }
+    override val hasSeenOnboarding: Flow<Boolean> = dataStore.safeData().map { it[SEEN_KEY] == true }
 
     override suspend fun markSeen() {
         dataStore.edit { it[SEEN_KEY] = true }

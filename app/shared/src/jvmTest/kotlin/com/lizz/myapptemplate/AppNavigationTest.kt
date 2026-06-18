@@ -1,10 +1,15 @@
 package com.lizz.myapptemplate
 
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.lizz.myapptemplate.di.initKoin
@@ -65,7 +70,7 @@ class AppNavigationTest {
         rule.onNodeWithText("Typography").assertIsDisplayed()
 
         // And back
-        rule.onNodeWithText("Back").performClick()
+        rule.onNodeWithContentDescription("Back").performClick()
         rule.waitForIdle()
         rule.onNodeWithText("Installed features").assertIsDisplayed()
     }
@@ -103,7 +108,8 @@ class AppNavigationTest {
         rule.onNodeWithText("Design system gallery").performClick()
         rule.waitForIdle()
         rule.onNodeWithText("Design system").assertIsDisplayed()
-        rule.onNodeWithText("Back").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Back").assertIsDisplayed()
+        rule.onAllNodesWithText("Back").assertCountEquals(0)
 
         rule.onNodeWithText("Settings").performClick()
         rule.waitForIdle()
@@ -113,7 +119,8 @@ class AppNavigationTest {
         rule.onNodeWithText("Home").performClick()
         rule.waitForIdle()
         rule.onNodeWithText("Design system").assertIsDisplayed()
-        rule.onNodeWithText("Back").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Back").assertIsDisplayed()
+        rule.onAllNodesWithText("Back").assertCountEquals(0)
 
         rule.onNodeWithText("Home").performClick()
         rule.waitForIdle()
@@ -136,11 +143,11 @@ class AppNavigationTest {
 
         rule.onNodeWithText("Network demo").assertIsDisplayed()
         rule.onNodeWithText("Load items").assertIsDisplayed()
-        rule.onNodeWithText("Home").assertIsSelected()
+        rule.onNode(selectedNavItem("Home"), useUnmergedTree = true).assertExists()
         rule.onAllNodesWithText("Installed features").assertCountEquals(0)
         rule.onAllNodesWithText("Design system gallery").assertCountEquals(0)
 
-        rule.onNodeWithText("Back").performClick()
+        rule.onNodeWithContentDescription("Back").performClick()
         rule.waitUntil(timeoutMillis = 10_000) {
             rule.onAllNodesWithText("Installed features").fetchSemanticsNodes().isNotEmpty()
         }
@@ -152,7 +159,7 @@ class AppNavigationTest {
 
         rule.onNodeWithText("Design system").assertIsDisplayed()
         rule.onNodeWithText("Typography").assertIsDisplayed()
-        rule.onNodeWithText("Home").assertIsSelected()
+        rule.onNode(selectedNavItem("Home"), useUnmergedTree = true).assertExists()
         rule.onAllNodesWithText("Installed features").assertCountEquals(0)
         rule.onAllNodesWithText("Network demo").assertCountEquals(0)
     }
@@ -219,8 +226,11 @@ class AppNavigationTest {
         rule.onNodeWithText("Network demo").assertIsDisplayed()
         rule.onAllNodesWithText("Design system").assertCountEquals(0)
 
-        rule.onNodeWithText("Back").performClick()
+        rule.onNodeWithContentDescription("Back").performClick()
         rule.waitForIdle()
         rule.onNodeWithText("Installed features").assertIsDisplayed()
     }
 }
+
+private fun selectedNavItem(label: String): SemanticsMatcher =
+    isSelected() and hasAnyDescendant(hasContentDescription(label))

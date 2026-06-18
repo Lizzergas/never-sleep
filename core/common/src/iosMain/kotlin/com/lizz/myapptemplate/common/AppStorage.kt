@@ -12,14 +12,13 @@ import platform.Foundation.NSUserDomainMask
  */
 @OptIn(ExperimentalForeignApi::class)
 fun documentsDirectoryPath(): String {
-    val url =
-        NSFileManager.defaultManager.URLForDirectory(
-            directory = NSDocumentDirectory,
-            inDomain = NSUserDomainMask,
-            appropriateForURL = null,
-            create = false,
-            error = null,
-        )
+    val url = NSFileManager.defaultManager.URLForDirectory(
+        directory = NSDocumentDirectory,
+        inDomain = NSUserDomainMask,
+        appropriateForURL = null,
+        create = false,
+        error = null,
+    )
     return requireNotNull(requireNotNull(url) { "Documents directory unavailable" }.path)
 }
 

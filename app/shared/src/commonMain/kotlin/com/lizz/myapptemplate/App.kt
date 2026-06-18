@@ -37,13 +37,13 @@ private fun AppPreview() {
 }
 
 @Composable
-private fun rememberThemeMode(): ThemeMode {
+internal fun rememberThemeMode(): ThemeMode {
     val provider = rememberOptionalKoin<ThemeModeProvider>() ?: return ThemeMode.System
     return provider.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.System).value
 }
 
 @Composable
-private fun rememberOnlineStatus(): Boolean {
+internal fun rememberOnlineStatus(): Boolean {
     val monitor = rememberOptionalKoin<ConnectivityMonitor>() ?: return true
     return monitor.isOnline.collectAsStateWithLifecycle(initialValue = true).value
 }

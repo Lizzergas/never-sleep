@@ -44,13 +44,12 @@ class NotesE2eTest {
     @Before
     fun setUp() {
         server = embeddedServer(Netty, port = 0) { module() }.start(wait = false)
-        val port =
-            runBlocking {
-                server.engine
-                    .resolvedConnectors()
-                    .first()
-                    .port
-            }
+        val port = runBlocking {
+            server.engine
+                .resolvedConnectors()
+                .first()
+                .port
+        }
 
         if (GlobalContext.getOrNull() == null) initKoin()
         loadKoinModules(

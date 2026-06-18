@@ -21,15 +21,13 @@ fun AppTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val useDarkTheme =
-        when (themeMode) {
-            ThemeMode.System -> isSystemInDarkTheme()
-            ThemeMode.Light -> false
-            ThemeMode.Dark -> true
-        }
+    val useDarkTheme = when (themeMode) {
+        ThemeMode.System -> isSystemInDarkTheme()
+        ThemeMode.Light -> false
+        ThemeMode.Dark -> true
+    }
     val brandScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
-    val colorScheme =
-        if (dynamicColor) platformColorScheme(useDarkTheme) ?: brandScheme else brandScheme
+    val colorScheme = if (dynamicColor) platformColorScheme(useDarkTheme) ?: brandScheme else brandScheme
     CompositionLocalProvider(LocalSpacing provides Spacing()) {
         MaterialExpressiveTheme(
             colorScheme = colorScheme,
