@@ -2,6 +2,7 @@ package com.lizz.myapptemplate.showcase
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.navigation.AppDestination
@@ -121,13 +122,13 @@ object ShowcaseFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<ShowcaseHomeRoute> {
-            ShowcaseHomeScreen(onOpenFeature = navigator::navigate)
+            ShowcaseHomeRouteContent(navigator)
         }
         scope.entry<DesignsystemGalleryRoute> {
-            DesignsystemGalleryScreen()
+            DesignsystemGalleryRouteContent()
         }
         scope.entry<NetworkDemoRoute> {
-            NetworkDemoScreen()
+            NetworkDemoRouteContent()
         }
     }
 
@@ -136,15 +137,30 @@ object ShowcaseFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         registry.entry<ShowcaseHomeRoute> {
-            ShowcaseHomeScreen(onOpenFeature = navigator::navigate)
+            ShowcaseHomeRouteContent(navigator)
         }
         registry.entry<DesignsystemGalleryRoute> {
-            DesignsystemGalleryScreen()
+            DesignsystemGalleryRouteContent()
         }
         registry.entry<NetworkDemoRoute> {
-            NetworkDemoScreen()
+            NetworkDemoRouteContent()
         }
     }
+}
+
+@Composable
+private fun ShowcaseHomeRouteContent(navigator: Navigator) {
+    ShowcaseHomeScreen(onOpenFeature = navigator::navigate)
+}
+
+@Composable
+private fun DesignsystemGalleryRouteContent() {
+    DesignsystemGalleryScreen()
+}
+
+@Composable
+private fun NetworkDemoRouteContent() {
+    NetworkDemoScreen()
 }
 
 val showcaseKoinModule: Module = module {

@@ -9,6 +9,7 @@ import com.lizz.myapptemplate.auth.AccountRoute
 import com.lizz.myapptemplate.auth.domain.SessionState
 import com.lizz.myapptemplate.auth.domain.User
 import com.lizz.myapptemplate.di.initKoin
+import com.lizz.myapptemplate.navigation.AppDestination
 import com.lizz.myapptemplate.navigation.DeepLinkAuthPolicy
 import com.lizz.myapptemplate.navigation.DeepLinkPattern
 import com.lizz.myapptemplate.navigation.DeepLinkRegistry
@@ -34,6 +35,7 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.stopKoin
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -66,6 +68,9 @@ class AppDestinationTest {
         )
         assertEquals(destinations.map { it.id }.toSet().size, destinations.size)
         assertEquals(listOf("home", "notes", "settings", "account"), topLevelDestinations().map { it.id })
+        assertTrue(destinations.topLevelDestinations().all { it.primaryNavigation != null })
+        assertTrue(destinations.fullScreenDestinations().all { it.topBar.mode == TopBarMode.Hidden })
+        assertTrue(destinations.fullScreenDestinations().all { it.primaryNavigation == null })
 
         assertDestination(
             ShowcaseHomeRoute,
@@ -147,7 +152,35 @@ class AppDestinationTest {
     }
 
     @Test
-    fun singleScreenAppRendersRoutesWithoutComposeBackChromeInNativeMode() {
+    fun deepLinkTargetsHaveDestinationMetadataAndRouteContent() {
+        val deepLinks = listOf(
+            "myapptemplate://open/home",
+            "myapptemplate://open/notes",
+            "myapptemplate://open/settings",
+            "myapptemplate://open/account",
+            "myapptemplate://open/showcase/design-system",
+            "myapptemplate://open/showcase/network",
+        )
+        val deepLinkRegistry = appDeepLinkRegistry()
+        val routeContentRegistry = appRouteContentRegistry(
+            navigator = TestNavigator(),
+        )
+
+        deepLinks.forEach { url ->
+            val resolution = assertNotNull(deepLinkRegistry.resolve(url), "Expected $url to resolve")
+            val routes = (listOf(resolution.selectedTopLevelRoute) + resolution.stack).distinct()
+            routes.forEach { route ->
+                assertNotNull(destinationForRoute(route), "Missing destination metadata for $route from $url")
+                assertTrue(
+                    routeContentRegistry.canRender(route),
+                    "Missing route content for $route from $url",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun singleScreenAppRendersRoutesWithoutComposeTitleOrBackControls() {
         rule.setContent {
             TestAppOwner {
                 SingleScreenApp(
@@ -251,6 +284,10 @@ class AppDestinationTest {
         assertEquals(topBarMode, destination?.topBar?.mode)
         assertEquals(hasPrimaryNavigation, destination?.primaryNavigation != null)
     }
+
+    private fun List<AppDestination>.topLevelDestinations() = filter { it.kind == DestinationKind.TopLevel }
+
+    private fun List<AppDestination>.fullScreenDestinations() = filter { it.kind == DestinationKind.FullScreen }
 
     private class TestNavigator : com.lizz.myapptemplate.navigation.Navigator {
         override fun navigate(route: androidx.navigation3.runtime.NavKey) = Unit

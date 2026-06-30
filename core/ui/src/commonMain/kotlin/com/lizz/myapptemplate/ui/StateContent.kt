@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.lizz.myapptemplate.designsystem.Theme
 import com.lizz.myapptemplate.model.AppError
 
-/** Renders the standard chrome per state; provide only the success content. */
+/** Renders the standard loading, empty, and error surfaces; provide only the success content. */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> UiStateContent(

@@ -18,7 +18,7 @@ feature/<name>/src/commonMain/kotlin/.../<name>/
     <Name>UiState.kt           ONE data class + sealed <Name>Event
     <Name>ViewModel.kt         ONE StateFlow<UiState> + onEvent(Event)
     <Name>Screen.kt            Screen (stateful) + Content (stateless, previewed)
-  <Name>Feature.kt             FeatureRegistration + route chrome + deep links + Koin module
+  <Name>Feature.kt             FeatureRegistration + destinations + route content + deep links + Koin module
 ```
 
 Dependency rule inside a feature: `presentation → domain ← data`.
@@ -133,7 +133,7 @@ do not render route titles or Back buttons inside screen content. Compose and
 native hosts render top bars and Back/Up from `AppDestination.topBar`.
 
 Android, Desktop, and iOS < 26 use the full Compose Navigation3 shell. iOS 26+
-uses a native SwiftUI shell for platform chrome: `TabView` for top-level
+uses a native SwiftUI shell for platform navigation UI: `TabView` for top-level
 destinations and one native `NavigationStack` per tab, so Liquid Glass tab bars,
 titles, and back gestures are real system UI. Compose still renders the screen
 content and owns ViewModels/data flow. Feature registrations provide the shared
@@ -180,7 +180,9 @@ typed resolutions without changing screens.
 If the route should render inside the iOS 26 native shell, also add a matching
 `registerRouteContent` entry in the feature registration. The same
 `AppDestination` entry feeds both the Compose shell and native iOS shell, so
-avoid screen-local route titles or Back buttons.
+avoid screen-local route titles or Back buttons. Keep each route's screen
+construction in one private route-content composable and call it from both
+`registerEntries` and `registerRouteContent` so the hosts cannot drift.
 
 Removal is the same touchpoints in reverse. Leftover *code* references become
 compile errors pointing at the spot; leftover *runtime* wiring (Koin lookups,

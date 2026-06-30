@@ -2,6 +2,7 @@ package com.lizz.myapptemplate.notes
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.common.UserDataCleaner
@@ -74,7 +75,7 @@ object NotesFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<NotesRoute> {
-            NotesScreen()
+            NotesRouteContent()
         }
     }
 
@@ -83,9 +84,14 @@ object NotesFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         registry.entry<NotesRoute> {
-            NotesScreen()
+            NotesRouteContent()
         }
     }
+}
+
+@Composable
+private fun NotesRouteContent() {
+    NotesScreen()
 }
 
 val notesKoinModule: Module = module {

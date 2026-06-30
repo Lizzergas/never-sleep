@@ -2,6 +2,7 @@ package com.lizz.myapptemplate.settings
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.designsystem.ThemeModeProvider
@@ -71,7 +72,7 @@ object SettingsFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<SettingsRoute> {
-            SettingsScreen()
+            SettingsRouteContent()
         }
     }
 
@@ -80,9 +81,14 @@ object SettingsFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         registry.entry<SettingsRoute> {
-            SettingsScreen()
+            SettingsRouteContent()
         }
     }
+}
+
+@Composable
+private fun SettingsRouteContent() {
+    SettingsScreen()
 }
 
 val settingsKoinModule: Module = module {
