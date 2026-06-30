@@ -16,7 +16,7 @@ core/
   database/         Room 3 KMP setup: driver, per-platform builders, sample Note entity
   datastore/        DataStore<Preferences> factory + per-platform storage location
   designsystem/     Material 3 Expressive AppTheme, color schemes, typography, spacing, ThemeModeProvider
-  navigation/       FeatureRegistration, route chrome, Navigator, FeatureCatalog, deep links, native screen registry
+  navigation/       FeatureRegistration, destinations, Navigator, FeatureCatalog, deep links, route content registry
   ui/               UiState + Loading/Error/Empty components, status timing helpers, AppError user messages
 feature/
   auth/             Account: register/login/logout, KVault token storage, 401 auto-refresh

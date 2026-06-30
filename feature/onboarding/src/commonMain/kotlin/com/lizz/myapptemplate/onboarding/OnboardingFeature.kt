@@ -1,5 +1,6 @@
 package com.lizz.myapptemplate.onboarding
 
+import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.navigation.AppDestination
@@ -54,7 +55,7 @@ object OnboardingFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<OnboardingRoute> {
-            OnboardingScreen(onFinished = navigator::resetToStart)
+            OnboardingRouteContent(navigator)
         }
     }
 
@@ -63,9 +64,14 @@ object OnboardingFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         registry.entry<OnboardingRoute> {
-            OnboardingScreen(onFinished = navigator::resetToStart)
+            OnboardingRouteContent(navigator)
         }
     }
+}
+
+@Composable
+private fun OnboardingRouteContent(navigator: Navigator) {
+    OnboardingScreen(onFinished = navigator::resetToStart)
 }
 
 val onboardingKoinModule: Module = module {

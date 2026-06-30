@@ -2,6 +2,7 @@ package com.lizz.myapptemplate.auth
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.lizz.myapptemplate.auth.data.SessionRepositoryImpl
@@ -76,7 +77,7 @@ object AuthFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         scope.entry<AccountRoute> {
-            AccountScreen()
+            AccountRouteContent()
         }
     }
 
@@ -85,9 +86,14 @@ object AuthFeature : FeatureRegistration {
         navigator: Navigator,
     ) {
         registry.entry<AccountRoute> {
-            AccountScreen()
+            AccountRouteContent()
         }
     }
+}
+
+@Composable
+private fun AccountRouteContent() {
+    AccountScreen()
 }
 
 val authKoinModule: Module = module {

@@ -36,9 +36,9 @@ internal class AppNavigationController(
 
     val currentBackStack: NavBackStack<NavKey>
         get() = if (isTransientActive) {
-            transientBackStack ?: selectedTopLevelBackStack()
+            transientBackStack ?: selectedTopLevelBackStack
         } else {
-            selectedTopLevelBackStack()
+            selectedTopLevelBackStack
         }
 
     val currentRoute: NavKey?
@@ -46,8 +46,8 @@ internal class AppNavigationController(
 
     val canHandleRootBack: Boolean
         get() = !isTransientActive &&
-                currentBackStack.size == 1 &&
-                selectedTopLevelRoute != defaultTopLevelRoute
+            currentBackStack.size == 1 &&
+            selectedTopLevelRoute != defaultTopLevelRoute
 
     val canNavigateUp: Boolean
         get() = currentBackStack.size > 1 || isTransientActive
@@ -113,8 +113,8 @@ internal class AppNavigationController(
         }
     }
 
-    private fun selectedTopLevelBackStack(): NavBackStack<NavKey> =
-        topLevelBackStacks.getValue(selectedTopLevelRoute)
+    private val selectedTopLevelBackStack: NavBackStack<NavKey>
+        get() = topLevelBackStacks.getValue(selectedTopLevelRoute)
 
     private fun MutableList<NavKey>.popToRoot() {
         while (size > 1) {
