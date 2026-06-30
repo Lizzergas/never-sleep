@@ -58,6 +58,7 @@ class AppNavigationTest {
 
         // Home lists catalog-derived features
         rule.onNodeWithText("Installed features").assertIsDisplayed()
+        rule.onAllNodesWithText("MyAppTemplate").assertCountEquals(0)
         rule.onNodeWithText("Design system gallery").assertIsDisplayed()
         rule.onNodeWithText("Network demo").assertIsDisplayed()
         rule.onNodeWithText("Notes").assertIsDisplayed()

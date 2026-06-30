@@ -9,7 +9,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
@@ -67,7 +66,9 @@ internal fun ComposeAppShell(
                     }
                 },
             ) { padding ->
-                content(Modifier.fillMaxSize().padding(padding))
+                AppRouteContentContainer(modifier = Modifier.fillMaxSize().padding(padding)) {
+                    content(Modifier.fillMaxSize())
+                }
             }
 
             else ->
@@ -98,7 +99,9 @@ internal fun ComposeAppShell(
                             )
                         },
                     ) { padding ->
-                        content(Modifier.fillMaxSize().padding(padding))
+                        AppRouteContentContainer(modifier = Modifier.fillMaxSize().padding(padding)) {
+                            content(Modifier.fillMaxSize())
+                        }
                     }
                 }
         }
@@ -129,12 +132,9 @@ private fun AppTopBar(
     }
 
     when (destination.topBar.mode) {
-        TopBarMode.Large -> LargeTopAppBar(
-            title = title,
-            navigationIcon = navigationIcon,
-        )
-
-        TopBarMode.Inline -> TopAppBar(
+        TopBarMode.Large,
+        TopBarMode.Inline,
+        -> TopAppBar(
             title = title,
             navigationIcon = navigationIcon,
         )

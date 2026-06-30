@@ -2,6 +2,7 @@ package com.lizz.myapptemplate
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,17 +45,22 @@ fun SingleScreenApp(
     AppTheme(themeMode = themeMode) {
         Surface(modifier = Modifier.fillMaxSize()) {
             val isOnline = rememberOnlineStatus()
-            Column {
-                OfflineBanner(visible = !isOnline)
+            Column(modifier = Modifier.fillMaxSize()) {
+                OfflineBanner(
+                    visible = !isOnline,
+                    modifier = Modifier.fillMaxWidth(),
+                )
                 NativePendingDeepLinkEffect(
                     onNavigate = onNavigate,
                     onSet = onSet,
                     onActivate = onActivate,
                 )
-                ScreenContent(
-                    route = route,
-                    registry = routeContentRegistry,
-                )
+                AppRouteContentContainer(modifier = Modifier.weight(1f)) {
+                    ScreenContent(
+                        route = route,
+                        registry = routeContentRegistry,
+                    )
+                }
             }
         }
     }

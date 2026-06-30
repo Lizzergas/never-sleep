@@ -2,9 +2,11 @@ package com.lizz.myapptemplate
 
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import com.lizz.myapptemplate.auth.AccountRoute
 import com.lizz.myapptemplate.auth.domain.SessionState
 import com.lizz.myapptemplate.auth.domain.User
@@ -199,6 +201,7 @@ class AppDestinationTest {
                     "core:model DTOs. Failures map to typed AppError values " +
                     "rendered by core:ui state components.",
             ).assertIsDisplayed()
+            .assertLeftPositionInRootIsEqualTo(16.dp)
         rule.onNodeWithText("Load items").assertIsDisplayed()
         rule.onAllNodesWithText("Network demo").assertCountEquals(0)
         rule.onAllNodesWithText("Back").assertCountEquals(0)

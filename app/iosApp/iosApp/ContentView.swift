@@ -73,10 +73,15 @@ final class AppNavigationCoordinator: ObservableObject {
     }
 
     func navigate(to route: Navigation3_runtimeNavKey) {
-        if let destination = AppDestinationsKt.destinationForRoute(route: route),
-           destination.isTopLevel {
-            activate(route)
-            return
+        if let destination = AppDestinationsKt.destinationForRoute(route: route) {
+            if destination.isTopLevel {
+                activate(route)
+                return
+            }
+            if destination.isFullScreen {
+                fullScreenRoute = RouteWrapper(route: route)
+                return
+            }
         }
 
         var path = pathsByTopLevelId[selectedTopLevelId] ?? []
@@ -105,6 +110,8 @@ final class AppNavigationCoordinator: ObservableObject {
             fullScreenRoute = nil
             selectedTopLevelId = destination.id
             pathsByTopLevelId[destination.id] = []
+        } else if destination.isFullScreen {
+            fullScreenRoute = RouteWrapper(route: route)
         } else {
             navigate(to: route)
         }
@@ -153,6 +160,29 @@ struct NativeLiquidGlassAppView: View {
     @StateObject private var coordinator = AppNavigationCoordinator()
 
     var body: some View {
+        Group {
+            if coordinator.fullScreenRoute == nil {
+                tabShell
+            } else {
+                Color.clear
+                    .accessibilityHidden(true)
+            }
+        }
+        .onOpenURL { url in
+            if let command = IosNavigationBridgeKt.nativeDeepLinkCommand(url: url.absoluteString) {
+                coordinator.apply(command: command)
+            }
+        }
+        .fullScreenCover(item: $coordinator.fullScreenRoute) { wrapper in
+            NativeComposeRouteView(
+                route: wrapper.route,
+                appCoordinator: coordinator
+            )
+            .ignoresSafeArea()
+        }
+    }
+
+    private var tabShell: some View {
         TabView(selection: $coordinator.selectedTopLevelId) {
             ForEach(coordinator.topLevelDestinations, id: \.id) { destination in
                 Tab(
@@ -169,18 +199,6 @@ struct NativeLiquidGlassAppView: View {
         }
         .tint(Color("AccentColor"))
         .tabBarMinimizeBehavior(.automatic)
-        .onOpenURL { url in
-            if let command = IosNavigationBridgeKt.nativeDeepLinkCommand(url: url.absoluteString) {
-                coordinator.apply(command: command)
-            }
-        }
-        .fullScreenCover(item: $coordinator.fullScreenRoute) { wrapper in
-            NativeComposeRouteView(
-                route: wrapper.route,
-                appCoordinator: coordinator
-            )
-            .ignoresSafeArea()
-        }
     }
 }
 

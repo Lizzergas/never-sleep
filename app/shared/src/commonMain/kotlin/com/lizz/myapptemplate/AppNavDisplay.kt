@@ -1,7 +1,6 @@
 package com.lizz.myapptemplate
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -54,15 +53,13 @@ internal fun AppNavDisplay(
         }
     }
 
-    key(if (controller.isTransientActive) controller.currentRoute else controller.selectedTopLevelRoute) {
-        NavDisplay(
-            entries = currentEntries,
-            modifier = modifier,
-            sizeTransform = null,
-            transitionSpec = appNavTransitionSpec(),
-            popTransitionSpec = appNavPopTransitionSpec(),
-            predictivePopTransitionSpec = appNavPredictivePopTransitionSpec(),
-            onBack = onBack,
-        )
-    }
+    NavDisplay(
+        entries = currentEntries,
+        modifier = modifier,
+        sizeTransform = null,
+        transitionSpec = appNavTransitionSpec(),
+        popTransitionSpec = appNavPopTransitionSpec(),
+        predictivePopTransitionSpec = appNavPredictivePopTransitionSpec(),
+        onBack = onBack,
+    )
 }

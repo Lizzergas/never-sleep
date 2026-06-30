@@ -43,11 +43,9 @@ fun ShowcaseHomeContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
     ) {
-        Text("MyAppTemplate", style = MaterialTheme.typography.headlineMedium)
         Text(
             "Installed features",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(top = Theme.spacing.sm),
         )
         catalog.features.forEach { feature ->
             Card(
