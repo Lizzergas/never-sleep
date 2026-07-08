@@ -1,0 +1,173 @@
+package com.lizz.neversleep.showcase
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.runtime.Composable
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import com.lizz.neversleep.navigation.AppDestination
+import com.lizz.neversleep.navigation.DeepLinkPattern
+import com.lizz.neversleep.navigation.DeepLinkResolution
+import com.lizz.neversleep.navigation.DeepLinkSpec
+import com.lizz.neversleep.navigation.DestinationKind
+import com.lizz.neversleep.navigation.FeatureDescriptor
+import com.lizz.neversleep.navigation.FeatureRegistration
+import com.lizz.neversleep.navigation.Navigator
+import com.lizz.neversleep.navigation.PrimaryNavigationItem
+import com.lizz.neversleep.navigation.RouteContentRegistryBuilder
+import com.lizz.neversleep.navigation.TopBarConfig
+import com.lizz.neversleep.navigation.TopBarMode
+import com.lizz.neversleep.showcase.presentation.designsystem.DesignsystemGalleryScreen
+import com.lizz.neversleep.showcase.presentation.home.ShowcaseHomeScreen
+import com.lizz.neversleep.showcase.presentation.network.NetworkDemoScreen
+import com.lizz.neversleep.showcase.presentation.network.NetworkDemoViewModel
+import kotlinx.serialization.modules.PolymorphicModuleBuilder
+import kotlinx.serialization.modules.subclass
+import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
+
+object ShowcaseFeature : FeatureRegistration {
+    override val destinations = listOf(
+        AppDestination(
+            route = ShowcaseHomeRoute,
+            id = "home",
+            kind = DestinationKind.TopLevel,
+            topBar = TopBarConfig(title = "Home", mode = TopBarMode.Large),
+            primaryNavigation = PrimaryNavigationItem(
+                label = "Home",
+                materialIcon = Icons.Default.Home,
+                systemImage = "house.fill",
+            ),
+        ),
+        AppDestination(
+            route = DesignsystemGalleryRoute,
+            id = "design-system",
+            topBar = TopBarConfig(title = "Design system", mode = TopBarMode.Inline),
+        ),
+        AppDestination(
+            route = NetworkDemoRoute,
+            id = "network",
+            topBar = TopBarConfig(title = "Network demo", mode = TopBarMode.Inline),
+        ),
+    )
+
+    override val deepLinks = listOf(
+        DeepLinkSpec(
+            pattern = DeepLinkPattern(
+                scheme = "neversleep",
+                host = "open",
+                pathSegments = listOf("home"),
+            ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = ShowcaseHomeRoute,
+                    stack = listOf(ShowcaseHomeRoute),
+                )
+            },
+        ),
+        DeepLinkSpec(
+            pattern = DeepLinkPattern(
+                scheme = "neversleep",
+                host = "open",
+                pathSegments = listOf("showcase", "design-system"),
+            ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = ShowcaseHomeRoute,
+                    stack = listOf(ShowcaseHomeRoute, DesignsystemGalleryRoute),
+                )
+            },
+        ),
+        DeepLinkSpec(
+            pattern = DeepLinkPattern(
+                scheme = "neversleep",
+                host = "open",
+                pathSegments = listOf("showcase", "network"),
+            ),
+            buildResolution = {
+                DeepLinkResolution(
+                    selectedTopLevelRoute = ShowcaseHomeRoute,
+                    stack = listOf(ShowcaseHomeRoute, NetworkDemoRoute),
+                )
+            },
+        ),
+    )
+
+    // The home screen is the app's start destination, so the showcase lists
+    // only its gallery as an openable feature.
+    override val descriptors = listOf(
+        FeatureDescriptor(
+            id = "designsystem-gallery",
+            title = "Design system gallery",
+            description = "Colors, typography and spacing tokens rendered live",
+            startRoute = DesignsystemGalleryRoute,
+        ),
+        FeatureDescriptor(
+            id = "network-demo",
+            title = "Network demo",
+            description = "Typed API call to the template server via core:network",
+            startRoute = NetworkDemoRoute,
+        ),
+    )
+
+    override fun registerRoutes(builder: PolymorphicModuleBuilder<NavKey>) {
+        builder.subclass(ShowcaseHomeRoute::class)
+        builder.subclass(DesignsystemGalleryRoute::class)
+        builder.subclass(NetworkDemoRoute::class)
+    }
+
+    override fun registerEntries(
+        scope: EntryProviderScope<NavKey>,
+        navigator: Navigator,
+    ) {
+        scope.entry<ShowcaseHomeRoute> {
+            ShowcaseHomeRouteContent(navigator)
+        }
+        scope.entry<DesignsystemGalleryRoute> {
+            DesignsystemGalleryRouteContent()
+        }
+        scope.entry<NetworkDemoRoute> {
+            NetworkDemoRouteContent()
+        }
+    }
+
+    override fun registerRouteContent(
+        registry: RouteContentRegistryBuilder,
+        navigator: Navigator,
+    ) {
+        registry.entry<ShowcaseHomeRoute> {
+            ShowcaseHomeRouteContent(navigator)
+        }
+        registry.entry<DesignsystemGalleryRoute> {
+            DesignsystemGalleryRouteContent()
+        }
+        registry.entry<NetworkDemoRoute> {
+            NetworkDemoRouteContent()
+        }
+    }
+}
+
+@Composable
+private fun ShowcaseHomeRouteContent(navigator: Navigator) {
+    ShowcaseHomeScreen(onOpenFeature = navigator::navigate)
+}
+
+@Composable
+private fun DesignsystemGalleryRouteContent() {
+    DesignsystemGalleryScreen()
+}
+
+@Composable
+private fun NetworkDemoRouteContent() {
+    NetworkDemoScreen()
+}
+
+val showcaseKoinModule: Module = module {
+    viewModel {
+        NetworkDemoViewModel(
+            httpClient = get(),
+            connectivityMonitor = getKoin().getOrNull(),
+        )
+    }
+}

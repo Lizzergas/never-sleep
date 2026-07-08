@@ -1,0 +1,90 @@
+package com.lizz.neversleep
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.room3.Room
+import com.lizz.neversleep.connectivity.ConnectivityMonitor
+import com.lizz.neversleep.database.AppDatabase
+import com.lizz.neversleep.database.NoteDao
+import com.lizz.neversleep.database.buildAppDatabase
+import com.lizz.neversleep.onboarding.domain.OnboardingRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
+import okio.Path.Companion.toPath
+import org.koin.core.context.GlobalContext
+import org.koin.core.module.Module
+import org.koin.dsl.module
+import java.nio.file.Files
+
+/**
+ * Overrides the app's DataStore with a throwaway temp-file instance so tests
+ * never touch (or collide on) the real user preferences file. Cancel [scope]
+ * in teardown to release the file.
+ */
+fun testDataStoreModule(scope: CoroutineScope): Module =
+    module {
+        single<DataStore<Preferences>> {
+            PreferenceDataStoreFactory.createWithPath(scope = scope) {
+                Files
+                    .createTempDirectory("test-ds")
+                    .resolve("test.preferences_pb")
+                    .toString()
+                    .toPath()
+            }
+        }
+    }
+
+/** Overrides the app database with a throwaway temp-file instance. */
+fun testDatabaseModule(): Module =
+    module {
+        single<AppDatabase> {
+            val file = Files.createTempDirectory("test-db").resolve("test.db").toString()
+            buildAppDatabase(Room.databaseBuilder<AppDatabase>(file))
+        }
+        single<NoteDao> { get<AppDatabase>().noteDao() }
+    }
+
+/** Marks onboarding as completed so tests land on the showcase home. */
+fun skipOnboardingForTests() {
+    runBlocking {
+        GlobalContext.get().get<OnboardingRepository>().markSeen()
+    }
+}
+
+/** Hand-controlled connectivity for testing offline UI and retry-on-reconnect. */
+class FakeConnectivityMonitor(
+    initiallyOnline: Boolean = true,
+) : ConnectivityMonitor {
+    val state = MutableStateFlow(initiallyOnline)
+    override val isOnline: Flow<Boolean> = state
+}
+
+fun testConnectivityModule(monitor: FakeConnectivityMonitor): Module =
+    module {
+        single<ConnectivityMonitor> { monitor }
+    }
+
+/**
+ * Hosts [content] with a ViewModelStoreOwner so koinViewModel works in
+ * compose tests. Use in every e2e test instead of redefining it.
+ */
+@Composable
+fun TestAppOwner(content: @Composable () -> Unit) {
+    val owner = remember {
+        object : ViewModelStoreOwner {
+            override val viewModelStore = ViewModelStore()
+        }
+    }
+    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+        content()
+    }
+}

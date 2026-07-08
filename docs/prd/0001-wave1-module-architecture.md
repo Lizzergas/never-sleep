@@ -1,6 +1,6 @@
 # PRD 0001 — Wave 1: Plug-in Module Architecture (core split, convention plugins, infra features)
 
-Status: Implemented / archived · Date: 2026-06-10 · Target: MyAppTemplate
+Status: Implemented / archived · Date: 2026-06-10 · Target: NeverSleep
 
 Completion note: this PRD describes the original wave-1 scope. Later waves have
 since delivered auth, connectivity, onboarding, notes, quality tooling, and the
@@ -11,7 +11,7 @@ MVVM feature anatomy; current contracts live in
 
 Every new app rebuilds the same infrastructure from scratch: theming, a configured
 HTTP client with sane error handling, loading/error/empty screen states, and a
-settings screen. Today MyAppTemplate provides a verified dependency baseline
+settings screen. Today NeverSleep provides a verified dependency baseline
 (Koin, Ktor, Room 3, DataStore, Navigation3, Coil, FileKit, Kermit on
 Android/iOS/Desktop/Server) but no reusable structure on top of it: there is a
 single `core` module with no real code, a temporary dependency-verification

@@ -5,6 +5,13 @@
 xcuserdata
 !src/**/build/
 local.properties
+
+# Signing / release secrets - never commit these
+keystore.properties
+*.keystore
+*.jks
+keystores/
+app/keystores/
 .idea/*
 !.idea/codeStyles/
 !.idea/codeStyles/Project.xml

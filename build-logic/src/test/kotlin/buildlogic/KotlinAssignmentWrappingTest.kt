@@ -38,7 +38,7 @@ class KotlinAssignmentWrappingTest {
             DeepLinkSpec(
                 pattern =
                     DeepLinkPattern(
-                        scheme = "myapptemplate",
+                        scheme = "neversleep",
                     ),
             )
             """.trimIndent()
@@ -49,7 +49,7 @@ class KotlinAssignmentWrappingTest {
             """
             DeepLinkSpec(
                 pattern = DeepLinkPattern(
-                    scheme = "myapptemplate",
+                    scheme = "neversleep",
                 ),
             )
             """.trimIndent(),
@@ -80,7 +80,7 @@ class KotlinAssignmentWrappingTest {
             """
             private fun String.isDesktopDeepLinkCandidate(): Boolean =
                 length <= MAX_DESKTOP_DEEP_LINK_LENGTH &&
-                    startsWith("myapptemplate://")
+                    startsWith("neversleep://")
             """.trimIndent()
 
         val output = KotlinAssignmentWrapping.formatText(input, maxLineLength = 120)

@@ -4,10 +4,10 @@ plugins {
     id("template.quality")
 }
 
-group = "com.lizz.myapptemplate"
+group = "com.lizz.neversleep"
 version = "1.0.0"
 application {
-    mainClass = "com.lizz.myapptemplate.ApplicationKt"
+    mainClass = "com.lizz.neversleep.ApplicationKt"
 }
 
 dependencies {

@@ -5,7 +5,7 @@ Status: Draft / macOS-first implementation. Date: 2026-06-17.
 ## Problem Statement
 
 Android and iOS can receive custom-scheme deep links and pass them into shared
-Kotlin, but Desktop JVM currently cannot. Opening `myapptemplate://open/...` in
+Kotlin, but Desktop JVM currently cannot. Opening `neversleep://open/...` in
 Chrome on desktop has no reliable app target because the packaged desktop app
 does not register itself as a protocol handler and the desktop entry point does
 not consume URL arguments or warm URL events.
@@ -16,7 +16,7 @@ as a first-class platform, not as a manual-only test surface.
 
 ## Solution
 
-Add desktop/JVM deep link support so links like `myapptemplate://open/notes`
+Add desktop/JVM deep link support so links like `neversleep://open/notes`
 work from Chrome, terminal commands, and OS-level URL dispatch on macOS,
 Windows, and Linux. Shared Kotlin already owns parsing and navigation; desktop
 should only capture raw URLs and forward them to the existing shared deep link
@@ -41,7 +41,7 @@ Platform strategy:
   to the launcher as an argument. Because the current target is MSI, this uses
   installer or registry support rather than assuming Android/iOS-style manifest
   routing.
-- Linux registers `x-scheme-handler/myapptemplate` through the desktop entry
+- Linux registers `x-scheme-handler/neversleep` through the desktop entry
   and passes `%u` to the launcher.
 - The JVM entry point accepts `args`, extracts supported URL arguments, and
   forwards them after Koin init.
@@ -55,10 +55,10 @@ cross-platform single-instance forwarding remain follow-up work.
 
 ## User Stories
 
-1. As an app user, I want to click `myapptemplate://open/notes` from Chrome on
+1. As an app user, I want to click `neversleep://open/notes` from Chrome on
    desktop, so that I land on Notes without manually navigating.
 2. As an app user, I want to open
-   `myapptemplate://open/showcase/network` while the app is already running, so
+   `neversleep://open/showcase/network` while the app is already running, so
    that the existing window navigates there instead of opening a duplicate app
    window.
 3. As an app user, I want invalid or unknown desktop links to fail quietly, so
@@ -76,7 +76,7 @@ cross-platform single-instance forwarding remain follow-up work.
    validation, auth gating, and stack synthesis remain shared Kotlin behavior.
 8. As a developer using the renamed template, I want the custom scheme to be
    renamed with the rest of the app identity, so that generated apps do not keep
-   `myapptemplate` in protocol registration.
+   `neversleep` in protocol registration.
 
 ## Implementation Decisions
 
@@ -86,7 +86,7 @@ cross-platform single-instance forwarding remain follow-up work.
   handlers when supported, extracting startup URLs from `main(args)`, forwarding
   warm URLs to the existing process, and calling the shared deep link entry
   point exactly once per received URL.
-- Keep the custom scheme as `myapptemplate` in the template so the rename flow
+- Keep the custom scheme as `neversleep` in the template so the rename flow
   can rewrite it with the rest of the app identity.
 - Change desktop `main` to accept `args`; do not change shared route shapes,
   feature route declarations, or screen/ViewModel contracts.
@@ -113,12 +113,12 @@ cross-platform single-instance forwarding remain follow-up work.
   invalid URLs are ignored, and warm links reach the existing app instance. They
   should not depend on the internal socket, lock, or platform API details.
 - Desktop URL extraction tests should accept:
-  - `myapptemplate://open/home`
-  - `myapptemplate://open/notes`
-  - `myapptemplate://open/settings`
-  - `myapptemplate://open/account`
-  - `myapptemplate://open/showcase/design-system`
-  - `myapptemplate://open/showcase/network`
+  - `neversleep://open/home`
+  - `neversleep://open/notes`
+  - `neversleep://open/settings`
+  - `neversleep://open/account`
+  - `neversleep://open/showcase/design-system`
+  - `neversleep://open/showcase/network`
 - Desktop URL extraction tests should reject unknown schemes, malformed URLs,
   oversized input, unknown paths, and unrelated command-line arguments.
 - Warm-instance forwarding should be tested behind an interface so JVM tests do
@@ -127,17 +127,17 @@ cross-platform single-instance forwarding remain follow-up work.
   truth for route synthesis, auth gating, and retained-stack behavior.
 - Manual macOS verification:
   - Package or run the distributable.
-  - Run `open 'myapptemplate://open/notes'`.
+  - Run `open 'neversleep://open/notes'`.
   - Paste the same URL in Chrome.
   - Verify warm links navigate the existing window and do not create a second
     window.
 - Manual Windows verification:
   - Install the MSI or a development protocol registration.
-  - Run `start "" "myapptemplate://open/notes"`.
+  - Run `start "" "neversleep://open/notes"`.
   - Verify warm links reuse the running app.
 - Manual Linux verification:
   - Install the package or desktop entry.
-  - Run `xdg-open 'myapptemplate://open/notes'`.
+  - Run `xdg-open 'neversleep://open/notes'`.
   - Verify warm links reuse the running app.
 
 ## Out of Scope

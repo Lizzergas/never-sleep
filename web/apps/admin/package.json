@@ -1,5 +1,5 @@
 {
-  "name": "@myapptemplate/admin",
+  "name": "@neversleep/admin",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@myapptemplate/api-client": "workspace:*",
+    "@neversleep/api-client": "workspace:*",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },

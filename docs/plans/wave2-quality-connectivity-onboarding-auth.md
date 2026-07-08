@@ -1,6 +1,6 @@
 # Plan: Wave 2 — Quality Tooling, Connectivity, Onboarding, Auth
 
-> Repo: Lizzergas/compose-multiplatform-template (local: MyAppTemplate). Wave 1
+> Repo: Lizzergas/compose-multiplatform-template (local: NeverSleep). Wave 1
 > (core split, convention plugins, registry/showcase, network, UiState,
 > settings, database) is complete and on CI. This plan adds the next tracer
 > features + the quality infrastructure, reusing wave-1 patterns throughout.

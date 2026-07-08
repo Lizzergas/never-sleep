@@ -1,5 +1,5 @@
 {
-  "name": "@myapptemplate/web",
+  "name": "@neversleep/web",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -7,8 +7,8 @@
   ],
   "type": "module",
   "scripts": {
-    "dev:landing": "bun --filter @myapptemplate/landing dev",
-    "dev:admin": "bun --filter @myapptemplate/admin dev",
+    "dev:landing": "bun --filter @neversleep/landing dev",
+    "dev:admin": "bun --filter @neversleep/admin dev",
     "build": "bun run --filter '*' build",
     "lint": "oxlint .",
     "format": "oxfmt --write .",

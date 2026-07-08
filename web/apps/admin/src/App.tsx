@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiBaseUrl, hello, type HelloResponse } from "@myapptemplate/api-client";
+import { apiBaseUrl, hello, type HelloResponse } from "@neversleep/api-client";
 import "./styles.css";
 
 type ApiStatus =

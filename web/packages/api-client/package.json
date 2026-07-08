@@ -1,5 +1,5 @@
 {
-  "name": "@myapptemplate/api-client",
+  "name": "@neversleep/api-client",
   "private": true,
   "type": "module",
   "exports": {

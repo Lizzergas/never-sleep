@@ -16,7 +16,7 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
-            binaryOption("bundleId", "com.lizz.myapptemplate.shared")
+            binaryOption("bundleId", "com.lizz.neversleep.shared")
             isStatic = true
         }
     }
@@ -24,7 +24,7 @@ kotlin {
     jvm()
 
     android {
-        namespace = "com.lizz.myapptemplate.app.shared"
+        namespace = "com.lizz.neversleep.app.shared"
         compileSdk = libs.versions.android.compileSdk
             .get()
             .toInt()

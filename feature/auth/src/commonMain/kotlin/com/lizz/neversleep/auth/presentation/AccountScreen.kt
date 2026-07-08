@@ -1,0 +1,159 @@
+package com.lizz.neversleep.auth.presentation
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lizz.neversleep.auth.domain.SessionState
+import com.lizz.neversleep.auth.domain.User
+import com.lizz.neversleep.designsystem.AppTheme
+import com.lizz.neversleep.designsystem.Theme
+import com.lizz.neversleep.ui.DelayedVisibility
+import com.lizz.neversleep.ui.ErrorContent
+import org.koin.compose.viewmodel.koinViewModel
+
+/** Stateful wrapper: owns the ViewModel. All rendering is in [AccountContent]. */
+@Composable
+fun AccountScreen() {
+    val viewModel = koinViewModel<SessionViewModel>()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    AccountContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+    )
+}
+
+/**
+ * Conditional navigation on session state: login/register when logged out,
+ * profile when logged in — the pattern to copy for protected areas.
+ */
+@Composable
+fun AccountContent(
+    state: AccountUiState,
+    onEvent: (AccountEvent) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(Theme.spacing.sm),
+    ) {
+        when (val session = state.session) {
+            SessionState.Unknown -> RestorePendingContent()
+            SessionState.LoggedOut -> {
+                AccountIntro()
+                AuthForm(state, onEvent)
+            }
+
+            is SessionState.LoggedIn -> Profile(
+                session.user,
+                onLogout = { onEvent(AccountEvent.Logout) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun RestorePendingContent() {
+    AccountIntro()
+    DelayedVisibility(visible = true) {
+        Text(
+            "Checking saved session...",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun AccountIntro() {
+    Text(
+        "Sign in to keep your notes available across devices.",
+        style = MaterialTheme.typography.bodyMedium,
+    )
+}
+
+@Composable
+private fun AuthForm(
+    state: AccountUiState,
+    onEvent: (AccountEvent) -> Unit,
+) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
+    OutlinedTextField(
+        value = email,
+        onValueChange = { email = it },
+        label = { Text("Email") },
+        isError = state.validation.emailError != null,
+        supportingText = state.validation.emailError?.let { { Text(it) } },
+        modifier = Modifier.fillMaxWidth(),
+    )
+    OutlinedTextField(
+        value = password,
+        onValueChange = { password = it },
+        label = { Text("Password (min 8 chars)") },
+        isError = state.validation.passwordError != null,
+        supportingText = state.validation.passwordError?.let { { Text(it) } },
+        modifier = Modifier.fillMaxWidth(),
+    )
+
+    state.error?.let { ErrorContent(error = it, isRetrying = state.isSubmitting) }
+
+    Row(horizontalArrangement = Arrangement.spacedBy(Theme.spacing.sm)) {
+        Button(
+            onClick = { onEvent(AccountEvent.Login(email.trim(), password)) },
+            enabled = !state.isSubmitting,
+        ) { Text("Log in") }
+        OutlinedButton(
+            onClick = { onEvent(AccountEvent.Register(email.trim(), password)) },
+            enabled = !state.isSubmitting,
+        ) { Text("Register") }
+    }
+}
+
+@Composable
+private fun Profile(
+    user: User,
+    onLogout: () -> Unit,
+) {
+    Text("Profile", style = MaterialTheme.typography.headlineMedium)
+    Text("Signed in as ${user.email}", style = MaterialTheme.typography.bodyLarge)
+    Text("User id: ${user.id}", style = MaterialTheme.typography.bodySmall)
+    OutlinedButton(onClick = onLogout) { Text("Log out") }
+}
+
+@Preview
+@Composable
+private fun AccountLoggedOutPreview() {
+    AppTheme {
+        AccountContent(
+            state = AccountUiState(session = SessionState.LoggedOut),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AccountLoggedInPreview() {
+    AppTheme {
+        AccountContent(
+            state = AccountUiState(session = SessionState.LoggedIn(User("42", "preview@lizz.dev"))),
+            onEvent = {},
+        )
+    }
+}

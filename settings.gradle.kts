@@ -1,4 +1,4 @@
-rootProject.name = "MyAppTemplate"
+rootProject.name = "NeverSleep"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

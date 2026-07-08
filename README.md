@@ -1,9 +1,18 @@
-# MyAppTemplate
+# NeverSleep
 
-A Kotlin/Compose Multiplatform template targeting **Android, iOS, Desktop (JVM)
-and Server**, with a plug-in module architecture: the infrastructure every app
-needs ships pre-built and wired, and each feature is removable through four
-documented wiring touchpoints.
+**Never Sleep** — an Android utility that prevents the screen from turning off due to inactivity.
+
+- Uses `WRITE_SETTINGS` → writes a very high value to `Settings.System.SCREEN_OFF_TIMEOUT`.
+- Works after you leave the app (unlike `FLAG_KEEP_SCREEN_ON`).
+- Saves the previous timeout so you can restore it.
+
+The rest of the Compose Multiplatform template structure is kept for future expansion if needed, but the deliverable right now is the focused Android app in `app/androidApp`.
+
+Run / install:
+- `./gradlew :app:androidApp:assembleDebug`
+- The APK is at `app/androidApp/build/outputs/apk/debug/androidApp-debug.apk`
+
+See the implementation in `app/androidApp/src/main/kotlin/com/lizz/neversleep/MainActivity.kt`.
 
 The optional **web workspace** under [web](./web) hosts separate Bun/Vite/Astro
 surfaces for landing pages and admin panels without changing the Gradle module
@@ -11,26 +20,6 @@ graph.
 
 **Read [docs/MODULES.md](./docs/MODULES.md)** for the module map, dependency
 rules, and the add/remove-a-feature contract.
-
-<!-- TEMPLATE_ONLY_RENAME_START -->
-The implemented PRD and archived rollout plans behind the architecture live in
-[docs/prd](./docs/prd) and [docs/plans](docs/plans).
-<!-- TEMPLATE_ONLY_RENAME_END -->
-
-<!-- TEMPLATE_ONLY_RENAME_START -->
-## Make it yours
-
-```
-./rename.sh MyCoolApp                 # package becomes com.lizz.mycoolapp
-./rename.sh MyCoolApp org.acme.cool   # custom package id
-```
-
-One script renames everything — packages, namespaces, bundle ids, app display
-name, source directories, and web package scopes. Run it on a clean working
-tree, review `git diff`, run the tests, and commit. The script removes itself
-after a successful rename so the generated app does not keep stale template
-identifiers.
-<!-- TEMPLATE_ONLY_RENAME_END -->
 
 ## What's inside
 
@@ -87,6 +76,58 @@ identifiers.
   `cd web && bun run lint && bun run format:check && bun run typecheck && bun run test && bun run build`
 
 ---
+
+## Releasing to Google Play (Release Builds)
+
+### Versioning
+- `versionCode` and `versionName` live in `app/androidApp/build.gradle.kts` → `defaultConfig`.
+- **Always increment `versionCode`** (by 1 or more) before every Play upload.
+- Use semantic `versionName` (e.g. `1.0.0`, `1.1.0`, `2.0.0-beta`).
+
+### Building a Release
+```bash
+# Unsigned (or signed if you configured keystore)
+./gradlew :app:androidApp:assembleRelease
+
+# Preferred for Play Store: Android App Bundle (AAB)
+./gradlew :app:androidApp:bundleRelease
+```
+
+APKs / bundles will be in:
+`app/androidApp/build/outputs/{apk,bundle}/release/`
+
+### Signing for Release (one-time setup)
+1. Generate a keystore (store it safely):
+   ```bash
+   mkdir -p keystores
+   keytool -genkey -v -keystore keystores/never-sleep-release.keystore \
+     -alias never-sleep -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. Copy the example and fill real values:
+   ```bash
+   cp keystore.properties.example keystore.properties
+   # edit keystore.properties (this file is gitignored)
+   ```
+
+3. Re-run the release task. The build will pick up the signing config.
+
+**Recommendation**: Use **Google Play App Signing**. Upload the AAB and let Google manage the final signing key.
+
+### ProGuard / R8
+Release builds automatically:
+- Minify code (`isMinifyEnabled = true`)
+- Shrink resources
+- Use `proguard-rules.pro` (Compose + app specific keeps already included)
+
+### Other Play Store prep notes
+- App icon: now uses custom generated crescent moon design (in `mipmap-*` + adaptive).
+- The `WRITE_SETTINGS` permission requires a prominent disclosure + consent in the app (already present in the disclaimer UI).
+- Test the release build on a real device before uploading.
+- For the first upload you will need to create a Google Play Console entry, fill privacy policy, content rating, etc.
+
+See `keystore.properties.example` and the signing block in `app/androidApp/build.gradle.kts` for details.
+
 
 Learn more
 about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…

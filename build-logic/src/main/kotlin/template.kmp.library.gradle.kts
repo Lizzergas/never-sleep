@@ -20,7 +20,7 @@ kotlin {
     jvm()
 
     android {
-        namespace = "com.lizz.myapptemplate" +
+        namespace = "com.lizz.neversleep" +
                 project.path.replace(":", ".").replace("-", "")
         compileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
         minSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()

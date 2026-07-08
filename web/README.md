@@ -1,4 +1,4 @@
-# MyAppTemplate Web Workspace
+# NeverSleep Web Workspace
 
 Self-contained Bun workspace for web surfaces that live beside the Kotlin
 Multiplatform app without joining the Gradle module graph.

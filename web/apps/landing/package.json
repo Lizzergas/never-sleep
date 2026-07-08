@@ -1,5 +1,5 @@
 {
-  "name": "@myapptemplate/landing",
+  "name": "@neversleep/landing",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/react": "5.0.7",
-    "@myapptemplate/api-client": "workspace:*",
+    "@neversleep/api-client": "workspace:*",
     "astro": "6.4.7",
     "react": "19.2.7",
     "react-dom": "19.2.7"

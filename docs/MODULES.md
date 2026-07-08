@@ -78,7 +78,7 @@ and Desktop only register/capture the template custom scheme and forward URL
 strings into shared Kotlin. On iOS 26+, shared Kotlin returns a native
 selected-tab plus stack command instead of mutating the Compose shell. Desktop
 support is macOS-first for packaged URL events, with JVM startup args available
-for manual launcher tests. The template ships `myapptemplate://open/...` links.
+for manual launcher tests. The template ships `neversleep://open/...` links.
 Verified HTTPS App Links / Universal Links are intentionally left to generated
 apps with a real domain and app association files.
 

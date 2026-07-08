@@ -144,7 +144,7 @@ the native host.
 
 Deep links are feature-owned public API. Each feature declares explicit
 `DeepLinkSpec`s in its `FeatureRegistration`; never derive URL paths from route
-class names. Platform hosts only capture URLs (`myapptemplate://open/...` in the
+class names. Platform hosts only capture URLs (`neversleep://open/...` in the
 template default) and forward the raw string to shared Kotlin: Android uses
 intents, iOS < 26 forwards into the Compose shell, iOS 26+ converts the shared
 resolution into a native selected-tab plus stack command, and Desktop currently
@@ -158,12 +158,12 @@ V1 template links:
 
 | URL                                              | Stack                                      |
 |--------------------------------------------------|--------------------------------------------|
-| `myapptemplate://open/home`                      | Home root                                  |
-| `myapptemplate://open/notes`                     | Notes root                                 |
-| `myapptemplate://open/settings`                  | Settings root                              |
-| `myapptemplate://open/account`                   | Account root                               |
-| `myapptemplate://open/showcase/design-system`    | Home -> Design System Gallery              |
-| `myapptemplate://open/showcase/network`          | Home -> Network Demo                       |
+| `neversleep://open/home`                      | Home root                                  |
+| `neversleep://open/notes`                     | Notes root                                 |
+| `neversleep://open/settings`                  | Settings root                              |
+| `neversleep://open/account`                   | Account root                               |
+| `neversleep://open/showcase/design-system`    | Home -> Design System Gallery              |
+| `neversleep://open/showcase/network`          | Home -> Network Demo                       |
 
 Verified HTTPS Android App Links / iOS Universal Links should be enabled only
 in generated apps with a real domain, signing identity, and hosted association

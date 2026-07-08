@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		2DEEA17F46668AEE13523E73 /* MyAppTemplate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyAppTemplate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2DEEA17F46668AEE13523E73 /* NeverSleep.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NeverSleep.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,7 +59,7 @@
 		D1DE6BB4ABE9A6F1D44227F8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2DEEA17F46668AEE13523E73 /* MyAppTemplate.app */,
+				2DEEA17F46668AEE13523E73 /* NeverSleep.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,7 +87,7 @@
 			packageProductDependencies = (
 			);
 			productName = iosApp;
-			productReference = 2DEEA17F46668AEE13523E73 /* MyAppTemplate.app */;
+			productReference = 2DEEA17F46668AEE13523E73 /* NeverSleep.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@myapptemplate/web",
+      "name": "@neversleep/web",
       "devDependencies": {
         "oxfmt": "0.55.0",
         "oxlint": "1.70.0",
@@ -12,9 +12,9 @@
       },
     },
     "apps/admin": {
-      "name": "@myapptemplate/admin",
+      "name": "@neversleep/admin",
       "dependencies": {
-        "@myapptemplate/api-client": "workspace:*",
+        "@neversleep/api-client": "workspace:*",
         "react": "19.2.7",
         "react-dom": "19.2.7",
       },
@@ -26,10 +26,10 @@
       },
     },
     "apps/landing": {
-      "name": "@myapptemplate/landing",
+      "name": "@neversleep/landing",
       "dependencies": {
         "@astrojs/react": "5.0.7",
-        "@myapptemplate/api-client": "workspace:*",
+        "@neversleep/api-client": "workspace:*",
         "astro": "6.4.7",
         "react": "19.2.7",
         "react-dom": "19.2.7",
@@ -41,7 +41,7 @@
       },
     },
     "packages/api-client": {
-      "name": "@myapptemplate/api-client",
+      "name": "@neversleep/api-client",
     },
   },
   "packages": {
@@ -239,11 +239,11 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@myapptemplate/admin": ["@myapptemplate/admin@workspace:apps/admin"],
+    "@neversleep/admin": ["@neversleep/admin@workspace:apps/admin"],
 
-    "@myapptemplate/api-client": ["@myapptemplate/api-client@workspace:packages/api-client"],
+    "@neversleep/api-client": ["@neversleep/api-client@workspace:packages/api-client"],
 
-    "@myapptemplate/landing": ["@myapptemplate/landing@workspace:apps/landing"],
+    "@neversleep/landing": ["@neversleep/landing@workspace:apps/landing"],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.5", "", { "dependencies": { "@tybys/wasm-util": "^0.10.2" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-AWPoBRJ9tsnVhor4sjO7rkni+7p+2IAEFj6cx06UgP10jkQHqay/36uRV/bFkgrh18D9vb4cr8Q0Pthskgzy+Q=="],
 

@@ -1,6 +1,6 @@
 # Agent / developer guide
 
-Compose Multiplatform template (Android, iOS, Desktop JVM, Ktor server) with a
+Compose Multiplatform app (Android, iOS, Desktop JVM, Ktor server) with a
 plug-in module architecture. Full module map and the add/remove-a-feature
 contract: **docs/MODULES.md**. Layer rules, UiState/Event contract, and the
 anatomy of a feature: **docs/ARCHITECTURE.md** — copy `feature/notes` when
@@ -9,20 +9,6 @@ building a new feature.
 Optional web surfaces live under **web/** as a separate Bun workspace. When
 working there, read **web/AGENTS.md** first and keep Node/Vite/Astro/Oxc
 tooling out of the Gradle module graph unless explicitly requested.
-
-<!-- TEMPLATE_ONLY_RENAME_START -->
-## Renaming the template (do this first in a new app)
-
-```
-./rename.sh MyCoolApp                 # package becomes com.lizz.mycoolapp
-./rename.sh MyCoolApp org.acme.cool   # custom package
-```
-
-Rewrites `com.lizz.myapptemplate` / `com/lizz/myapptemplate` /
-`MyAppTemplate` / `myapptemplate` in all tracked files and moves the source
-trees. Requires a clean working tree; review with `git diff`, verify, and
-commit. The script removes itself after a successful rename.
-<!-- TEMPLATE_ONLY_RENAME_END -->
 
 ## Commands
 
@@ -54,3 +40,18 @@ commit. The script removes itself after a successful rename.
 - Kotlin/Gradle versions live only in `gradle/libs.versions.toml`; web
   dependency versions live in `web/package.json` and package manifests under
   `web/apps/*` / `web/packages/*`.
+
+## Android Assets & Icons (this app)
+
+This is currently an Android-focused app. For generating launcher icons,
+Quick Settings tile icons, widget icons, Play Store assets, and future
+shortcuts, read **docs/ICON_GENERATION.md**.
+
+It contains:
+- Exact prompt patterns that produced good results
+- Step-by-step using `image_gen` + `image_edit` + `sips`
+- How to handle adaptive icons, densities, foreground/background
+- What was learned about making the process fast and repeatable
+- Cheatsheet commands
+
+Always keep master 1024px assets and the prompts so future updates are quick.

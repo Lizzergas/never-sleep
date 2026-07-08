@@ -20,17 +20,17 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "com.lizz.myapptemplate.MainKt"
+        mainClass = "com.lizz.neversleep.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.lizz.myapptemplate"
+            packageName = "com.lizz.neversleep"
             packageVersion = "1.0.0"
 
             modules("jdk.unsupported")
 
             macOS {
-                bundleID = "com.lizz.myapptemplate"
+                bundleID = "com.lizz.neversleep"
                 infoPlist {
                     extraKeysRawXml =
                         """
@@ -38,10 +38,10 @@ compose.desktop {
                         <array>
                             <dict>
                                 <key>CFBundleURLName</key>
-                                <string>com.lizz.myapptemplate</string>
+                                <string>com.lizz.neversleep</string>
                                 <key>CFBundleURLSchemes</key>
                                 <array>
-                                    <string>myapptemplate</string>
+                                    <string>neversleep</string>
                                 </array>
                             </dict>
                         </array>
