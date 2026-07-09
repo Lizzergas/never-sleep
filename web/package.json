@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "dev:landing": "bun --filter @neversleep/landing dev",
+    "dev:landing:play": "bun --filter @neversleep/landing dev:play",
     "dev:admin": "bun --filter @neversleep/admin dev",
     "build": "bun run --filter '*' build",
     "lint": "oxlint .",

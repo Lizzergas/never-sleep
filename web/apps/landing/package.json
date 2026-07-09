@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev --host 127.0.0.1 --port 5173",
+    "dev:play": "cp dev/play-listing.astro src/pages/play.astro && ASTRO_TELEMETRY_DISABLED=1 astro dev --host 127.0.0.1 --port 5173",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview --host 127.0.0.1 --port 4173",
     "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check",

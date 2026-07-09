@@ -2,32 +2,25 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
-import Kicker from "../components/ui/Kicker.astro";
+import GooglePlayBadge from "../components/ui/GooglePlayBadge.astro";
 import SectionHeading from "../components/ui/SectionHeading.astro";
 import PhoneFrame from "../components/PhoneFrame.astro";
+
+const description =
+    "Prevent your screen from turning off due to inactivity. One tap to enable screen lock and you are good to go!";
 ---
 
-<SiteLayout
-    showShader={true}
-    title="Never Sleep — Android screen timeout utility"
-    description="Keep your Android screen awake with one tap, a Quick Settings tile, and a home-screen widget."
->
+<SiteLayout showShader={true} title="Never Sleep — Android screen timeout utility" description={description}>
     <section class="hero" aria-labelledby="page-title">
         <div class="hero__copy">
             <div class="hero__badge">
                 <span class="hero__badge-dot" aria-hidden="true"></span>
                 Screen stays on until you turn it off
             </div>
-            <Kicker>Android utility</Kicker>
             <h1 id="page-title">Never Sleep</h1>
-            <p class="lede">
-                Prevent your screen from turning off due to inactivity. One tap, a Quick Settings tile,
-                and a 1×1 widget — then restore your previous timeout when you are done.
-            </p>
+            <p class="lede">{description}</p>
             <div class="actions" aria-label="Primary links">
-                <Button href="https://play.google.com/store/apps/details?id=com.lizz.neversleep" external={true}>
-                    Get on Google Play
-                </Button>
+                <GooglePlayBadge />
                 <Button href="/privacy" variant="secondary">Privacy policy</Button>
             </div>
         </div>
@@ -76,8 +69,6 @@ import PhoneFrame from "../components/PhoneFrame.astro";
             <h2>Ready when you need it</h2>
             <p>Restores your previous timeout automatically when you turn Never Sleep off.</p>
         </div>
-        <Button href="https://play.google.com/store/apps/details?id=com.lizz.neversleep" external={true}>
-            Download for Android
-        </Button>
+        <GooglePlayBadge />
     </section>
 </SiteLayout>

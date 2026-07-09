@@ -32,6 +32,7 @@ node_modules/
 
 # Web workspace
 web/node_modules/
+web/apps/landing/src/pages/play.astro
 web/apps/*/dist/
 web/apps/*/.astro/
 web/apps/*/.vite/

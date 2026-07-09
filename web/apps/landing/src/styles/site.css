@@ -262,7 +262,20 @@ h1 {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    align-items: center;
     margin-top: 28px;
+}
+
+/* Official Google Play badge — do not recolor or crop (Google brand guidelines). */
+.play-badge {
+    display: inline-block;
+    line-height: 0;
+}
+
+.play-badge img {
+    display: block;
+    height: 60px;
+    width: auto;
 }
 
 .doc-actions {
