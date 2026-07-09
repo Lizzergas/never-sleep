@@ -4,7 +4,6 @@ import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import GooglePlayBadge from "../components/ui/GooglePlayBadge.astro";
 import SectionHeading from "../components/ui/SectionHeading.astro";
-import PhoneFrame from "../components/PhoneFrame.astro";
 
 const description =
     "Prevent your screen from turning off due to inactivity. One tap to enable screen lock and you are good to go!";
@@ -25,18 +24,17 @@ const description =
             </div>
         </div>
 
-        <div class="hero__phones" aria-label="App screenshots">
-            <PhoneFrame
-                src="/screenshots/01-normal.png"
-                alt="Never Sleep app in normal screen timeout mode"
-                caption="Normal mode"
-            />
-            <PhoneFrame
-                src="/screenshots/02-never-sleep.png"
-                alt="Never Sleep app with screen kept awake"
-                caption="Never sleep mode"
-                active={true}
-            />
+        <div class="preview-panel app-preview" aria-label="App preview">
+            <div class="preview-header">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="app-mock">
+                <p class="mock-title">never sleep</p>
+                <div class="mock-button" aria-hidden="true">🌙</div>
+                <p class="mock-caption">Tap to toggle · Tile · Widget</p>
+            </div>
         </div>
     </section>
 
