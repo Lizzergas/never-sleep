@@ -2,25 +2,16 @@ package com.lizz.neversleep
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.RuntimeShader
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -32,8 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -55,10 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
@@ -69,8 +55,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.cos
-import kotlin.math.sin
 import androidx.compose.ui.Alignment as ComposeAlignment
 
 private const val PREFS_NAME = "never_sleep_prefs"
@@ -221,8 +205,8 @@ private fun NeverSleepScreen(
         // Let the shader draw full-bleed under the status bar; insets are applied to content below
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // Pure native modern Android shader (AGSL on 33+, Canvas fallback) - full screen
-            NativeShaderBackground(modifier = Modifier.fillMaxSize())
+            // Full-screen background that morphs Normal↔Never with a windy swoosh.
+            NeverSleepBackground(isEnabled = isEnabled, modifier = Modifier.fillMaxSize())
 
             if (!screenshotMode) {
                 Box(
@@ -442,187 +426,6 @@ private fun DisclaimerSection(
                             .firstOrNull()
                             ?.let { uriHandler.openUri(it.item) }
                     },
-                )
-            }
-        }
-    }
-}
-
-/**
- * Modern native Android shader background.
- * - API 33+: AGSL RuntimeShader (official, GPU accelerated, best practice in 2026 Compose)
- * - Fallback: Canvas with animated radial gradients + grain (works on minSdk 31)
- *
- * Based on official Android docs and modern practices:
- * - RuntimeShader + ShaderBrush in drawWithCache
- * - Time uniform for animation
- * - Adapted mesh-gradient style from GLSL examples (e.g. Paper Shaders inspired)
- */
-@Composable
-fun NativeShaderBackground(modifier: Modifier = Modifier) {
-    if (Build.VERSION.SDK_INT >= 33) {
-        AgslMeshShaderBackground(modifier)
-    } else {
-        CanvasMeshShaderBackground(modifier)
-    }
-}
-
-@RequiresApi(33)
-@Composable
-private fun AgslMeshShaderBackground(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "agslTime")
-    val time by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "time",
-    )
-
-    val shaderCode =
-        """
-        uniform float2 iResolution;
-        uniform float iTime;
-        layout(color) uniform half4 iColor1;
-        layout(color) uniform half4 iColor2;
-        layout(color) uniform half4 iColor3;
-        layout(color) uniform half4 iColor4;
-
-        half4 main(float2 fragCoord) {
-            float2 uv = fragCoord / iResolution.xy;
-            float t = iTime * 0.05;
-
-            // Mesh-like flowing blobs (inspired by modern AGSL + Paper mesh)
-            float2 p1 = float2(0.5 + 0.4 * sin(t), 0.5 + 0.3 * cos(t * 1.1));
-            float2 p2 = float2(0.5 + 0.35 * cos(t * 0.8), 0.5 + 0.4 * sin(t * 1.3));
-            float2 p3 = float2(0.5 + 0.3 * sin(t * 1.2 + 2.0), 0.5 + 0.35 * cos(t * 0.9));
-            float2 p4 = float2(0.5 + 0.38 * cos(t * 1.4), 0.5 + 0.32 * sin(t * 1.5));
-
-            float d1 = length(uv - p1);
-            float d2 = length(uv - p2);
-            float d3 = length(uv - p3);
-            float d4 = length(uv - p4);
-
-            float w1 = 1.0 / (d1 + 0.1);
-            float w2 = 1.0 / (d2 + 0.1);
-            float w3 = 1.0 / (d3 + 0.1);
-            float w4 = 1.0 / (d4 + 0.1);
-            float total = w1 + w2 + w3 + w4;
-
-            half3 col = (iColor1.rgb * w1 + iColor2.rgb * w2 + iColor3.rgb * w3 + iColor4.rgb * w4) / total;
-
-            col *= 0.4; // further dim for subtle background
-
-            // Subtle noise/grain
-            float noise = fract(sin(dot(uv + t * 0.01, float2(12.9898, 78.233))) * 43758.5453);
-            col = mix(col, col * (0.95 + noise * 0.1), 0.15);
-
-            return half4(col, 1.0);
-        }
-        """.trimIndent()
-
-    val shader = remember { RuntimeShader(shaderCode) }
-    val brush = remember { ShaderBrush(shader) }
-
-    Canvas(modifier = modifier) {
-        shader.setFloatUniform("iResolution", size.width, size.height)
-        shader.setFloatUniform("iTime", time)
-
-        // Dimmed colors for background (not too bright)
-        val c1 = android.graphics.Color.valueOf(0f, 0.25f, 0.35f, 1f)
-        val c2 = android.graphics.Color.valueOf(0.18f, 0.10f, 0.32f, 1f)
-        val c3 = android.graphics.Color.valueOf(0.32f, 0.05f, 0.18f, 1f)
-        val c4 = android.graphics.Color.valueOf(0f, 0.25f, 0.22f, 1f)
-
-        shader.setColorUniform("iColor1", c1)
-        shader.setColorUniform("iColor2", c2)
-        shader.setColorUniform("iColor3", c3)
-        shader.setColorUniform("iColor4", c4)
-
-        drawRect(brush = brush)
-    }
-}
-
-@Composable
-private fun CanvasMeshShaderBackground(modifier: Modifier = Modifier) {
-    val infinite = rememberInfiniteTransition(label = "canvasMesh")
-    val t1 by infinite.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Restart),
-        "t1",
-    )
-    val t2 by infinite.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(tween(9500, easing = LinearEasing), RepeatMode.Restart),
-        "t2",
-    )
-    val t3 by infinite.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(tween(11000, easing = LinearEasing), RepeatMode.Restart),
-        "t3",
-    )
-
-    val colors = remember {
-        listOf(
-            Color(0xFF006B7A), // muted cyan
-            Color(0xFF3D1F5C), // muted purple
-            Color(0xFF7A1F4A), // muted pink
-            Color(0xFF006B5A), // muted teal
-            Color(0xFF2A3A7A), // muted indigo
-        )
-    }
-
-    Canvas(modifier = modifier) {
-        drawRect(color = Color(0xFF0A0A18))
-
-        val blobs = listOf(
-            // lowered alphas for dimmer background
-            Triple(0, t1, 0.95f) to 0.32f,
-            Triple(1, t2 * 1.1f, 0.75f) to 0.28f,
-            Triple(2, t3 * 0.85f, 1.05f) to 0.25f,
-            Triple(3, (t1 + 0.3f) % 1f, 0.65f) to 0.30f,
-            Triple(4, (t2 * 0.7f + 0.6f) % 1f, 0.85f) to 0.22f,
-        )
-
-        blobs.forEachIndexed { idx, (triple, alpha) ->
-            val (colorIdx, phase, radiusFactor) = triple
-            val color = colors[colorIdx % colors.size]
-            val cx = size.width * (0.5f + 0.45f * sin(phase * 6.28f + idx * 1.9f))
-            val cy = size.height * (0.5f + 0.38f * cos(phase * 5.3f + idx * 2.6f))
-            val radius = size.minDimension * radiusFactor * 0.48f
-
-            for (layer in 0..4) {
-                val la = alpha * (1f - layer * 0.18f)
-                val lr = radius * (1f + layer * 0.18f)
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(color.copy(alpha = la), Color.Transparent),
-                        center = Offset(cx, cy),
-                        radius = lr,
-                    ),
-                    center = Offset(cx, cy),
-                    radius = lr,
-                )
-            }
-        }
-
-        // Subtle grain
-        val ga = 0.028f
-        val step = 28f
-        for (x in 0 until (size.width / step).toInt()) {
-            for (y in 0 until (size.height / step).toInt()) {
-                val gx = x * step + ((x * 31 + y * 17) % 7)
-                val gy = y * step + ((y * 23 + x * 11) % 5)
-                val g = (sin(gx * 0.9f + t1 * 4f) * cos(gy * 1.1f + t2 * 3f) + 1f) * 0.5f
-                drawCircle(
-                    center = Offset(gx, gy),
-                    radius = 1.1f,
-                    color = Color.White.copy(alpha = ga * g),
                 )
             }
         }
