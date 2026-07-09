@@ -1,5 +1,6 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
+import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Kicker from "../components/ui/Kicker.astro";
 
@@ -30,6 +31,17 @@ Privacy policy: https://neversleep.app/privacy`;
             Copy-paste fields for Play Console. Live site:
             <code>https://neversleep.app</code>
         </p>
+        <div class="actions doc-actions">
+            <Button href="/">Home</Button>
+            <Button href="/privacy" variant="secondary">Privacy policy</Button>
+            <Button
+                href="https://play.google.com/store/apps/details?id=com.lizz.neversleep"
+                variant="secondary"
+                external={true}
+            >
+                Google Play
+            </Button>
+        </div>
 
         <Card class="listing-card">
             <h2>Store URLs</h2>

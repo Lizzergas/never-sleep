@@ -1,5 +1,6 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
+import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Kicker from "../components/ui/Kicker.astro";
 ---
@@ -12,6 +13,16 @@ import Kicker from "../components/ui/Kicker.astro";
         <Kicker>Legal</Kicker>
         <h1>Privacy Policy</h1>
         <p class="lede">Last updated: July 9, 2026</p>
+        <div class="actions doc-actions">
+            <Button href="/">Back to home</Button>
+            <Button
+                href="https://play.google.com/store/apps/details?id=com.lizz.neversleep"
+                variant="secondary"
+                external={true}
+            >
+                Google Play
+            </Button>
+        </div>
 
         <Card>
             <section>
