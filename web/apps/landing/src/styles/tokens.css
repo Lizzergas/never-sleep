@@ -14,6 +14,19 @@
     --ns-accent-soft: #b8b0ff;
     --ns-accent-code: #c8c0ff;
     --ns-brand: #7c4dff;
+    --ns-cyan: #00e5ff;
+
+    /* Brand gradients — the purple→cyan "iris" echoes the app's toggle rim. */
+    --ns-gradient-iris: linear-gradient(135deg, #b8b0ff 0%, #7c4dff 48%, #00e5ff 130%);
+    --ns-gradient-brand: linear-gradient(135deg, #7c4dff 0%, #4a2a9e 100%);
+    /* Hairline that fades at both ends — for borderless dividers. */
+    --ns-hairline: linear-gradient(
+        180deg,
+        transparent,
+        rgb(124 77 255 / 32%) 30%,
+        rgb(124 77 255 / 32%) 70%,
+        transparent
+    );
 
     --ns-radius-sm: 8px;
     --ns-radius-md: 12px;

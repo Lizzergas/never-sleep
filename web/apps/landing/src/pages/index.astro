@@ -1,7 +1,6 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
 import Button from "../components/ui/Button.astro";
-import Card from "../components/ui/Card.astro";
 import GooglePlayBadge from "../components/ui/GooglePlayBadge.astro";
 import SectionHeading from "../components/ui/SectionHeading.astro";
 import AppToggleMock from "../components/AppToggleMock.astro";
@@ -13,10 +12,6 @@ const description =
 <SiteLayout showShader={true} title="Never Sleep — Android screen timeout utility" description={description}>
     <section class="hero" aria-labelledby="page-title">
         <div class="hero__copy">
-            <div class="hero__badge">
-                <span class="hero__badge-dot" aria-hidden="true"></span>
-                Screen stays on until you turn it off
-            </div>
             <h1 id="page-title">Never Sleep</h1>
             <p class="lede">{description}</p>
             <div class="actions" aria-label="Primary links">
@@ -30,25 +25,100 @@ const description =
 
     <section aria-labelledby="features-title">
         <SectionHeading
+            id="features-title"
             title="Built for quick control"
             description="Three ways to toggle — same simple idea: your screen stays awake only when you want it to."
         />
         <div class="feature-grid">
-            <Card class="feature-card">
-                <div class="feature-card__icon" aria-hidden="true">◎</div>
-                <h3 id="features-title">One-tap toggle</h3>
-                <p>A large, clear button in the app switches between normal and never-sleep mode instantly.</p>
-            </Card>
-            <Card class="feature-card">
-                <div class="feature-card__icon" aria-hidden="true">▣</div>
+            <div class="feature-card">
+                <div class="feature-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <defs>
+                            <linearGradient id="ic-tap" x1="0" y1="0" x2="48" y2="48">
+                                <stop offset="0" stop-color="#b8b0ff"></stop>
+                                <stop offset="0.55" stop-color="#7c4dff"></stop>
+                                <stop offset="1" stop-color="#00e5ff"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path
+                            d="M24 10 V22"
+                            stroke="url(#ic-tap)"
+                            stroke-width="2.6"
+                            stroke-linecap="round"></path>
+                        <path
+                            d="M16.5 17 A11 11 0 1 0 31.5 17"
+                            stroke="url(#ic-tap)"
+                            stroke-width="2.6"
+                            stroke-linecap="round"></path>
+                    </svg>
+                </div>
+                <h3>One-tap toggle</h3>
+                <p>A large, clear button switches between normal and never-sleep mode instantly.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <defs>
+                            <linearGradient id="ic-tile" x1="0" y1="0" x2="48" y2="48">
+                                <stop offset="0" stop-color="#b8b0ff"></stop>
+                                <stop offset="0.55" stop-color="#7c4dff"></stop>
+                                <stop offset="1" stop-color="#00e5ff"></stop>
+                            </linearGradient>
+                        </defs>
+                        <rect
+                            x="11"
+                            y="11"
+                            width="26"
+                            height="26"
+                            rx="8"
+                            stroke="url(#ic-tile)"
+                            stroke-width="2.6"></rect>
+                        <circle cx="24" cy="24" r="4.2" fill="url(#ic-tile)"></circle>
+                    </svg>
+                </div>
                 <h3>Quick Settings tile</h3>
-                <p>Toggle without opening the app — add the tile once and control timeout from the shade.</p>
-            </Card>
-            <Card class="feature-card">
-                <div class="feature-card__icon" aria-hidden="true">◫</div>
+                <p>Toggle from the shade — add the tile once, no need to open the app.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <defs>
+                            <linearGradient id="ic-widget" x1="0" y1="0" x2="48" y2="48">
+                                <stop offset="0" stop-color="#b8b0ff"></stop>
+                                <stop offset="0.55" stop-color="#7c4dff"></stop>
+                                <stop offset="1" stop-color="#00e5ff"></stop>
+                            </linearGradient>
+                        </defs>
+                        <rect x="13" y="13" width="9" height="9" rx="2.5" fill="url(#ic-widget)"></rect>
+                        <rect
+                            x="26"
+                            y="13"
+                            width="9"
+                            height="9"
+                            rx="2.5"
+                            stroke="url(#ic-widget)"
+                            stroke-width="2.4"></rect>
+                        <rect
+                            x="13"
+                            y="26"
+                            width="9"
+                            height="9"
+                            rx="2.5"
+                            stroke="url(#ic-widget)"
+                            stroke-width="2.4"></rect>
+                        <rect
+                            x="26"
+                            y="26"
+                            width="9"
+                            height="9"
+                            rx="2.5"
+                            stroke="url(#ic-widget)"
+                            stroke-width="2.4"></rect>
+                    </svg>
+                </div>
                 <h3>Home-screen widget</h3>
                 <p>A minimal 1×1 widget for instant access from your launcher.</p>
-            </Card>
+            </div>
         </div>
     </section>
 

@@ -6,6 +6,10 @@
 
 html {
     scroll-behavior: smooth;
+    /* Stop rubber-band overscroll from chaining/bouncing the sticky header.
+       (No html background here — that would break the body→root background
+       propagation the fixed shader relies on to show through.) */
+    overscroll-behavior-y: none;
 }
 
 body {
@@ -69,6 +73,18 @@ img {
     width: 100%;
     background: var(--ns-bg);
     border-bottom: 1px solid var(--ns-border);
+}
+
+/* Solid dark band directly above the header — off-screen normally, it fills the
+   gap so any residual overscroll bounce reads black instead of exposing the shader. */
+.site-header::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 100vh;
+    background: var(--ns-bg);
 }
 
 .site-header__inner {
@@ -175,6 +191,14 @@ h1 {
     font-size: clamp(2.6rem, 7vw, 4.5rem);
     line-height: 1.02;
     letter-spacing: -0.03em;
+}
+
+/* Hero wordmark — subtle white→lavender gradient fill (hero only, not doc pages). */
+#page-title {
+    background: linear-gradient(178deg, #fff 0%, #d4ccff 55%, #9e8cff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .lede {
@@ -285,28 +309,16 @@ h1 {
 
 /* Cards */
 
+/* Glass panel — translucent so the shader backdrop bleeds through. Used by the
+   privacy + 404 content. Feature cards no longer use this (they're borderless). */
 .card {
-    border: 1px solid var(--ns-border);
-    border-radius: var(--ns-radius-md);
-    padding: 20px;
-    background: var(--ns-bg-elevated);
+    border: 1px solid rgb(124 77 255 / 12%);
+    border-radius: var(--ns-radius-lg);
+    padding: 28px;
+    background: linear-gradient(160deg, rgb(22 22 44 / 68%), rgb(13 13 26 / 72%));
     box-shadow: var(--ns-shadow-card);
-    transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-@media (hover: hover) {
-    .card:hover {
-        transform: translateY(-3px);
-        border-color: rgb(124 77 255 / 38%);
-        background: #181830;
-        box-shadow:
-            0 28px 90px rgb(0 0 0 / 42%),
-            0 0 36px rgb(124 77 255 / 10%);
-    }
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 }
 
 /* Landing hero */
@@ -320,43 +332,24 @@ h1 {
     padding: 24px 0 56px;
 }
 
-.hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 18px;
-    padding: 6px 12px;
-    border: 1px solid var(--ns-border);
-    border-radius: var(--ns-radius-pill);
-    color: var(--ns-text-subtle);
-    font-size: 0.82rem;
-    background: rgb(20 20 40 / 55%);
-}
-
-.hero__badge-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--ns-brand);
-    box-shadow: 0 0 12px var(--ns-brand);
-}
-
+/* Soft gradient edge instead of a hard border so the panel reads as floating glass. */
 .preview-panel {
-    border: 1px solid var(--ns-border);
-    border-radius: var(--ns-radius-md);
-    background: var(--ns-bg-elevated);
+    border: 1px solid transparent;
+    border-radius: var(--ns-radius-lg);
+    background:
+        linear-gradient(160deg, #16162c, #0f0f1e) padding-box,
+        linear-gradient(160deg, rgb(124 77 255 / 55%), rgb(0 229 255 / 18%) 55%, transparent)
+            border-box;
     box-shadow: var(--ns-shadow-card);
     overflow: hidden;
     transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 @media (hover: hover) {
     .preview-panel:hover {
-        transform: translateY(-3px);
-        border-color: rgb(124 77 255 / 38%);
+        transform: translateY(-4px);
         box-shadow:
             var(--ns-shadow-glow),
             0 28px 90px rgb(0 0 0 / 42%);
@@ -365,17 +358,16 @@ h1 {
 
 .preview-header {
     display: flex;
-    gap: 8px;
-    padding: 14px;
-    border-bottom: 1px solid var(--ns-border);
-    background: var(--ns-bg-inset);
+    gap: 7px;
+    padding: 13px 16px;
+    background: rgb(10 10 20 / 55%);
 }
 
 .preview-header span {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: var(--ns-text-faint);
+    background: rgb(124 77 255 / 30%);
 }
 
 .toggle-stage {
@@ -488,36 +480,90 @@ h1 {
     letter-spacing: 0.16em;
 }
 
-/* Feature grid */
+/* Feature grid — borderless, blended. Each feature floats on the backdrop with a
+   gradient icon and a soft radial glow; hairline dividers separate them. */
 
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 0;
+}
+
+.feature-card {
+    position: relative;
+    padding: 8px 28px;
+    /* Reset the shared .card box — these blend into the page, not sit in a container. */
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    transition: transform 0.3s ease;
+}
+
+/* Hairline gradient divider between columns (becomes a top rule when stacked). */
+.feature-card + .feature-card::after {
+    content: "";
+    position: absolute;
+    top: 6%;
+    left: 0;
+    width: 1px;
+    height: 88%;
+    background: var(--ns-hairline);
+}
+
+/* Soft radial glow that lives behind the icon and blooms on hover. */
+.feature-card__icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 22px;
+    color: var(--ns-accent-soft);
+}
+
+.feature-card__icon::before {
+    content: "";
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(124 77 255 / 30%), transparent 68%);
+    opacity: 0.7;
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
+}
+
+.feature-card__icon svg {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .feature-card h3 {
-    margin: 0 0 8px;
+    margin: 0 0 10px;
     color: var(--ns-text);
-    font-size: 1rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 .feature-card p {
     margin: 0;
+    max-width: 32ch;
     color: var(--ns-text-muted);
     font-size: 0.92rem;
 }
 
-.feature-card__icon {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    margin-bottom: 14px;
-    border-radius: 10px;
-    background: rgb(124 77 255 / 16%);
-    color: var(--ns-accent-soft);
-    font-size: 1.1rem;
+@media (hover: hover) {
+    .feature-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .feature-card:hover .feature-card__icon::before {
+        opacity: 1;
+        transform: scale(1.12);
+    }
 }
 
 /* CTA band */
@@ -528,25 +574,27 @@ h1 {
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    margin-top: 56px;
-    padding: 28px;
-    border: 1px solid var(--ns-border);
+    margin-top: 64px;
+    padding: 36px 32px;
+    border: 1px solid rgb(124 77 255 / 14%);
     border-radius: var(--ns-radius-lg);
     background:
-        linear-gradient(135deg, rgb(124 77 255 / 12%) 0%, transparent 55%), var(--ns-bg-elevated);
+        radial-gradient(120% 160% at 0% 0%, rgb(124 77 255 / 20%), transparent 52%),
+        radial-gradient(120% 160% at 100% 100%, rgb(0 229 255 / 12%), transparent 52%),
+        rgb(18 18 38 / 55%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 @media (hover: hover) {
     .cta-band:hover {
         transform: translateY(-2px);
-        border-color: rgb(124 77 255 / 35%);
         box-shadow:
             0 24px 70px rgb(0 0 0 / 38%),
-            0 0 40px rgb(124 77 255 / 10%);
+            0 0 48px rgb(124 77 255 / 12%);
     }
 }
 
@@ -662,6 +710,26 @@ h1 {
 
     .feature-grid {
         grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .feature-card {
+        padding: 24px 8px;
+    }
+
+    /* Stacked: the divider flips from a left rule to a top hairline. */
+    .feature-card + .feature-card::after {
+        top: 0;
+        left: 6%;
+        width: 88%;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgb(124 77 255 / 32%) 30%,
+            rgb(124 77 255 / 32%) 70%,
+            transparent
+        );
     }
 }
 
@@ -685,8 +753,8 @@ h1 {
     }
 
     .btn:hover,
-    .card:hover,
     .cta-band:hover,
+    .feature-card:hover,
     .preview-panel:hover {
         transform: none;
     }
