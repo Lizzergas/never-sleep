@@ -1,37 +1,83 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
-import "../styles/site.css";
+import Button from "../components/ui/Button.astro";
+import Card from "../components/ui/Card.astro";
+import Kicker from "../components/ui/Kicker.astro";
+import SectionHeading from "../components/ui/SectionHeading.astro";
+import PhoneFrame from "../components/PhoneFrame.astro";
 ---
 
 <SiteLayout
+    showShader={true}
     title="Never Sleep — Android screen timeout utility"
     description="Keep your Android screen awake with one tap, a Quick Settings tile, and a home-screen widget."
 >
     <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-            <p class="kicker">Android utility</p>
+        <div class="hero__copy">
+            <div class="hero__badge">
+                <span class="hero__badge-dot" aria-hidden="true"></span>
+                Screen stays on until you turn it off
+            </div>
+            <Kicker>Android utility</Kicker>
             <h1 id="page-title">Never Sleep</h1>
             <p class="lede">
-                Prevent your screen from turning off due to inactivity. One tap, a Quick Settings
-                tile, and a 1×1 widget — then restore your previous timeout when you are done.
+                Prevent your screen from turning off due to inactivity. One tap, a Quick Settings tile,
+                and a 1×1 widget — then restore your previous timeout when you are done.
             </p>
             <div class="actions" aria-label="Primary links">
-                <a href="/play">Play Store listing</a>
-                <a href="/privacy">Privacy policy</a>
+                <Button href="https://play.google.com/store/apps/details?id=com.lizz.neversleep" external={true}>
+                    Get on Google Play
+                </Button>
+                <Button href="/privacy" variant="secondary">Privacy policy</Button>
             </div>
         </div>
 
-        <div class="preview-panel app-preview" aria-label="App preview">
-            <div class="preview-header">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div class="app-mock">
-                <p class="mock-title">never sleep</p>
-                <div class="mock-button" aria-hidden="true">🌙</div>
-                <p class="mock-caption">Tap to toggle · Tile · Widget</p>
-            </div>
+        <div class="hero__phones" aria-label="App screenshots">
+            <PhoneFrame
+                src="/screenshots/01-normal.png"
+                alt="Never Sleep app in normal screen timeout mode"
+                caption="Normal mode"
+            />
+            <PhoneFrame
+                src="/screenshots/02-never-sleep.png"
+                alt="Never Sleep app with screen kept awake"
+                caption="Never sleep mode"
+                active={true}
+            />
         </div>
+    </section>
+
+    <section aria-labelledby="features-title">
+        <SectionHeading
+            title="Built for quick control"
+            description="Three ways to toggle — same simple idea: your screen stays awake only when you want it to."
+        />
+        <div class="feature-grid">
+            <Card class="feature-card">
+                <div class="feature-card__icon" aria-hidden="true">◎</div>
+                <h3 id="features-title">One-tap toggle</h3>
+                <p>A large, clear button in the app switches between normal and never-sleep mode instantly.</p>
+            </Card>
+            <Card class="feature-card">
+                <div class="feature-card__icon" aria-hidden="true">▣</div>
+                <h3>Quick Settings tile</h3>
+                <p>Toggle without opening the app — add the tile once and control timeout from the shade.</p>
+            </Card>
+            <Card class="feature-card">
+                <div class="feature-card__icon" aria-hidden="true">◫</div>
+                <h3>Home-screen widget</h3>
+                <p>A minimal 1×1 widget for instant access from your launcher.</p>
+            </Card>
+        </div>
+    </section>
+
+    <section class="cta-band" aria-label="Download">
+        <div>
+            <h2>Ready when you need it</h2>
+            <p>Restores your previous timeout automatically when you turn Never Sleep off.</p>
+        </div>
+        <Button href="https://play.google.com/store/apps/details?id=com.lizz.neversleep" external={true}>
+            Download for Android
+        </Button>
     </section>
 </SiteLayout>

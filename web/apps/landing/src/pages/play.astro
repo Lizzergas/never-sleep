@@ -1,6 +1,7 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
-import "../styles/site.css";
+import Card from "../components/ui/Card.astro";
+import Kicker from "../components/ui/Kicker.astro";
 
 const shortDescription =
     "Keep your screen awake — one tap, Quick Settings tile, and home-screen widget.";
@@ -23,14 +24,14 @@ Privacy policy: https://neversleep.app/privacy`;
     description="Store listing copy, assets checklist, and Play Console URLs for Never Sleep."
 >
     <article class="doc">
-        <p class="kicker">Google Play</p>
+        <Kicker>Google Play</Kicker>
         <h1>Play Store listing</h1>
         <p class="lede">
-            Copy-paste fields for Play Console. Deploy this site to
-            <code>https://neversleep.app</code> and use the privacy URL below.
+            Copy-paste fields for Play Console. Live site:
+            <code>https://neversleep.app</code>
         </p>
 
-        <section class="listing-card">
+        <Card class="listing-card">
             <h2>Store URLs</h2>
             <dl class="listing-meta">
                 <div>
@@ -46,58 +47,40 @@ Privacy policy: https://neversleep.app/privacy`;
                     <dd>Tools</dd>
                 </div>
             </dl>
-        </section>
+        </Card>
 
-        <section class="listing-card">
+        <Card class="listing-card">
             <h2>Short description</h2>
             <p class="copy-block">{shortDescription}</p>
             <p class="hint">{shortDescription.length} / 80 characters max</p>
-        </section>
+        </Card>
 
-        <section class="listing-card">
+        <Card class="listing-card">
             <h2>Full description</h2>
             <pre class="copy-block">{fullDescription}</pre>
-        </section>
+        </Card>
 
-        <section class="listing-card">
+        <Card class="listing-card">
             <h2>Graphics checklist</h2>
             <ul>
                 <li>App icon — <code>assets/play-store/icon-512.png</code> (512×512)</li>
                 <li>Phone screenshots — <code>assets/play-store/screenshots/</code></li>
                 <li>Feature graphic — <code>assets/play-store/feature-graphic.png</code> (1024×500)</li>
             </ul>
-        </section>
+        </Card>
 
-        <section class="listing-card">
-            <h2>Host neversleep.app (GitHub Pages)</h2>
-            <ol>
-                <li>
-                    GitHub repo → <strong>Settings → Pages</strong> → Build and deployment:
-                    <strong>GitHub Actions</strong>
-                </li>
-                <li>
-                    Push to <code>main</code> — workflow <code>deploy-landing.yml</code> builds
-                    <code>web/apps/landing</code> and publishes <code>dist/</code>
-                </li>
-                <li>
-                    In Hostinger → <strong>DNS / Nameservers</strong> for <code>neversleep.app</code>,
-                    add:
-                    <pre class="copy-block">A     @    185.199.108.153
-A     @    185.199.109.153
-A     @    185.199.110.153
-A     @    185.199.111.153
-CNAME www  lizzergas.github.io</pre>
-                </li>
-                <li>GitHub → Pages → Custom domain → <code>neversleep.app</code> (CNAME file ships in the build)</li>
-                <li>Enable <strong>Enforce HTTPS</strong> after DNS propagates (often under an hour)</li>
-            </ol>
-            <p class="hint">
-                Local asset preview (all graphics for Play upload):
-                open <code>assets/play-store/preview.html</code> in a browser.
+        <Card class="listing-card">
+            <h2>Hosting</h2>
+            <p class="copy-block">
+                GitHub Pages via <code>deploy-landing.yml</code> · custom domain
+                <code>neversleep.app</code>
             </p>
-        </section>
+            <p class="hint">
+                Local asset preview: open <code>assets/play-store/preview.html</code> in a browser.
+            </p>
+        </Card>
 
-        <section class="listing-card">
+        <Card class="listing-card">
             <h2>AdMob</h2>
             <dl class="listing-meta">
                 <div>
@@ -109,9 +92,9 @@ CNAME www  lizzergas.github.io</pre>
                     <dd><code>ca-app-pub-5214975738753935/4818761149</code></dd>
                 </div>
             </dl>
-        </section>
+        </Card>
 
-        <section class="listing-card">
+        <Card class="listing-card">
             <h2>Data safety (summary)</h2>
             <ul>
                 <li>No account registration</li>
@@ -120,6 +103,6 @@ CNAME www  lizzergas.github.io</pre>
                 <li>Data encrypted in transit (AdMob SDK)</li>
                 <li>Users can disable ads in-app</li>
             </ul>
-        </section>
+        </Card>
     </article>
 </SiteLayout>

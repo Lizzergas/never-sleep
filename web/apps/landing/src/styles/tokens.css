@@ -1,0 +1,28 @@
+:root {
+    --ns-bg: #0d0d1a;
+    --ns-bg-elevated: #141428;
+    --ns-bg-inset: #0a0a14;
+    --ns-border: #2a2a40;
+    --ns-border-soft: #2f2f48;
+
+    --ns-text: #e8e8ef;
+    --ns-text-muted: #9a9ab0;
+    --ns-text-subtle: #8a8aa0;
+    --ns-text-faint: #7d7d95;
+
+    --ns-accent: #9e8cff;
+    --ns-accent-soft: #b8b0ff;
+    --ns-accent-code: #c8c0ff;
+    --ns-brand: #7c4dff;
+
+    --ns-radius-sm: 8px;
+    --ns-radius-md: 12px;
+    --ns-radius-lg: 16px;
+    --ns-radius-pill: 999px;
+
+    --ns-shell: min(1100px, calc(100vw - 40px));
+    --ns-header-height: 64px;
+
+    --ns-shadow-card: 0 24px 80px rgb(0 0 0 / 35%);
+    --ns-shadow-glow: 0 0 80px rgb(124 77 255 / 18%);
+}

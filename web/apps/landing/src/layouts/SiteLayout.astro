@@ -1,11 +1,27 @@
 ---
+import { HeroBackdrop } from "../components/HeroBackdrop";
+import "../styles/site.css";
+
 interface Props {
     title: string;
     description?: string;
+    showShader?: boolean;
+    currentPath?: string;
 }
 
-const { title, description = "Never Sleep — keep your Android screen awake with one tap." } = Astro.props;
+const {
+    title,
+    description = "Never Sleep — keep your Android screen awake with one tap.",
+    showShader = false,
+    currentPath = Astro.url.pathname,
+} = Astro.props;
+
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://neversleep.app");
+
+function navCurrent(href: string) {
+    if (href === "/") return currentPath === "/" ? "page" : undefined;
+    return currentPath.startsWith(href) ? "page" : undefined;
+}
 ---
 
 <!doctype html>
@@ -23,18 +39,28 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://neversleep.
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
-        <meta name="theme-color" content="#0f1419" />
+        <meta name="theme-color" content="#0d0d1a" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body>
-        <header class="site-header">
-            <a class="brand" href="/">Never Sleep</a>
+        {showShader ? <HeroBackdrop client:only="react" /> : null}
+        <header class="site-header site-header--glass">
+            <a class="brand" href="/">
+                <img src="/icon-512.png" alt="" width="28" height="28" />
+                Never Sleep
+            </a>
             <nav aria-label="Site">
-                <a href="/">Home</a>
-                <a href="/privacy">Privacy</a>
-                <a href="/play">Play listing</a>
+                <a href="/" aria-current={navCurrent("/")}>Home</a>
+                <a href="/privacy" aria-current={navCurrent("/privacy")}>Privacy</a>
+                <a href="/play" aria-current={navCurrent("/play")}>Play listing</a>
             </nav>
         </header>
-        <main class="shell">
+        <main class:list={["shell", !showShader && "shell--tight"]}>
             <slot />
         </main>
         <footer class="site-footer">
@@ -42,7 +68,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://neversleep.
             <p>
                 <a href="/privacy">Privacy policy</a>
                 ·
-                <a href="https://play.google.com/store">Google Play</a>
+                <a href="https://play.google.com/store/apps/details?id=com.lizz.neversleep">Google Play</a>
             </p>
         </footer>
     </body>

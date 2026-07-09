@@ -1,16 +1,20 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
-import "../styles/site.css";
+import Button from "../components/ui/Button.astro";
+import Card from "../components/ui/Card.astro";
+import Kicker from "../components/ui/Kicker.astro";
 ---
 
 <SiteLayout title="Page not found — Never Sleep" description="The page you requested does not exist.">
     <article class="doc">
-        <p class="kicker">404</p>
-        <h1>Page not found</h1>
-        <p class="lede">That URL does not exist on neversleep.app.</p>
-        <div class="actions">
-            <a href="/">Back to home</a>
-            <a href="/privacy">Privacy policy</a>
-        </div>
+        <Card>
+            <Kicker>404</Kicker>
+            <h1>Page not found</h1>
+            <p class="lede">That URL does not exist on neversleep.app.</p>
+            <div class="actions">
+                <Button href="/">Back to home</Button>
+                <Button href="/privacy" variant="secondary">Privacy policy</Button>
+            </div>
+        </Card>
     </article>
 </SiteLayout>
