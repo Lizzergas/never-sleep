@@ -85,7 +85,6 @@ private const val NEVER_SLEEP_TIMEOUT_MS = 1_000_000_000 // ~11.5 days, "never" 
 private const val NEVER_SLEEP_THRESHOLD_MS = 3_600_000 // 1 hour
 
 class MainActivity : ComponentActivity() {
-
     companion object {
         const val EXTRA_SCREENSHOT_MODE = "screenshot_mode"
         const val EXTRA_CAPTURE_NEVER = "capture_never"
