@@ -1,41 +1,65 @@
-# Web workspace guide
+# Web workspace — agent guide
 
-This directory is a self-contained Bun workspace for web surfaces. Keep Node,
-Vite, Astro, Oxc, and TypeScript tooling under `web/`; do not wire these tasks
-into the root Gradle project unless explicitly requested.
+Self-contained **Bun** workspace for Never Sleep web surfaces. Do not wire
+Node/Vite/Astro into the root Gradle project.
 
-Human-facing setup notes live in `README.md`; this file records agent-specific
-workflow rules for this nested workspace.
+Human setup: **README.md** in this folder.
+
+## What we ship
+
+| App | Deployed? | URL / port |
+|-----|-----------|------------|
+| `apps/landing` | **Yes** — GitHub Pages | https://neversleep.app |
+| `apps/admin` | No (template scaffold) | `127.0.0.1:5174` local only |
+| `dev/play-listing.astro` | **No** — local dev only | `/play` when using `dev:landing:play` |
+
+**Public routes:** `/`, `/privacy`, `404`. No `/play` in production builds.
 
 ## Commands
 
-- Install dependencies: `bun install`
-- Landing dev server: `bun run dev:landing`
-- Admin dev server: `bun run dev:admin`
-- Build all web packages: `bun run build`
-- Lint: `bun run lint`
-- Format: `bun run format`
-- Check formatting: `bun run format:check`
-- Typecheck all packages: `bun run typecheck`
-- Test all packages: `bun run test`
+```bash
+bun install
+bun run dev:landing              # http://127.0.0.1:5173
+bun run dev:landing:play         # + temporary /play page for Play Console copy
+bun run lint && bun run format:check && bun run typecheck && bun run test && bun run build
+```
 
-## Architecture
+Landing-only build (what CI deploys):
 
-- `apps/landing` is Astro-first and static-first. Use React islands only where
-  interactivity is needed.
-- `apps/admin` is a Vite React TypeScript app. During local development,
-  requests to `/api` proxy to the Ktor server at `http://localhost:8080`.
-- `packages/api-client` is the shared web API boundary. Keep it small until the
-  Ktor server exposes a stable OpenAPI spec.
-- Do not add a shared React UI package until duplication between apps is real.
+```bash
+bun --filter @neversleep/landing build
+# artifact: apps/landing/dist/
+```
 
-## Tooling
+Deploy: `.github/workflows/deploy-landing.yml` on push to `main` when `web/**`
+changes. Custom domain `neversleep.app` via `public/CNAME`.
 
-- Use Bun workspaces and keep `bun.lock` committed.
-- Use Oxlint and Oxfmt. Do not add Biome, ESLint, or Prettier without an
-  explicit decision.
-- Oxlint uses `.oxlintrc.json` so CLI defaults and editor/LSP integration find
-  the same config.
-- Oxfmt currently ignores `.astro` page files in this workspace; keep Astro
-  templates tidy manually until formatter support is strong enough to enable.
-- Use strict TypeScript and keep generated/build artifacts ignored.
+## Landing architecture
+
+- **Astro-first, static output** — no server runtime on GitHub Pages.
+- **React islands** only where needed: `HeroBackdrop.tsx` (Paper Shaders:
+  `@paper-design/shaders-react`, `client:only="react"`).
+- **Design tokens:** `src/styles/tokens.css` · shared styles: `site.css`.
+- **UI components:** `src/components/ui/` (`Button`, `Card`, `Kicker`, …).
+- **Hero preview:** CSS app mock in `index.astro` — **not** Play Store screenshot
+  PNGs (those live in `assets/play-store/` for upload only).
+- **Google Play CTA:** official badge via `GooglePlayBadge.astro` +
+  `public/badges/en_badge_web_generic.png` (do not recolor/crop).
+
+## Conventions
+
+- Bun workspaces; keep `bun.lock` committed.
+- Oxlint + Oxfmt only — no ESLint/Prettier/Biome without an explicit decision.
+- Oxfmt skips `.astro` templates; format those manually.
+- Strict TypeScript; ignore `dist/`, `.astro/`, `src/pages/play.astro` (gitignored
+  dev copy).
+- `packages/api-client` stays minimal until a real OpenAPI boundary exists.
+
+## Privacy & Play content
+
+- Privacy policy source: `src/pages/privacy.astro` → `https://neversleep.app/privacy`
+- Play listing fields (local): `dev/play-listing.astro`
+- Store graphics reference: `../../assets/play-store/preview.html`
+
+When changing legal copy or URLs, keep `app/androidApp` privacy strings in sync
+(`BuildConfig`, `strings.xml`).

@@ -1,22 +1,22 @@
-# NeverSleep Web Workspace
+# Never Sleep — web workspace
 
-Self-contained Bun workspace for web surfaces that live beside the Kotlin
-Multiplatform app without joining the Gradle module graph.
+Marketing site and local dev tools for [Never Sleep](https://neversleep.app), kept
+separate from the Gradle/Android build.
 
 ## Apps
 
-- `apps/landing`: Astro + React islands, static-first, runs on `127.0.0.1:5173`.
-- `apps/admin`: Vite + React + TypeScript, runs on `127.0.0.1:5174` and proxies
-  `/api` to the Ktor server at `http://localhost:8080`.
-- `packages/api-client`: placeholder TypeScript API boundary for future
-  OpenAPI-generated clients.
+| Package | Purpose |
+|---------|---------|
+| `@neversleep/landing` | Public site at **neversleep.app** (Astro, static) |
+| `@neversleep/admin` | Template Vite admin (local only; proxies `/api` → Ktor `:8080`) |
+| `@neversleep/api-client` | Placeholder TS API boundary |
 
 ## Commands
 
 ```bash
 bun install
 bun run dev:landing
-bun run dev:admin
+bun run dev:landing:play   # local Play listing page at /play (not deployed)
 bun run lint
 bun run format:check
 bun run typecheck
@@ -24,7 +24,15 @@ bun run test
 bun run build
 ```
 
-Use `bun run format` to rewrite web files with Oxfmt.
+Format: `bun run format` (Oxfmt; `.astro` files are manual for now).
 
-Oxfmt is configured for the web workspace's supported file types and currently
-skips `.astro` page templates; format those manually for now.
+## Landing site
+
+- **Home** — hero, feature cards, official Google Play badge
+- **Privacy** — Play-required policy at `/privacy`
+- **Deploy** — GitHub Pages via `.github/workflows/deploy-landing.yml`
+
+Dev-only Play Console reference: `apps/landing/dev/play-listing.astro` (use
+`bun run dev:landing:play`).
+
+Agent conventions: **[AGENTS.md](./AGENTS.md)** · repo-wide: **[../AGENTS.md](../AGENTS.md)**

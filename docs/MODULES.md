@@ -26,7 +26,7 @@ feature/
   showcase/         Start destination: feature catalog + designsystem gallery + network demo
 app/
   shared/           App shell: AppTheme, start/deep-link resolver, AppNavHost, native host bridge, di/initKoin
-  androidApp/       Android entry: Koin startup + native splash + deep-link intents
+  androidApp/       PRODUCT: standalone Never Sleep Android app (Compose, tile, widget, ads)
   desktopApp/       Desktop entry: Koin startup + route resolution + macOS deep-link capture
   iosApp/           Xcode project: native LaunchScreen + iOS 26 SwiftUI shell + URL forwarding
 server/             Ktor server with /api/* sample routes using core:model DTOs
