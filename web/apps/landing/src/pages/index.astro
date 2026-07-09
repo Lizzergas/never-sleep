@@ -4,6 +4,7 @@ import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import GooglePlayBadge from "../components/ui/GooglePlayBadge.astro";
 import SectionHeading from "../components/ui/SectionHeading.astro";
+import AppToggleMock from "../components/AppToggleMock.astro";
 
 const description =
     "Prevent your screen from turning off due to inactivity. One tap to enable screen lock and you are good to go!";
@@ -24,18 +25,7 @@ const description =
             </div>
         </div>
 
-        <div class="preview-panel app-preview" aria-label="App preview">
-            <div class="preview-header">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div class="app-mock">
-                <p class="mock-title">never sleep</p>
-                <div class="mock-button" aria-hidden="true">🌙</div>
-                <p class="mock-caption">Tap to toggle · Tile · Widget</p>
-            </div>
-        </div>
+        <AppToggleMock aria-label="Interactive app preview" />
     </section>
 
     <section aria-labelledby="features-title">

@@ -5,11 +5,11 @@ separate from the Gradle/Android build.
 
 ## Apps
 
-| Package | Purpose |
-|---------|---------|
-| `@neversleep/landing` | Public site at **neversleep.app** (Astro, static) |
-| `@neversleep/admin` | Template Vite admin (local only; proxies `/api` → Ktor `:8080`) |
-| `@neversleep/api-client` | Placeholder TS API boundary |
+| Package                  | Purpose                                                         |
+| ------------------------ | --------------------------------------------------------------- |
+| `@neversleep/landing`    | Public site at **neversleep.app** (Astro, static)               |
+| `@neversleep/admin`      | Template Vite admin (local only; proxies `/api` → Ktor `:8080`) |
+| `@neversleep/api-client` | Placeholder TS API boundary                                     |
 
 ## Commands
 
@@ -28,7 +28,8 @@ Format: `bun run format` (Oxfmt; `.astro` files are manual for now).
 
 ## Landing site
 
-- **Home** — hero, feature cards, official Google Play badge
+- **Home** — hero with a live Never/Normal toggle (WebGL port of the app button),
+  feature cards, official Google Play badge
 - **Privacy** — Play-required policy at `/privacy`
 - **Deploy** — GitHub Pages via `.github/workflows/deploy-landing.yml`
 

@@ -7,10 +7,10 @@ Human setup: **README.md** in this folder.
 
 ## What we ship
 
-| App | Deployed? | URL / port |
-|-----|-----------|------------|
-| `apps/landing` | **Yes** — GitHub Pages | https://neversleep.app |
-| `apps/admin` | No (template scaffold) | `127.0.0.1:5174` local only |
+| App                      | Deployed?               | URL / port                            |
+| ------------------------ | ----------------------- | ------------------------------------- |
+| `apps/landing`           | **Yes** — GitHub Pages  | https://neversleep.app                |
+| `apps/admin`             | No (template scaffold)  | `127.0.0.1:5174` local only           |
 | `dev/play-listing.astro` | **No** — local dev only | `/play` when using `dev:landing:play` |
 
 **Public routes:** `/`, `/privacy`, `404`. No `/play` in production builds.
@@ -38,11 +38,15 @@ changes. Custom domain `neversleep.app` via `public/CNAME`.
 
 - **Astro-first, static output** — no server runtime on GitHub Pages.
 - **React islands** only where needed: `HeroBackdrop.tsx` (Paper Shaders:
-  `@paper-design/shaders-react`, `client:only="react"`).
+  `@paper-design/shaders-react`, `client:only="react"`) and `AppToggle.tsx` (the
+  hero's live Never/Normal toggle, `client:visible`).
 - **Design tokens:** `src/styles/tokens.css` · shared styles: `site.css`.
 - **UI components:** `src/components/ui/` (`Button`, `Card`, `Kicker`, …).
-- **Hero preview:** CSS app mock in `index.astro` — **not** Play Store screenshot
-  PNGs (those live in `assets/play-store/` for upload only).
+- **Hero preview:** interactive toggle (`AppToggleMock.astro` → `AppToggle.tsx`), a
+  web port of the app's `NeverSleepToggleButton` — the AGSL shader face is ported to
+  WebGL in `toggleFace.ts` with a CSS-gradient fallback. **Not** Play Store
+  screenshot PNGs (those live in `assets/play-store/` for upload only). If the app's
+  `TOGGLE_FACE_SHADER` changes, mirror it in `toggleFace.ts`.
 - **Google Play CTA:** official badge via `GooglePlayBadge.astro` +
   `public/badges/en_badge_web_generic.png` (do not recolor/crop).
 

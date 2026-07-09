@@ -378,17 +378,17 @@ h1 {
     background: var(--ns-text-faint);
 }
 
-.app-preview .app-mock {
+.toggle-stage {
     display: grid;
     justify-items: center;
-    gap: 16px;
+    gap: 20px;
     padding: 40px 20px 44px;
     background: linear-gradient(180deg, #0d0d1a 0%, #1a1a2e 100%);
     color: #fff;
     text-align: center;
 }
 
-.mock-title {
+.toggle-stage__title {
     margin: 0;
     letter-spacing: 0.35em;
     font-size: 0.72rem;
@@ -396,21 +396,96 @@ h1 {
     opacity: 0.65;
 }
 
-.mock-button {
-    display: grid;
-    place-items: center;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: var(--ns-brand);
-    box-shadow: 0 0 48px rgb(124 77 255 / 45%);
-    font-size: 2.4rem;
-}
-
-.mock-caption {
+.toggle-stage__caption {
     margin: 0;
     font-size: 0.82rem;
     opacity: 0.55;
+}
+
+/* Interactive toggle — web port of NeverSleepToggleButton (moon/never ↔ sun/normal). */
+.app-toggle {
+    --toggle-size: clamp(160px, 44vw, 210px);
+
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s ease;
+}
+
+.app-toggle:active {
+    transform: scale(0.94);
+}
+
+.app-toggle:focus-visible {
+    outline: 2px solid var(--ns-accent-soft);
+    outline-offset: 6px;
+}
+
+.app-toggle__face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+/* CSS fallback face — visible before hydration and when WebGL is unavailable. */
+.app-toggle__gradient {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 46%, rgb(58 53 72 / 100%), #1e1e2e 55%, #101018 100%);
+    box-shadow: inset 0 0 40px rgb(106 138 170 / 35%);
+    transition:
+        background 0.4s ease,
+        box-shadow 0.4s ease;
+}
+
+.app-toggle[data-mode="never"] .app-toggle__gradient {
+    background: radial-gradient(circle at 50% 46%, #2a1848, #12122a 55%, #08081a 100%);
+    box-shadow: inset 0 0 40px rgb(124 77 255 / 45%);
+}
+
+.app-toggle__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.app-toggle__icon {
+    position: absolute;
+    top: 26%;
+    left: 50%;
+    width: 34%;
+    height: 34%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.4s ease;
+}
+
+.app-toggle[data-mode="never"] .app-toggle__icon--sun,
+.app-toggle[data-mode="normal"] .app-toggle__icon--moon {
+    opacity: 0;
+}
+
+.app-toggle__label {
+    position: absolute;
+    bottom: 24%;
+    left: 0;
+    width: 100%;
+    color: rgb(255 255 255 / 92%);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
 }
 
 /* Feature grid */
@@ -469,7 +544,9 @@ h1 {
     .cta-band:hover {
         transform: translateY(-2px);
         border-color: rgb(124 77 255 / 35%);
-        box-shadow: 0 24px 70px rgb(0 0 0 / 38%), 0 0 40px rgb(124 77 255 / 10%);
+        box-shadow:
+            0 24px 70px rgb(0 0 0 / 38%),
+            0 0 40px rgb(124 77 255 / 10%);
     }
 }
 

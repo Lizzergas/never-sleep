@@ -1,0 +1,22 @@
+---
+import { AppToggle } from "./AppToggle";
+
+interface Props {
+    "aria-label"?: string;
+}
+
+const { "aria-label": ariaLabel = "App preview" } = Astro.props;
+---
+
+<div class="preview-panel" aria-label={ariaLabel}>
+    <div class="preview-header">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="toggle-stage">
+        <p class="toggle-stage__title">never sleep</p>
+        <AppToggle client:visible />
+        <p class="toggle-stage__caption">Tap to toggle · Tile · Widget</p>
+    </div>
+</div>
