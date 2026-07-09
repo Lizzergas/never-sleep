@@ -7,12 +7,14 @@ import android.content.Context
 import android.content.Intent
 
 class NeverSleepWidgetReceiver : BroadcastReceiver() {
-
     companion object {
         const val ACTION_TOGGLE = "com.lizz.neversleep.ACTION_TOGGLE_WIDGET"
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (intent.action == ACTION_TOGGLE) {
             val success = NeverSleepController.toggle(context)
             if (!success && !NeverSleepController.isEnabled(context)) {

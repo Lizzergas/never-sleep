@@ -6,19 +6,26 @@ import android.content.Context
 import android.widget.RemoteViews
 
 class NeverSleepWidgetProvider : AppWidgetProvider() {
-
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray,
+    ) {
         for (appWidgetId in appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId)
         }
     }
 
-    private fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+    private fun updateWidget(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+    ) {
         val views = RemoteViews(context.packageName, R.layout.never_sleep_widget)
         val enabled = NeverSleepController.isEnabled(context)
         views.setImageViewResource(
             R.id.widget_icon,
-            if (enabled) R.drawable.ic_moon else R.drawable.ic_sun
+            if (enabled) R.drawable.ic_moon else R.drawable.ic_sun,
         )
         // Click handled by the receiver
         val intent = android.content.Intent(context, NeverSleepWidgetReceiver::class.java).apply {
@@ -28,7 +35,7 @@ class NeverSleepWidgetProvider : AppWidgetProvider() {
             context,
             appWidgetId,
             intent,
-            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
         )
         views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
         appWidgetManager.updateAppWidget(appWidgetId, views)

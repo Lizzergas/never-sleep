@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Never Sleep — Play Store upload preview</title>
+    <style>
+      :root {
+        color: #e8e8ef;
+        background: #0d0d1a;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        line-height: 1.5;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 32px 20px 64px; }
+      .wrap { max-width: 1100px; margin: 0 auto; }
+      h1 { margin: 0 0 8px; font-size: 2rem; }
+      .lede { color: #9a9ab0; margin: 0 0 32px; max-width: 70ch; }
+      section { margin-bottom: 40px; }
+      h2 { font-size: 1.1rem; margin: 0 0 12px; color: #b8b0ff; }
+      .req { color: #7d7d95; font-size: 0.88rem; margin: 0 0 16px; }
+      .card {
+        border: 1px solid #2a2a40;
+        border-radius: 12px;
+        padding: 20px;
+        background: #141428;
+      }
+      .grid-2 { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+      .shot-grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+      figure { margin: 0; }
+      figcaption { margin-top: 8px; font-size: 0.82rem; color: #8a8aa0; }
+      img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        border: 1px solid #2f2f48;
+        background: #000;
+        display: block;
+      }
+      .icon img { max-width: 180px; }
+      .feature img, .wide img { max-width: 100%; }
+      pre, .copy {
+        white-space: pre-wrap;
+        margin: 0;
+        padding: 14px;
+        border-radius: 8px;
+        background: #0a0a14;
+        border: 1px solid #2a2a40;
+        font-size: 0.92rem;
+      }
+      dl { margin: 0; display: grid; gap: 10px; }
+      dl div { display: grid; gap: 4px; }
+      dt { color: #8a8aa0; font-size: 0.82rem; }
+      dd { margin: 0; }
+      a { color: #9e8cff; }
+      code { color: #c8c0ff; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Play Store upload preview</h1>
+      <p class="lede">
+        Upload the <strong>polished</strong> screenshots (<code>01-normal.png</code>,
+        <code>02-never-sleep.png</code>). Regenerate with
+        <code>python3 scripts/generate-play-screenshots.py</code>.
+      </p>
+
+      <section>
+        <h2>1. App icon</h2>
+        <p class="req">Required · 512 × 512 PNG</p>
+        <div class="card icon">
+          <figure>
+            <img src="icon-512.png" alt="App icon" width="512" height="512" />
+            <figcaption>icon-512.png</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Feature graphic</h2>
+        <p class="req">Recommended · 1024 × 500</p>
+        <div class="card feature">
+          <figure>
+            <img src="feature-graphic.png" alt="Feature graphic" />
+            <figcaption>feature-graphic.png</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section>
+        <h2>3. Phone screenshots (upload these)</h2>
+        <p class="req">
+          Required · 2 screenshots · 1080×2400 · headline + app UI only (no ads/settings/compliance)
+        </p>
+        <div class="card">
+          <div class="shot-grid">
+            <figure>
+              <img src="screenshots/01-normal.png" alt="Normal mode" />
+              <figcaption>01-normal.png</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/02-never-sleep.png" alt="Never sleep mode" />
+              <figcaption>02-never-sleep.png</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Preview: side by side</h2>
+        <p class="req">Not for upload — local comparison only</p>
+        <div class="card wide">
+          <figure>
+            <img src="screenshots/preview-side-by-side.png" alt="Both states" />
+            <figcaption>preview-side-by-side.png</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section>
+        <h2>4. Store listing text</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h2 style="margin-top:0">Short description</h2>
+            <p class="copy">Keep your screen awake — one tap, Quick Settings tile, and home-screen widget.</p>
+          </div>
+          <div class="card">
+            <h2 style="margin-top:0">Category</h2>
+            <p class="copy">Tools</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>5. Upload bundle</h2>
+        <div class="card">
+          <p class="copy"><code>dist/release/androidApp-release.aab</code></p>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

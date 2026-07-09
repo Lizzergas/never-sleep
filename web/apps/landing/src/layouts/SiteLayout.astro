@@ -1,0 +1,49 @@
+---
+interface Props {
+    title: string;
+    description?: string;
+}
+
+const { title, description = "Never Sleep — keep your Android screen awake with one tap." } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://neversleep.app");
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <link rel="icon" href="/icon-512.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icon-512.png" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Never Sleep" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta name="theme-color" content="#0f1419" />
+    </head>
+    <body>
+        <header class="site-header">
+            <a class="brand" href="/">Never Sleep</a>
+            <nav aria-label="Site">
+                <a href="/">Home</a>
+                <a href="/privacy">Privacy</a>
+                <a href="/play">Play listing</a>
+            </nav>
+        </header>
+        <main class="shell">
+            <slot />
+        </main>
+        <footer class="site-footer">
+            <p>© {new Date().getFullYear()} Never Sleep. Android utility app.</p>
+            <p>
+                <a href="/privacy">Privacy policy</a>
+                ·
+                <a href="https://play.google.com/store">Google Play</a>
+            </p>
+        </footer>
+    </body>
+</html>

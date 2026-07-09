@@ -21,7 +21,7 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Tests and Android build
-        run: ./gradlew jvmTest :server:test :app:androidApp:assembleDebug
+        run: ./gradlew jvmTest :server:test :app:androidApp:assembleDebug :app:androidApp:bundleRelease
 
   # Lint runs only here and on demand locally (./gradlew qualityCheck) —
   # deliberately not wired into commits or pushes.
@@ -36,6 +36,23 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Detekt + ktlint
         run: ./gradlew qualityCheck
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - name: Web workspace checks
+        working-directory: web
+        run: |
+          bun install --frozen-lockfile
+          bun run lint
+          bun run format:check
+          bun run typecheck
+          bun run test
+          bun --filter @neversleep/landing build
 
   # iOS klib compilation needs a macOS runner. Delete this job if macOS
   # minutes are a concern — it only proves the iOS target keeps compiling.

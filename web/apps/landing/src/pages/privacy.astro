@@ -1,0 +1,92 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import "../styles/site.css";
+---
+
+<SiteLayout
+    title="Privacy Policy — Never Sleep"
+    description="How Never Sleep handles permissions, local settings, and Google AdMob advertising."
+>
+    <article class="doc">
+        <p class="kicker">Legal</p>
+        <h1>Privacy Policy</h1>
+        <p class="lede">Last updated: July 9, 2026</p>
+
+        <section>
+            <h2>Overview</h2>
+            <p>
+                Never Sleep is an Android utility that changes your device screen-off timeout when you
+                explicitly enable the feature. We designed the app to work with minimal data
+                collection.
+            </p>
+        </section>
+
+        <section>
+            <h2>Information we process</h2>
+            <ul>
+                <li>
+                    <strong>Screen timeout setting</strong> — When you turn Never Sleep on, the app
+                    writes a higher value to Android’s system screen-off timeout and stores your
+                    previous timeout locally so it can be restored.
+                </li>
+                <li>
+                    <strong>App preferences</strong> — Stored on your device only (e.g. whether ads
+                    are disabled, whether Never Sleep was last enabled).
+                </li>
+                <li>
+                    <strong>Advertising data</strong> — If ads are enabled, Google AdMob may collect
+                    device identifiers and usage signals to serve and measure ads. See
+                    <a href="https://policies.google.com/privacy">Google’s Privacy Policy</a>.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>What we do not do</h2>
+            <ul>
+                <li>We do not operate user accounts or collect names, emails, or contacts.</li>
+                <li>We do not sell your personal information.</li>
+                <li>
+                    We do not upload your screen-timeout preference to our servers — it stays on your
+                    device.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Permissions</h2>
+            <p>
+                <strong>Modify system settings</strong> — Required for the core feature. You grant
+                this manually in Android Settings → Apps → Special app access.
+            </p>
+            <p>
+                <strong>Internet &amp; network state</strong> — Used only when banner ads are
+                enabled, so AdMob can load ads. You can disable ads in the in-app Settings menu.
+            </p>
+        </section>
+
+        <section>
+            <h2>Children</h2>
+            <p>
+                Never Sleep is not directed at children under 13. We do not knowingly collect personal
+                information from children.
+            </p>
+        </section>
+
+        <section>
+            <h2>Changes</h2>
+            <p>
+                We may update this policy. The “Last updated” date at the top will change when we do.
+                Continued use of the app after changes means you accept the revised policy.
+            </p>
+        </section>
+
+        <section>
+            <h2>Contact</h2>
+            <p>
+                Questions about this policy? Open an issue in the project repository or contact the
+                developer through your Play Store listing support channel.
+            </p>
+        </section>
+    </article>
+</SiteLayout>

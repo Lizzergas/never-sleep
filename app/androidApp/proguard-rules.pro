@@ -15,9 +15,19 @@
 # Add specific -keep rules here as your app grows.
 -keep class com.lizz.neversleep.** { *; }
 
-# If you later integrate AdMob or other Google services
--keep class com.google.android.gms.** { *; }
+# Google Mobile Ads SDK
+-keep class com.google.android.gms.ads.** { *; }
+-keep class com.google.ads.** { *; }
 -dontwarn com.google.android.gms.**
+
+# WorkManager / Room (transitive AdMob dependency — required for release minify)
+-keep class * extends androidx.work.Worker
+-keep class * extends androidx.work.InputMerger
+-keep class androidx.work.** { *; }
+-keep class androidx.work.impl.** { *; }
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-dontwarn androidx.work.**
 
 # OkHttp / networking (in case you add real ads or server calls)
 -keep class okhttp3.** { *; }
@@ -41,3 +51,6 @@
 -keep class com.lizz.neversleep.NeverSleepTileService { *; }
 -keep class com.lizz.neversleep.NeverSleepWidgetProvider { *; }
 -keep class com.lizz.neversleep.NeverSleepWidgetReceiver { *; }
+-keep class com.lizz.neversleep.NeverSleepApplication { *; }
+-keep class com.lizz.neversleep.AdBanner { *; }
+-keep class com.lizz.neversleep.NeverSleepToggleButton { *; }

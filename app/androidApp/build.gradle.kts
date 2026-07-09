@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -16,6 +16,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.play.services.ads)
+
     // Compose for UI
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
@@ -37,6 +39,24 @@ android {
         .get()
         .toInt()
 
+    val admobPropertiesFile = project.file("admob.properties")
+    val admobProperties = Properties()
+    if (admobPropertiesFile.exists()) {
+        admobProperties.load(FileInputStream(admobPropertiesFile))
+    }
+    val defaultAdmobAppId = admobProperties.getProperty(
+        "admob.app.id",
+        "ca-app-pub-3940256099942544~3347511713",
+    )
+    val defaultBannerUnitId = admobProperties.getProperty(
+        "admob.banner.unit.id",
+        "ca-app-pub-3940256099942544/6300978111",
+    )
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.lizz.neversleep"
         minSdk = libs.versions.android.minSdk
@@ -51,6 +71,14 @@ android {
         // versionName is the user-visible string (use semantic versioning).
         versionCode = 1
         versionName = "1.0.0"
+
+        manifestPlaceholders["admobAppId"] = defaultAdmobAppId
+        buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"$defaultBannerUnitId\"")
+        buildConfigField(
+            "String",
+            "PRIVACY_POLICY_URL",
+            "\"https://neversleep.app/privacy\"",
+        )
     }
 
     // Signing configuration loaded from keystore.properties (see instructions below).
@@ -71,7 +99,7 @@ android {
             // keyPassword=yourKeyPassword
             val storeFilePath = keystoreProperties["storeFile"] as? String
             if (storeFilePath != null) {
-                storeFile = file(storeFilePath)
+                storeFile = rootProject.file(storeFilePath)
                 storePassword = keystoreProperties["storePassword"] as String
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
@@ -91,13 +119,19 @@ android {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             isDebuggable = true
+            manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_UNIT_ID",
+                "\"ca-app-pub-3940256099942544/6300978111\"",
+            )
         }
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             // Only apply signing config when keystore.properties is fully set up.
             // You can still produce a signed bundle later or let Google Play App Signing handle it.

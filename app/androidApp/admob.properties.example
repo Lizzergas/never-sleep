@@ -1,0 +1,7 @@
+# Copy to admob.properties (gitignored) and fill from AdMob console → Apps → App settings.
+
+# AdMob App ID (AndroidManifest APPLICATION_ID meta-data)
+admob.app.id=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
+
+# Banner ad unit ID (bottom banner in MainActivity)
+admob.banner.unit.id=ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ

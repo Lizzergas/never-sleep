@@ -2,10 +2,8 @@ package com.lizz.neversleep
 
 import android.content.Context
 import android.provider.Settings
-import android.widget.Toast
 
 object NeverSleepController {
-
     private const val PREFS_NAME = "never_sleep_prefs"
     private const val KEY_PREVIOUS_TIMEOUT = "previous_timeout"
     private const val KEY_ENABLED = "never_sleep_enabled"
@@ -21,7 +19,7 @@ object NeverSleepController {
             Settings.System.getInt(
                 context.contentResolver,
                 Settings.System.SCREEN_OFF_TIMEOUT,
-                DEFAULT_NORMAL_TIMEOUT_MS
+                DEFAULT_NORMAL_TIMEOUT_MS,
             )
         } catch (e: Exception) {
             DEFAULT_NORMAL_TIMEOUT_MS
@@ -29,13 +27,12 @@ object NeverSleepController {
         return current >= NEVER_SLEEP_THRESHOLD_MS
     }
 
-    fun toggle(context: Context): Boolean {
-        return if (isEnabled(context)) {
+    fun toggle(context: Context): Boolean =
+        if (isEnabled(context)) {
             setNormal(context)
         } else {
             setNeverSleep(context)
         }
-    }
 
     fun setNeverSleep(context: Context): Boolean {
         if (!Settings.System.canWrite(context)) {
@@ -47,12 +44,13 @@ object NeverSleepController {
             Settings.System.getInt(
                 context.contentResolver,
                 Settings.System.SCREEN_OFF_TIMEOUT,
-                DEFAULT_NORMAL_TIMEOUT_MS
+                DEFAULT_NORMAL_TIMEOUT_MS,
             )
         } catch (e: Exception) {
             DEFAULT_NORMAL_TIMEOUT_MS
         }
-        prefs.edit()
+        prefs
+            .edit()
             .putInt(KEY_PREVIOUS_TIMEOUT, previous)
             .putBoolean(KEY_ENABLED, true)
             .apply()
@@ -61,7 +59,7 @@ object NeverSleepController {
             Settings.System.putInt(
                 context.contentResolver,
                 Settings.System.SCREEN_OFF_TIMEOUT,
-                NEVER_SLEEP_TIMEOUT_MS
+                NEVER_SLEEP_TIMEOUT_MS,
             )
         } catch (e: Exception) {
             false
@@ -81,7 +79,7 @@ object NeverSleepController {
             Settings.System.putInt(
                 context.contentResolver,
                 Settings.System.SCREEN_OFF_TIMEOUT,
-                previous
+                previous,
             )
         } catch (e: Exception) {
             false
@@ -94,7 +92,10 @@ object NeverSleepController {
         return !prefs.getBoolean(KEY_ADS_DISABLED, false)
     }
 
-    fun setAdsEnabled(context: Context, enabled: Boolean) {
+    fun setAdsEnabled(
+        context: Context,
+        enabled: Boolean,
+    ) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_ADS_DISABLED, !enabled).apply()
     }

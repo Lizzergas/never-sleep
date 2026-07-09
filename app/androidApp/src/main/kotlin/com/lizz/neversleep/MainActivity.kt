@@ -2,16 +2,19 @@ package com.lizz.neversleep
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.RuntimeShader
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.animateColorAsState
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -20,22 +23,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,15 +35,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.border
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment as ComposeAlignment
-import android.util.Log
-import kotlinx.coroutines.delay
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,32 +48,30 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.os.Build
-import android.graphics.RuntimeShader
-import androidx.compose.ui.graphics.ShaderBrush
-import androidx.annotation.RequiresApi
 import kotlin.math.cos
 import kotlin.math.sin
+import androidx.compose.ui.Alignment as ComposeAlignment
 
 private const val PREFS_NAME = "never_sleep_prefs"
 private const val KEY_PREVIOUS_TIMEOUT = "previous_timeout"
@@ -98,12 +79,17 @@ private const val KEY_ENABLED = "never_sleep_enabled"
 private const val DEFAULT_NORMAL_TIMEOUT_MS = 30_000
 
 // Use a high but practical value instead of Int.MAX_VALUE (some devices clamp very large values)
-private const val NEVER_SLEEP_TIMEOUT_MS = 1_000_000_000  // ~11.5 days, "never" for inactivity
+private const val NEVER_SLEEP_TIMEOUT_MS = 1_000_000_000 // ~11.5 days, "never" for inactivity
 
 // Threshold for considering the timeout "never sleep" mode (even if system clamps)
-private const val NEVER_SLEEP_THRESHOLD_MS = 3_600_000  // 1 hour
+private const val NEVER_SLEEP_THRESHOLD_MS = 3_600_000 // 1 hour
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        const val EXTRA_SCREENSHOT_MODE = "screenshot_mode"
+        const val EXTRA_CAPTURE_NEVER = "capture_never"
+    }
 
     private val prefs by lazy { getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
 
@@ -123,6 +109,19 @@ class MainActivity : ComponentActivity() {
         isEnabledState.value = NeverSleepController.isEnabled(this)
         showAdsState.value = NeverSleepController.areAdsEnabled(this)
 
+        if (intent.getBooleanExtra(EXTRA_SCREENSHOT_MODE, false) &&
+            Settings.System.canWrite(this)
+        ) {
+            val captureNever = intent.getBooleanExtra(EXTRA_CAPTURE_NEVER, false)
+            if (captureNever) {
+                NeverSleepController.setNeverSleep(this)
+                isEnabledState.value = true
+            } else {
+                NeverSleepController.setNormal(this)
+                isEnabledState.value = false
+            }
+        }
+
         setContent {
             // Dark modern theme for a cool shader experience
             MaterialTheme(
@@ -131,7 +130,7 @@ class MainActivity : ComponentActivity() {
                     onPrimary = Color.White,
                     background = Color(0xFF0D0D1A),
                     surface = Color(0xFF1A1A2E),
-                )
+                ),
             ) {
                 val isEnabled by remember { isEnabledState }
                 val showAds by remember { showAdsState }
@@ -140,7 +139,7 @@ class MainActivity : ComponentActivity() {
                 // This ensures reliable flip between never <-> normal even after resume/minimize or state changes.
                 val onToggle: () -> Unit = {
                     val current = isEnabledState.value
-                    val desired = ! current
+                    val desired = !current
                     if (Settings.System.canWrite(this)) {
                         // Attempt the change. We flip the UI immediately on click (when we have/can obtain the perm)
                         // to make the toggle feel direct and reliable, as requested. The actual system value
@@ -158,14 +157,17 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                val screenshotMode = intent.getBooleanExtra(EXTRA_SCREENSHOT_MODE, false)
+
                 NeverSleepScreen(
                     isEnabled = isEnabled,
                     onToggle = onToggle,
-                    showAds = showAds,
+                    showAds = showAds && !screenshotMode,
+                    screenshotMode = screenshotMode,
                     onSetShowAds = { enabled ->
                         showAdsState.value = enabled
                         NeverSleepController.setAdsEnabled(this, enabled)
-                    }
+                    },
                 )
             }
         }
@@ -194,7 +196,7 @@ class MainActivity : ComponentActivity() {
     private fun openWriteSettingsPermissionScreen() {
         val intent = Intent(
             Settings.ACTION_MANAGE_WRITE_SETTINGS,
-            Uri.parse("package:$packageName")
+            Uri.parse("package:$packageName"),
         )
         startActivity(intent)
     }
@@ -205,9 +207,15 @@ private fun NeverSleepScreen(
     onToggle: () -> Unit,
     isEnabled: Boolean,
     showAds: Boolean,
-    onSetShowAds: (Boolean) -> Unit
+    screenshotMode: Boolean,
+    onSetShowAds: (Boolean) -> Unit,
 ) {
     var showSettingsDialog by remember { mutableStateOf(false) }
+    val bottomChromePadding = when {
+        screenshotMode -> 0.dp
+        showAds -> 230.dp
+        else -> 180.dp
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -217,19 +225,20 @@ private fun NeverSleepScreen(
             // Pure native modern Android shader (AGSL on 33+, Canvas fallback) - full screen
             NativeShaderBackground(modifier = Modifier.fillMaxSize())
 
-            // Settings gear (top-right) - respect status bar insets
-            Box(
-                modifier = Modifier
-                    .align(ComposeAlignment.TopEnd)
-                    .padding(top = innerPadding.calculateTopPadding())
-                    .padding(12.dp)
-            ) {
-                IconButton(onClick = { showSettingsDialog = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = Color.White.copy(alpha = 0.65f)
-                    )
+            if (!screenshotMode) {
+                Box(
+                    modifier = Modifier
+                        .align(ComposeAlignment.TopEnd)
+                        .padding(top = innerPadding.calculateTopPadding())
+                        .padding(12.dp),
+                ) {
+                    IconButton(onClick = { showSettingsDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = Color.White.copy(alpha = 0.65f),
+                        )
+                    }
                 }
             }
 
@@ -240,106 +249,50 @@ private fun NeverSleepScreen(
                 modifier = Modifier
                     .align(ComposeAlignment.Center)
                     .padding(top = innerPadding.calculateTopPadding())
-                    .padding(bottom = if (showAds) 230.dp else 180.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(bottom = bottomChromePadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-            Text(
-                text = "never sleep",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.White.copy(alpha = 0.6f),
-                letterSpacing = 4.sp
-            )
+                Text(
+                    text = "never sleep",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.6f),
+                    letterSpacing = 4.sp,
+                )
 
-            Spacer(Modifier.height(48.dp))
+                Spacer(Modifier.height(48.dp))
 
-            // The big beautiful circular toggle button (modern & simple)
-            val haptic = LocalHapticFeedback.current
-            var isPressed by remember { mutableStateOf(false) }
-
-            val targetColor = if (isEnabled) Color(0xFF7C4DFF) else Color(0xFF2A2A40)
-            val buttonColor by animateColorAsState(
-                targetValue = targetColor,
-                animationSpec = tween(350, easing = FastOutSlowInEasing),
-                label = "buttonColor"
-            )
-
-            val scale by animateFloatAsState(
-                targetValue = if (isPressed) 0.92f else 1f,
-                animationSpec = tween(120),
-                label = "pressScale"
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(210.dp)
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                    }
-                    .clip(CircleShape)
-                    .background(buttonColor)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                isPressed = true
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                tryAwaitRelease()
-                                isPressed = false
-                            },
-                            onTap = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onToggle()
-                            }
-                        )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = if (isEnabled) "🌙" else "☀",
-                        color = Color.White,
-                        fontSize = 42.sp
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = if (isEnabled) "NEVER" else "NORMAL",
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 2.sp
-                    )
-                }
-            }
-        }
-
-        // Bottom area: disclaimer (expandable scrollable) + ad box
-        // Respect system insets (navigation bar / gesture bar) so content isn't covered.
-        Column(
-            modifier = Modifier
-                .align(ComposeAlignment.BottomCenter)
-                .padding(bottom = innerPadding.calculateBottomPadding())
-                .fillMaxWidth()
-        ) {
-            DisclaimerSection(
-                modifier = Modifier.fillMaxWidth()
-            )
-            if (showAds) {
-                AdBanner(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
+                NeverSleepToggleButton(
+                    isEnabled = isEnabled,
+                    onToggle = onToggle,
                 )
             }
-        }
-    }  // close Box
-}  // close Scaffold
+
+            if (!screenshotMode) {
+                Column(
+                    modifier = Modifier
+                        .align(ComposeAlignment.BottomCenter)
+                        .padding(bottom = innerPadding.calculateBottomPadding())
+                        .fillMaxWidth(),
+                ) {
+                    DisclaimerSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        privacyPolicyUrl = BuildConfig.PRIVACY_POLICY_URL,
+                    )
+                    if (showAds) {
+                        AdBanner(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                        )
+                    }
+                }
+            }
+        } // close Box
+    } // close Scaffold
 
     // Settings dialog for ads toggle (and future settings)
-    if (showSettingsDialog) {
+    if (showSettingsDialog && !screenshotMode) {
         AlertDialog(
             onDismissRequest = { showSettingsDialog = false },
             title = {
@@ -352,27 +305,27 @@ private fun NeverSleepScreen(
                             .fillMaxWidth()
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null
+                                indication = null,
                             ) { onSetShowAds(!showAds) }
                             .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = "Disable ads",
                             modifier = Modifier.weight(1f),
                             color = Color.White,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
                         )
                         Switch(
                             checked = !showAds,
-                            onCheckedChange = { disabled -> onSetShowAds(!disabled) }
+                            onCheckedChange = { disabled -> onSetShowAds(!disabled) },
                         )
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = "Hides the small ad box at the bottom. The rest of the app works the same.",
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.6f)
+                        color = Color.White.copy(alpha = 0.6f),
                     )
                 }
             },
@@ -380,7 +333,7 @@ private fun NeverSleepScreen(
                 TextButton(onClick = { showSettingsDialog = false }) {
                     Text("Done")
                 }
-            }
+            },
         )
     }
 }
@@ -392,22 +345,26 @@ private fun NeverSleepScreen(
  * This way the main screen (button position) does not shift/"expand".
  */
 @Composable
-private fun DisclaimerSection(modifier: Modifier = Modifier) {
+private fun DisclaimerSection(
+    modifier: Modifier = Modifier,
+    privacyPolicyUrl: String,
+) {
+    val uriHandler = LocalUriHandler.current
     var expanded by remember { mutableStateOf(false) }
 
     val collapsedHeight = 52.dp
-    val expandedHeight = 180.dp  // predetermined size - enough to read the text with scrolling
+    val expandedHeight = 180.dp // predetermined size - enough to read the text with scrolling
 
     val targetHeight by animateDpAsState(
         targetValue = if (expanded) expandedHeight else collapsedHeight,
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "disclaimerHeight"
+        label = "disclaimerHeight",
     )
 
     val arrowRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "arrowRotation"
+        label = "arrowRotation",
     )
 
     Column(
@@ -415,24 +372,23 @@ private fun DisclaimerSection(modifier: Modifier = Modifier) {
             .height(targetHeight)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
             ) {
                 expanded = !expanded
-            }
-            .background(Color(0xFF1A1A2E).copy(alpha = 0.5f))
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            }.background(Color(0xFF1A1A2E).copy(alpha = 0.5f))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
     ) {
         // Header always visible
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
                 "About permissions & compliance",
                 color = Color.White.copy(alpha = 0.6f),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Text(
                 "▼",
@@ -440,7 +396,7 @@ private fun DisclaimerSection(modifier: Modifier = Modifier) {
                 fontSize = 10.sp,
                 modifier = Modifier.graphicsLayer {
                     rotationZ = arrowRotation
-                }
+                },
             )
         }
 
@@ -450,158 +406,47 @@ private fun DisclaimerSection(modifier: Modifier = Modifier) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
             ) {
-                Text(
-                    text = "This app uses the 'Modify system settings' permission to control screen timeout. " +
-                           "This is required for the 'never sleep' feature. " +
-                           "Enabling this may increase battery usage and device temperature. " +
-                           "Some devices (e.g. Samsung, Xiaomi) or enterprise policies may override this setting. " +
-                           "You can revoke access anytime in Android Settings > Apps > Special app access.\n\n" +
-                           "Privacy: This app does not collect, store, or share any personal or device data beyond the system setting change you explicitly request.",
-                    color = Color.White.copy(alpha = 0.55f),
-                    fontSize = 10.sp,
-                    textAlign = TextAlign.Start
-                )
-            }
-        }
-    }
-}
-
-/**
- * Small ad box at the bottom for potential advertisements.
- * 
- * This is a stub implementation. All logic for loading, displaying, and consuming ads
- * is centralized here so it can be easily replaced with a real ad SDK (AdMob, etc.)
- * in the future.
- *
- * Current stub:
- * - Simulates async ad loading
- * - Shows a placeholder "ad" UI
- * - Provides hooks for impression / click tracking (stubs)
- * - Easy to swap the inner content with real ad view (e.g. AndroidView + AdView)
- */
-@Composable
-fun AdBanner(modifier: Modifier = Modifier) {
-    var adState by remember { mutableStateOf<AdState>(AdState.Loading) }
-
-    // Stub: simulate loading an ad when the composable enters composition
-    LaunchedEffect(Unit) {
-        adState = loadAd()
-    }
-
-    Box(
-        modifier = modifier
-            .background(Color(0xFFE8E8E8))
-            .border(1.dp, Color(0xFFCCCCCC))
-            .clickable {
-                if (adState is AdState.Loaded) {
-                    consumeAd(adState as AdState.Loaded)
-                    // In real impl: this would be the ad click handler from the SDK
-                }
-            }
-    ) {
-        when (val state = adState) {
-            is AdState.Loading -> {
-                Text(
-                    "Loading ad...",
-                    modifier = Modifier.align(ComposeAlignment.Center),
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
-            is AdState.Loaded -> {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Stub ad content - replace this block with real ad view later
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "Sponsored • Tap to learn more",
-                            fontSize = 10.sp,
-                            color = Color(0xFF666666)
-                        )
-                        Text(
-                            "Your product or service here",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF333333)
-                        )
-                    }
-                    // Fake "Ad" badge
-                    Box(
-                        modifier = Modifier
-                            .background(Color(0xFF888888))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                val disclaimerText = buildAnnotatedString {
+                    append(
+                        "This app uses the 'Modify system settings' permission to control screen timeout. " +
+                            "This is required for the 'never sleep' feature. " +
+                            "Enabling this may increase battery usage and device temperature. " +
+                            "Some devices (e.g. Samsung, Xiaomi) or enterprise policies may override this setting. " +
+                            "You can revoke access anytime in Android Settings > Apps > Special app access.\n\n" +
+                            "Ads: A small banner ad may appear at the bottom. You can disable ads in Settings. " +
+                            "Google AdMob may collect device identifiers for ad delivery — see our ",
+                    )
+                    pushStringAnnotation(tag = "privacy", annotation = privacyPolicyUrl)
+                    withStyle(
+                        SpanStyle(
+                            color = Color(0xFF9E8CFF),
+                            textDecoration = TextDecoration.Underline,
+                        ),
                     ) {
-                        Text(
-                            "Ad",
-                            color = Color.White,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        append("privacy policy")
                     }
+                    pop()
+                    append(".")
                 }
-            }
-            is AdState.Error -> {
-                Text(
-                    "Ad unavailable",
-                    modifier = Modifier.align(ComposeAlignment.Center),
-                    fontSize = 11.sp,
-                    color = Color.Gray
+                ClickableText(
+                    text = disclaimerText,
+                    style = androidx.compose.ui.text.TextStyle(
+                        color = Color.White.copy(alpha = 0.55f),
+                        fontSize = 10.sp,
+                        textAlign = TextAlign.Start,
+                    ),
+                    onClick = { offset ->
+                        disclaimerText
+                            .getStringAnnotations("privacy", offset, offset)
+                            .firstOrNull()
+                            ?.let { uriHandler.openUri(it.item) }
+                    },
                 )
             }
         }
     }
-}
-
-// === Ad logic stubs ===
-
-sealed interface AdState {
-    object Loading : AdState
-    data class Loaded(val adUnitId: String) : AdState
-    object Error : AdState
-}
-
-/**
- * Stub for loading an ad.
- * 
- * Real implementation example (AdMob):
- * - Initialize MobileAds in Application
- * - Create AdRequest
- * - Load into AdView
- * - Listen to onAdLoaded, onAdFailedToLoad, etc.
- * - Return Loaded when ready
- */
-private suspend fun loadAd(): AdState {
-    // Simulate network delay for ad fetch
-    delay(1200)
-    
-    // In real code you would call the ad SDK here.
-    // For now we always succeed with a stub ad.
-    return AdState.Loaded("ca-app-pub-3940256099942544/6300978111") // Google test unit id
-}
-
-/**
- * Stub for consuming / tracking an ad (impression or click).
- * 
- * Call this when:
- * - Ad becomes visible (impression)
- * - User taps the ad (click)
- * 
- * Real implementation:
- * - AdMob SDK automatically tracks most events when you use their views.
- * - For custom: use AdListener, or manual tracking pixels / your backend.
- */
-private fun consumeAd(ad: AdState.Loaded) {
-    Log.d("AdStub", "Ad consumed: ${ad.adUnitId}")
-    
-    // Example real hook:
-    // adView.adListener?.onAdClicked?.invoke() or similar
-    // Or send analytics event
 }
 
 /**
@@ -632,12 +477,13 @@ private fun AgslMeshShaderBackground(modifier: Modifier = Modifier) {
         targetValue = 1000f,
         animationSpec = infiniteRepeatable(
             animation = tween(20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            repeatMode = RepeatMode.Restart,
         ),
-        label = "time"
+        label = "time",
     )
 
-    val shaderCode = """
+    val shaderCode =
+        """
         uniform float2 iResolution;
         uniform float iTime;
         layout(color) uniform half4 iColor1;
@@ -676,7 +522,7 @@ private fun AgslMeshShaderBackground(modifier: Modifier = Modifier) {
 
             return half4(col, 1.0);
         }
-    """.trimIndent()
+        """.trimIndent()
 
     val shader = remember { RuntimeShader(shaderCode) }
     val brush = remember { ShaderBrush(shader) }
@@ -703,9 +549,24 @@ private fun AgslMeshShaderBackground(modifier: Modifier = Modifier) {
 @Composable
 private fun CanvasMeshShaderBackground(modifier: Modifier = Modifier) {
     val infinite = rememberInfiniteTransition(label = "canvasMesh")
-    val t1 by infinite.animateFloat(0f, 1f, infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Restart), "t1")
-    val t2 by infinite.animateFloat(0f, 1f, infiniteRepeatable(tween(9500, easing = LinearEasing), RepeatMode.Restart), "t2")
-    val t3 by infinite.animateFloat(0f, 1f, infiniteRepeatable(tween(11000, easing = LinearEasing), RepeatMode.Restart), "t3")
+    val t1 by infinite.animateFloat(
+        0f,
+        1f,
+        infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Restart),
+        "t1",
+    )
+    val t2 by infinite.animateFloat(
+        0f,
+        1f,
+        infiniteRepeatable(tween(9500, easing = LinearEasing), RepeatMode.Restart),
+        "t2",
+    )
+    val t3 by infinite.animateFloat(
+        0f,
+        1f,
+        infiniteRepeatable(tween(11000, easing = LinearEasing), RepeatMode.Restart),
+        "t3",
+    )
 
     val colors = remember {
         listOf(
@@ -743,10 +604,10 @@ private fun CanvasMeshShaderBackground(modifier: Modifier = Modifier) {
                     brush = Brush.radialGradient(
                         colors = listOf(color.copy(alpha = la), Color.Transparent),
                         center = Offset(cx, cy),
-                        radius = lr
+                        radius = lr,
                     ),
                     center = Offset(cx, cy),
-                    radius = lr
+                    radius = lr,
                 )
             }
         }
@@ -762,7 +623,7 @@ private fun CanvasMeshShaderBackground(modifier: Modifier = Modifier) {
                 drawCircle(
                     center = Offset(gx, gy),
                     radius = 1.1f,
-                    color = Color.White.copy(alpha = ga * g)
+                    color = Color.White.copy(alpha = ga * g),
                 )
             }
         }

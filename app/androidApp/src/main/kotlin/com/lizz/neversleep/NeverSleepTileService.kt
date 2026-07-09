@@ -1,11 +1,10 @@
 package com.lizz.neversleep
 
+import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.graphics.drawable.Icon
 
 class NeverSleepTileService : TileService() {
-
     override fun onStartListening() {
         super.onStartListening()
         updateTile()
@@ -18,10 +17,11 @@ class NeverSleepTileService : TileService() {
         val success = NeverSleepController.toggle(this)
         if (!success && !NeverSleepController.isEnabled(this)) {
             // Permission missing - open the settings screen
-            val intent = android.content.Intent(
-                android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                android.net.Uri.parse("package:${packageName}")
-            ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            val intent = android.content
+                .Intent(
+                    android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    android.net.Uri.parse("package:$packageName"),
+                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivityAndCollapse(intent)
         }
         updateTile()

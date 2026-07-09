@@ -1,59 +1,37 @@
 ---
-import { apiBaseUrl } from "@neversleep/api-client";
-import { HelloIsland } from "../components/HelloIsland";
+import SiteLayout from "../layouts/SiteLayout.astro";
 import "../styles/site.css";
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>NeverSleep Landing</title>
-    <meta
-      name="description"
-      content="Astro and React landing-page scaffold for NeverSleep."
-    />
-  </head>
-  <body>
-    <main class="shell">
-      <section class="hero" aria-labelledby="page-title">
+<SiteLayout
+    title="Never Sleep — Android screen timeout utility"
+    description="Keep your Android screen awake with one tap, a Quick Settings tile, and a home-screen widget."
+>
+    <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
-          <p class="kicker">Astro + React + Bun</p>
-          <h1 id="page-title">NeverSleep web landing</h1>
-          <p class="lede">
-            A static-first marketing surface living beside the Kotlin apps without touching the
-            Gradle module graph.
-          </p>
-          <div class="actions" aria-label="Primary links">
-            <a href="http://localhost:5174">Open admin</a>
-            <a href="http://localhost:8080/api/hello">Check API</a>
-          </div>
+            <p class="kicker">Android utility</p>
+            <h1 id="page-title">Never Sleep</h1>
+            <p class="lede">
+                Prevent your screen from turning off due to inactivity. One tap, a Quick Settings
+                tile, and a 1×1 widget — then restore your previous timeout when you are done.
+            </p>
+            <div class="actions" aria-label="Primary links">
+                <a href="/play">Play Store listing</a>
+                <a href="/privacy">Privacy policy</a>
+            </div>
         </div>
 
-        <div class="preview-panel" aria-label="Workspace preview">
-          <div class="preview-header">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <dl>
-            <div>
-              <dt>Landing</dt>
-              <dd>Astro on :5173</dd>
+        <div class="preview-panel app-preview" aria-label="App preview">
+            <div class="preview-header">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
-            <div>
-              <dt>Admin</dt>
-              <dd>Vite on :5174</dd>
+            <div class="app-mock">
+                <p class="mock-title">never sleep</p>
+                <div class="mock-button" aria-hidden="true">🌙</div>
+                <p class="mock-caption">Tap to toggle · Tile · Widget</p>
             </div>
-            <div>
-              <dt>API</dt>
-              <dd>Ktor on :8080</dd>
-            </div>
-          </dl>
         </div>
-      </section>
-
-      <HelloIsland client:load apiPath={`${apiBaseUrl}/api/hello`} />
-    </main>
-  </body>
-</html>
+    </section>
+</SiteLayout>

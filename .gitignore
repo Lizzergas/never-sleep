@@ -2,12 +2,14 @@
 .kotlin
 .gradle
 **/build/
+dist/
 xcuserdata
 !src/**/build/
 local.properties
 
 # Signing / release secrets - never commit these
 keystore.properties
+app/androidApp/admob.properties
 *.keystore
 *.jks
 keystores/

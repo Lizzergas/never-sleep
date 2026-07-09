@@ -96,6 +96,26 @@ rules, and the add/remove-a-feature contract.
 APKs / bundles will be in:
 `app/androidApp/build/outputs/{apk,bundle}/release/`
 
+### One-command release script
+```bash
+./scripts/release-android.sh              # qualityCheck + signed APK/AAB → dist/release/
+./scripts/release-android.sh --fast       # skip qualityCheck
+./scripts/release-android.sh --screenshots  # build + polished Play screenshots (2 states)
+python3 scripts/generate-play-screenshots.py  # screenshots only (headline + UI, no ads/settings)
+```
+
+Configure once:
+- `keystore.properties` (from `keystore.properties.example`) — signing
+- `app/androidApp/admob.properties` (from `admob.properties.example`) — replace test IDs with your AdMob console values before monetizing
+
+Play listing copy and privacy policy live in the web workspace:
+- `web/apps/landing/src/pages/privacy.astro` → `https://neversleep.app/privacy`
+- `web/apps/landing/src/pages/play.astro` → store listing fields + DNS setup
+- Store assets: `assets/play-store/` (icon, feature graphic, screenshots)
+- **Preview all Play uploads locally:** open `assets/play-store/preview.html` in a browser
+
+**Host `neversleep.app` (free):** enable GitHub Pages → GitHub Actions in repo Settings, push to `main` (workflow `.github/workflows/deploy-landing.yml`), then point your domain DNS at GitHub (see `/play` on the site or `preview.html`).
+
 ### Signing for Release (one-time setup)
 1. Generate a keystore (store it safely):
    ```bash
