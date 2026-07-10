@@ -302,6 +302,18 @@ h1 {
     width: auto;
 }
 
+/* Larger badge for the download CTA. Never recolour/crop (Google brand guidelines);
+   the CTA padding preserves the required clear space (≥ ¼ of the badge height). */
+.play-badge--large img {
+    height: 88px;
+}
+
+@media (max-width: 560px) {
+    .play-badge--large img {
+        height: 66px;
+    }
+}
+
 .doc-actions {
     margin-top: 24px;
     margin-bottom: 8px;
@@ -598,15 +610,11 @@ h1 {
     }
 }
 
-.cta-band h2 {
-    margin: 0 0 6px;
-    font-size: 1.35rem;
-}
-
-.cta-band p {
-    margin: 0;
-    color: var(--ns-text-muted);
-    font-size: 0.95rem;
+/* Download CTA — a single, prominent Google Play badge, centred with generous padding
+   (clear space) around the enlarged badge. */
+.cta-band--download {
+    justify-content: center;
+    padding: 44px 32px;
 }
 
 /* Doc pages */

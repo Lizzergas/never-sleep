@@ -1,9 +1,14 @@
 ---
+interface Props {
+    large?: boolean;
+}
+
+const { large = false } = Astro.props;
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.lizz.neversleep";
 ---
 
 <a
-    class="play-badge"
+    class:list={["play-badge", large && "play-badge--large"]}
     href={PLAY_STORE_URL}
     target="_blank"
     rel="noopener noreferrer"
