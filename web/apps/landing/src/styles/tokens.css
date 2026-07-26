@@ -1,41 +1,84 @@
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
 :root {
-    --ns-bg: #0d0d1a;
-    --ns-bg-elevated: #141428;
-    --ns-bg-inset: #0a0a14;
-    --ns-border: #2a2a40;
-    --ns-border-soft: #2f2f48;
+    --color-paper: oklch(14% 0.018 285);
+    --color-paper-2: oklch(18% 0.022 285);
+    --color-paper-3: oklch(22% 0.025 285);
+    --color-paper-inset: oklch(11% 0.016 285);
+    --color-ink: oklch(94% 0.012 285);
+    --color-ink-2: oklch(82% 0.014 285);
+    --color-muted: oklch(70% 0.014 285);
+    --color-neutral: oklch(58% 0.016 285);
+    --color-rule: oklch(34% 0.025 285);
+    --color-rule-2: oklch(27% 0.022 285);
+    --color-accent: oklch(76% 0.15 72);
+    --color-accent-ink: oklch(16% 0.02 285);
+    --color-focus: oklch(82% 0.17 72);
+    --color-state-normal: oklch(76% 0.15 72);
+    --color-state-normal-soft: oklch(86% 0.09 72);
+    --color-state-never: oklch(70% 0.17 295);
+    --color-state-never-soft: oklch(82% 0.1 295);
+    --color-state-never-cool: oklch(77% 0.13 220);
+    --color-toggle-normal-core: oklch(34% 0.028 72);
+    --color-toggle-never-core: oklch(23% 0.06 295);
+    --color-toggle-edge: oklch(9% 0.018 285);
 
-    --ns-text: #e8e8ef;
-    --ns-text-muted: #9a9ab0;
-    --ns-text-subtle: #8a8aa0;
-    --ns-text-faint: #7d7d95;
+    --font-display: "Sora", ui-sans-serif, sans-serif;
+    --font-body: "Inter", ui-sans-serif, sans-serif;
+    --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
 
-    --ns-accent: #9e8cff;
-    --ns-accent-soft: #b8b0ff;
-    --ns-accent-code: #c8c0ff;
-    --ns-brand: #7c4dff;
-    --ns-cyan: #00e5ff;
+    --space-3xs: 0.125rem;
+    --space-2xs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2.5rem;
+    --space-2xl: 4rem;
+    --space-3xl: 6rem;
+    --space-4xl: 9rem;
 
-    /* Brand gradients — the purple→cyan "iris" echoes the app's toggle rim. */
-    --ns-gradient-iris: linear-gradient(135deg, #b8b0ff 0%, #7c4dff 48%, #00e5ff 130%);
-    --ns-gradient-brand: linear-gradient(135deg, #7c4dff 0%, #4a2a9e 100%);
-    /* Hairline that fades at both ends — for borderless dividers. */
-    --ns-hairline: linear-gradient(
-        180deg,
-        transparent,
-        rgb(124 77 255 / 32%) 30%,
-        rgb(124 77 255 / 32%) 70%,
-        transparent
-    );
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-md: 1rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.75rem;
+    --text-2xl: 2.5rem;
+    --text-display: clamp(3rem, 10vw, 7rem);
+    --text-display-small: clamp(2.5rem, 6vw, 4.75rem);
 
-    --ns-radius-sm: 8px;
-    --ns-radius-md: 12px;
-    --ns-radius-lg: 16px;
-    --ns-radius-pill: 999px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-instant: 100ms;
+    --dur-short: 180ms;
+    --dur-medium: 280ms;
 
-    --ns-shell: min(1100px, calc(100vw - 40px));
-    --ns-header-height: 64px;
+    --radius-control: 0.5rem;
+    --radius-panel: 1.25rem;
+    --radius-round: 50%;
+    --rule-thin: 1px;
+    --shell-max: 72rem;
+    --measure-copy: 68ch;
 
-    --ns-shadow-card: 0 24px 80px rgb(0 0 0 / 35%);
-    --ns-shadow-glow: 0 0 80px rgb(124 77 255 / 18%);
+    /* Compatibility aliases for the pre-existing app-toggle rendering module. */
+    --ns-bg: var(--color-paper);
+    --ns-bg-elevated: var(--color-paper-2);
+    --ns-bg-inset: var(--color-paper-inset);
+    --ns-border: var(--color-rule);
+    --ns-border-soft: var(--color-rule-2);
+    --ns-text: var(--color-ink);
+    --ns-text-muted: var(--color-muted);
+    --ns-text-subtle: var(--color-neutral);
+    --ns-text-faint: var(--color-neutral);
+    --ns-accent: var(--color-state-never);
+    --ns-accent-soft: var(--color-state-never-soft);
+    --ns-accent-code: var(--color-state-never-soft);
+    --ns-brand: var(--color-state-never);
+    --ns-cyan: var(--color-state-never-cool);
+    --ns-radius-sm: var(--radius-control);
+    --ns-radius-md: var(--radius-control);
+    --ns-radius-lg: var(--radius-panel);
+    --ns-radius-pill: var(--radius-control);
+    --ns-shell: min(var(--shell-max), calc(100% - 2 * var(--space-lg)));
+    --ns-header-height: 4rem;
 }

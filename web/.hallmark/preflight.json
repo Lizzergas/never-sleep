@@ -1,0 +1,15 @@
+{
+  "date": "2026-07-26",
+  "font_stack": "Inter from Google Fonts; replaced with Sora display plus Inter body",
+  "palette": "Existing dark hex token set; migrated to semantic OKLCH tokens",
+  "motion": "Motion-cut project; no general motion library",
+  "spacing": "Existing ad hoc values; migrated to a named 4-point scale",
+  "framework": "Astro static site with React islands",
+  "preserve": [
+    "Astro route ownership",
+    "branded Paper shader backdrop",
+    "interactive AppToggle island",
+    "official Google Play badge",
+    "privacy policy meaning and URL"
+  ]
+}

@@ -1,8 +1,6 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
 import Button from "../components/ui/Button.astro";
-import Card from "../components/ui/Card.astro";
-import Kicker from "../components/ui/Kicker.astro";
 ---
 
 <SiteLayout
@@ -10,14 +8,13 @@ import Kicker from "../components/ui/Kicker.astro";
     description="How Never Sleep handles permissions, local settings, and Google AdMob advertising."
 >
     <article class="doc">
-        <Kicker>Legal</Kicker>
         <h1>Privacy Policy</h1>
         <p class="lede">Last updated: July 9, 2026</p>
         <div class="actions doc-actions">
             <Button href="/">Back to home</Button>
         </div>
 
-        <Card>
+        <div class="doc__body">
             <section>
                 <h2>Overview</h2>
                 <p>
@@ -93,6 +90,6 @@ import Kicker from "../components/ui/Kicker.astro";
                     developer through your Play Store listing support channel.
                 </p>
             </section>
-        </Card>
+        </div>
     </article>
 </SiteLayout>

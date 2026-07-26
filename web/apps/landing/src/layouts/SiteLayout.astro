@@ -2,19 +2,22 @@
 import { ClientRouter } from "astro:transitions";
 import { HeroBackdrop } from "../components/HeroBackdrop";
 import "../styles/site.css";
+import "../styles/hallmark.css";
 
 interface Props {
     title: string;
     description?: string;
-    showShader?: boolean;
     currentPath?: string;
+    showShader?: boolean;
+    showHeader?: boolean;
 }
 
 const {
     title,
     description = "Never Sleep — keep your Android screen awake with one tap.",
-    showShader = false,
     currentPath = Astro.url.pathname,
+    showShader = false,
+    showHeader = true,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://neversleep.app");
@@ -44,35 +47,42 @@ function navCurrent(href: string) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@500;600;700&display=swap"
             rel="stylesheet"
         />
         <ClientRouter />
     </head>
     <body>
         {showShader ? <HeroBackdrop client:only="react" /> : null}
-        <header class="site-header">
-            <div class="site-header__inner">
-                <a class="brand" href="/">
-                    <img src="/icon-512.png" alt="" width="28" height="28" />
-                    Never Sleep
-                </a>
-                <nav aria-label="Site">
-                    <a href="/" aria-current={navCurrent("/")}>Home</a>
-                    <a href="/privacy" aria-current={navCurrent("/privacy")}>Privacy</a>
-                </nav>
-            </div>
-        </header>
-        <main class:list={["shell", !showShader && "shell--tight"]}>
+        {
+            showHeader ? (
+                <header class="site-header">
+                    <div class="site-header__inner">
+                        <a class="brand" href="/">
+                            <img src="/icon-512.png" alt="" width="28" height="28" />
+                            Never Sleep
+                        </a>
+                        <nav aria-label="Site">
+                            <a href="/privacy" aria-current={navCurrent("/privacy")}>
+                                Privacy
+                            </a>
+                        </nav>
+                    </div>
+                </header>
+            ) : null
+        }
+        <main class="shell">
             <slot />
         </main>
         <footer class="site-footer">
-            <p>© {new Date().getFullYear()} Never Sleep.</p>
-            <p>
+            <p class="site-footer__statement">Your screen stays awake only when you want it to.</p>
+            <div class="site-footer__meta">
+                <span>© {new Date().getFullYear()} Never Sleep.</span>
                 <a href="/privacy">Privacy policy</a>
-                ·
-                <a href="https://play.google.com/store/apps/details?id=com.lizz.neversleep">Google Play</a>
-            </p>
+                <a href="https://play.google.com/store/apps/details?id=com.lizz.neversleep">
+                    Google Play
+                </a>
+            </div>
         </footer>
     </body>
 </html>

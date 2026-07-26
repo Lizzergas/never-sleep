@@ -1,128 +1,81 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
-import Button from "../components/ui/Button.astro";
 import GooglePlayBadge from "../components/ui/GooglePlayBadge.astro";
-import SectionHeading from "../components/ui/SectionHeading.astro";
 import AppToggleMock from "../components/AppToggleMock.astro";
 
 const description =
     "Prevent your screen from turning off due to inactivity. One tap to enable screen lock and you are good to go!";
 ---
 
-<SiteLayout showShader={true} title="Never Sleep — Android screen timeout utility" description={description}>
-    <section class="hero" aria-labelledby="page-title">
-        <div class="hero__copy">
+<SiteLayout
+    title="Never Sleep — Android screen timeout utility"
+    description={description}
+    showShader={true}
+    showHeader={false}
+>
+    <section class="workbench-intro" aria-labelledby="page-title">
+        <div class="workbench-intro__copy">
+            <p class="product-kind">Android screen timeout utility</p>
             <h1 id="page-title">Never Sleep</h1>
             <p class="lede">{description}</p>
             <div class="actions" aria-label="Primary links">
                 <GooglePlayBadge />
-                <Button href="/privacy" variant="secondary">Privacy policy</Button>
+                <a class="text-link" href="/privacy">Read the privacy policy</a>
             </div>
         </div>
 
         <AppToggleMock aria-label="Interactive app preview" />
     </section>
 
-    <section aria-labelledby="features-title">
-        <SectionHeading
-            id="features-title"
-            title="Built for quick control"
-            description="Three ways to toggle — same simple idea: your screen stays awake only when you want it to."
-        />
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-card__icon" aria-hidden="true">
-                    <svg viewBox="0 0 48 48" fill="none">
-                        <defs>
-                            <linearGradient id="ic-tap" x1="0" y1="0" x2="48" y2="48">
-                                <stop offset="0" stop-color="#b8b0ff"></stop>
-                                <stop offset="0.55" stop-color="#7c4dff"></stop>
-                                <stop offset="1" stop-color="#00e5ff"></stop>
-                            </linearGradient>
-                        </defs>
-                        <path
-                            d="M24 10 V22"
-                            stroke="url(#ic-tap)"
-                            stroke-width="2.6"
-                            stroke-linecap="round"></path>
-                        <path
-                            d="M16.5 17 A11 11 0 1 0 31.5 17"
-                            stroke="url(#ic-tap)"
-                            stroke-width="2.6"
-                            stroke-linecap="round"></path>
-                    </svg>
-                </div>
-                <h3>One-tap toggle</h3>
-                <p>A large, clear button switches between normal and never-sleep mode instantly.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-card__icon" aria-hidden="true">
-                    <svg viewBox="0 0 48 48" fill="none">
-                        <defs>
-                            <linearGradient id="ic-tile" x1="0" y1="0" x2="48" y2="48">
-                                <stop offset="0" stop-color="#b8b0ff"></stop>
-                                <stop offset="0.55" stop-color="#7c4dff"></stop>
-                                <stop offset="1" stop-color="#00e5ff"></stop>
-                            </linearGradient>
-                        </defs>
-                        <rect
-                            x="11"
-                            y="11"
-                            width="26"
-                            height="26"
-                            rx="8"
-                            stroke="url(#ic-tile)"
-                            stroke-width="2.6"></rect>
-                        <circle cx="24" cy="24" r="4.2" fill="url(#ic-tile)"></circle>
-                    </svg>
-                </div>
-                <h3>Quick Settings tile</h3>
-                <p>Toggle from the shade — add the tile once, no need to open the app.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-card__icon" aria-hidden="true">
-                    <svg viewBox="0 0 48 48" fill="none">
-                        <defs>
-                            <linearGradient id="ic-widget" x1="0" y1="0" x2="48" y2="48">
-                                <stop offset="0" stop-color="#b8b0ff"></stop>
-                                <stop offset="0.55" stop-color="#7c4dff"></stop>
-                                <stop offset="1" stop-color="#00e5ff"></stop>
-                            </linearGradient>
-                        </defs>
-                        <rect x="13" y="13" width="9" height="9" rx="2.5" fill="url(#ic-widget)"></rect>
-                        <rect
-                            x="26"
-                            y="13"
-                            width="9"
-                            height="9"
-                            rx="2.5"
-                            stroke="url(#ic-widget)"
-                            stroke-width="2.4"></rect>
-                        <rect
-                            x="13"
-                            y="26"
-                            width="9"
-                            height="9"
-                            rx="2.5"
-                            stroke="url(#ic-widget)"
-                            stroke-width="2.4"></rect>
-                        <rect
-                            x="26"
-                            y="26"
-                            width="9"
-                            height="9"
-                            rx="2.5"
-                            stroke="url(#ic-widget)"
-                            stroke-width="2.4"></rect>
-                    </svg>
-                </div>
-                <h3>Home-screen widget</h3>
-                <p>A minimal 1×1 widget for instant access from your launcher.</p>
-            </div>
+    <section class="state-ledger" aria-labelledby="states-title">
+        <div class="state-ledger__intro">
+            <h2 id="states-title">Two states. One setting.</h2>
+            <p>Switching back to Normal restores the timeout the device used before Never mode.</p>
         </div>
+        <dl class="state-ledger__rows">
+            <div data-state="normal">
+                <dt>Normal</dt>
+                <dd>Uses Android’s system screen timeout.</dd>
+            </div>
+            <div data-state="never">
+                <dt>Never</dt>
+                <dd>Keeps the screen awake until you switch back.</dd>
+            </div>
+        </dl>
     </section>
 
-    <section class="cta-band cta-band--download" aria-label="Download">
+    <section class="control-map" aria-labelledby="controls-title">
+        <header>
+            <h2 id="controls-title">Built for quick control</h2>
+            <p>Three ways to toggle — same simple idea: your screen stays awake only when you want it to.</p>
+        </header>
+        <ol class="control-list">
+            <li>
+                <span>App</span>
+                <div>
+                    <h3>One-tap toggle</h3>
+                    <p>A large, clear button switches between Normal and Never mode.</p>
+                </div>
+            </li>
+            <li>
+                <span>Shade</span>
+                <div>
+                    <h3>Quick Settings tile</h3>
+                    <p>Add the tile once, then toggle without opening the app.</p>
+                </div>
+            </li>
+            <li>
+                <span>Home</span>
+                <div>
+                    <h3>1×1 widget</h3>
+                    <p>Keep the same control within reach on your launcher.</p>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <section class="download-close" aria-label="Download Never Sleep">
+        <p>Never Sleep for Android</p>
         <GooglePlayBadge large />
     </section>
 </SiteLayout>

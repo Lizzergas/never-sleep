@@ -8,15 +8,10 @@ interface Props {
 const { "aria-label": ariaLabel = "App preview" } = Astro.props;
 ---
 
-<div class="preview-panel" aria-label={ariaLabel}>
-    <div class="preview-header">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
+<figure class="workbench-preview" aria-label={ariaLabel}>
     <div class="toggle-stage">
         <p class="toggle-stage__title">never sleep</p>
         <AppToggle client:visible />
-        <p class="toggle-stage__caption">Tap to toggle</p>
     </div>
-</div>
+    <figcaption>Tap the control to compare Normal and Never.</figcaption>
+</figure>

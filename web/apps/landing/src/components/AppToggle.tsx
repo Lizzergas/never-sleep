@@ -102,7 +102,11 @@ export function AppToggle({ defaultMode = "never" }: Props) {
             type="button"
             role="switch"
             aria-checked={mode === "never"}
-            aria-label="Never Sleep mode — keep the screen awake"
+            aria-label={
+                mode === "never"
+                    ? "Switch to Normal mode and restore the system timeout"
+                    : "Switch to Never mode and keep the screen awake"
+            }
             className="app-toggle"
             data-mode={mode}
             onClick={toggle}
@@ -127,14 +131,14 @@ function MoonIcon() {
         <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">
             <defs>
                 <radialGradient id="ns-moon" cx="38%" cy="42%" r="70%">
-                    <stop offset="0%" stopColor="#e8f4ff" />
-                    <stop offset="45%" stopColor="#80d4ff" />
-                    <stop offset="80%" stopColor="#7c4dff" />
-                    <stop offset="100%" stopColor="#4a2080" />
+                    <stop offset="0%" stopColor="var(--color-ink)" />
+                    <stop offset="45%" stopColor="var(--color-state-never-cool)" />
+                    <stop offset="80%" stopColor="var(--color-state-never)" />
+                    <stop offset="100%" stopColor="var(--color-toggle-never-core)" />
                 </radialGradient>
                 <mask id="ns-crescent">
-                    <circle cx="50" cy="50" r="26" fill="#fff" />
-                    <circle cx="62" cy="44" r="23" fill="#000" />
+                    <circle cx="50" cy="50" r="26" fill="white" />
+                    <circle cx="62" cy="44" r="23" fill="black" />
                 </mask>
             </defs>
             <circle cx="50" cy="50" r="26" fill="url(#ns-moon)" mask="url(#ns-crescent)" />
@@ -148,12 +152,12 @@ function SunIcon() {
         <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">
             <defs>
                 <radialGradient id="ns-sun" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#fffde7" />
-                    <stop offset="60%" stopColor="#ffb300" />
-                    <stop offset="100%" stopColor="#ff8f00" />
+                    <stop offset="0%" stopColor="var(--color-ink)" />
+                    <stop offset="60%" stopColor="var(--color-state-normal-soft)" />
+                    <stop offset="100%" stopColor="var(--color-state-normal)" />
                 </radialGradient>
             </defs>
-            <g stroke="#ffcc80" strokeWidth="2.4" strokeLinecap="round">
+            <g stroke="var(--color-state-normal-soft)" strokeWidth="2.4" strokeLinecap="round">
                 {rays.map((deg) => (
                     <line
                         key={deg}
