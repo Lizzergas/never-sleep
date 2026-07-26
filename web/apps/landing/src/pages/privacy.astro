@@ -9,7 +9,7 @@ import Button from "../components/ui/Button.astro";
 >
     <article class="doc">
         <h1>Privacy Policy</h1>
-        <p class="lede">Last updated: July 9, 2026</p>
+        <p class="lede">Last updated: July 26, 2026</p>
         <div class="actions doc-actions">
             <Button href="/">Back to home</Button>
         </div>
@@ -36,9 +36,16 @@ import Button from "../components/ui/Button.astro";
                         disabled, whether Never Sleep was last enabled).
                     </li>
                     <li>
-                        <strong>Advertising data</strong> — If ads are enabled, Google AdMob may collect
-                        device identifiers and usage signals to serve and measure ads. See
-                        <a href="https://policies.google.com/privacy">Google’s Privacy Policy</a>.
+                        <strong>Advertising data</strong> — If you leave ads enabled and the applicable
+                        consent flow permits ad requests, the Google Mobile Ads SDK may automatically
+                        collect and share your IP address (which may be used to estimate general location),
+                        interactions with ads, diagnostic information, and device or account identifiers.
+                        Google uses this information for advertising, analytics, and fraud prevention. See
+                        <a href="https://policies.google.com/privacy">Google’s Privacy Policy</a>
+                        and
+                        <a href="https://developers.google.com/admob/android/privacy/play-data-disclosure"
+                            >Google Mobile Ads data disclosure</a
+                        >.
                     </li>
                 </ul>
             </section>
@@ -52,6 +59,7 @@ import Button from "../components/ui/Button.astro";
                         We do not upload your screen-timeout preference to our servers — it stays on your
                         device.
                     </li>
+                    <li>We do not request your precise location, contacts, photos, or files.</li>
                 </ul>
             </section>
 
@@ -64,6 +72,16 @@ import Button from "../components/ui/Button.astro";
                 <p>
                     <strong>Internet &amp; network state</strong> — Used only when banner ads are enabled, so
                     AdMob can load ads. You can disable ads in the in-app Settings menu.
+                </p>
+            </section>
+
+            <section>
+                <h2>Your choices</h2>
+                <p>
+                    You can turn ads off at any time in Never Sleep → Settings. Where required, Settings
+                    also includes Privacy choices so you can review or change the consent choices presented
+                    by Google. You can review or revoke Modify system settings access in Android Settings
+                    without uninstalling the app.
                 </p>
             </section>
 
