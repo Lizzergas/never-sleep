@@ -1,22 +1,21 @@
 package com.lizz.neversleep
 
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,24 +24,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /**
  * Expandable disclaimer as a self-contained scrollable item.
- * Collapsed: just header (small fixed height)
- * Expanded: animates to known height (180.dp), content scrolls internally.
- * This way the main screen (button position) does not shift/"expand".
+ * The header uses a minimum rather than fixed height, so it can grow with font scale.
+ * Expanded copy is bounded and scrollable to keep the primary control usable.
  */
 @Composable
 internal fun DisclaimerSection(
@@ -52,62 +50,51 @@ internal fun DisclaimerSection(
     val uriHandler = LocalUriHandler.current
     var expanded by remember { mutableStateOf(false) }
 
-    val collapsedHeight = 52.dp
-    val expandedHeight = 180.dp // predetermined size - enough to read the text with scrolling
-
-    val targetHeight by animateDpAsState(
-        targetValue = if (expanded) expandedHeight else collapsedHeight,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "disclaimerHeight",
-    )
-
     val arrowRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "arrowRotation",
     )
 
-    Column(
-        modifier = modifier
-            .height(targetHeight)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
-                expanded = !expanded
-            }.background(Color(0xFF1A1A2E).copy(alpha = 0.5f))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+    Surface(
+        modifier = modifier,
+        color = NeverSleepColors.Panel,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     ) {
-        // Header always visible
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                "About permissions & compliance",
-                color = Color.White.copy(alpha = 0.6f),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                "▼",
-                color = Color.White.copy(alpha = 0.5f),
-                fontSize = 10.sp,
-                modifier = Modifier.graphicsLayer {
-                    rotationZ = arrowRotation
-                },
-            )
-        }
-
-        // Scrollable text - only when expanded, takes the remaining predetermined space
-        if (expanded) {
-            Spacer(Modifier.height(6.dp))
-            Column(
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                    .fillMaxWidth()
+                    .heightIn(min = 52.dp)
+                    .semantics {
+                        stateDescription = if (expanded) "Expanded" else "Collapsed"
+                    }.clickable(role = Role.Button) {
+                        expanded = !expanded
+                    }.padding(
+                        horizontal = NeverSleepSpacing.Md,
+                        vertical = NeverSleepSpacing.Xs,
+                    ),
             ) {
+                Text(
+                    text = "About permissions & compliance",
+                    color = NeverSleepColors.ContentMuted,
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 2,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = "▼",
+                    color = NeverSleepColors.ContentSubtle,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.graphicsLayer {
+                        rotationZ = arrowRotation
+                    },
+                )
+            }
+
+            if (expanded) {
+                Spacer(Modifier.height(NeverSleepSpacing.Xs))
                 val disclaimerText = buildAnnotatedString {
                     append(
                         "This app uses the 'Modify system settings' permission to control screen timeout. " +
@@ -121,7 +108,7 @@ internal fun DisclaimerSection(
                     pushStringAnnotation(tag = "privacy", annotation = privacyPolicyUrl)
                     withStyle(
                         SpanStyle(
-                            color = Color(0xFF9E8CFF),
+                            color = NeverSleepColors.NeverAccent,
                             textDecoration = TextDecoration.Underline,
                         ),
                     ) {
@@ -133,10 +120,19 @@ internal fun DisclaimerSection(
                 ClickableText(
                     text = disclaimerText,
                     style = TextStyle(
-                        color = Color.White.copy(alpha = 0.55f),
-                        fontSize = 10.sp,
+                        color = NeverSleepColors.ContentMuted,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
                         textAlign = TextAlign.Start,
                     ),
+                    modifier = Modifier
+                        .heightIn(max = 220.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(
+                            start = NeverSleepSpacing.Md,
+                            end = NeverSleepSpacing.Md,
+                            bottom = NeverSleepSpacing.Md,
+                        ),
                     onClick = { offset ->
                         disclaimerText
                             .getStringAnnotations("privacy", offset, offset)

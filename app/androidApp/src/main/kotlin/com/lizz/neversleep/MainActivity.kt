@@ -5,11 +5,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import android.graphics.Color as AndroidColor
 
 /**
  * Thin adapter: owns Activity lifecycle and the screen's mutable state, wires taps to
@@ -27,13 +29,17 @@ class MainActivity : ComponentActivity() {
 
     // Desired state remembered while we prompt for the write-settings permission.
     private var pendingDesired: Boolean? = null
+    private val showWriteSettingsExplanationState = mutableStateOf(false)
 
     // Ads visibility (persisted; default true so the stub ad shows unless the user disables it).
     private val showAdsState = mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
+        )
 
         isEnabledState.value = NeverSleepController.isEnabled(this)
         showAdsState.value = NeverSleepController.areAdsEnabled(this)
@@ -55,6 +61,9 @@ class MainActivity : ComponentActivity() {
             NeverSleepTheme {
                 val isEnabled by remember { isEnabledState }
                 val showAds by remember { showAdsState }
+                val showWriteSettingsExplanation by remember {
+                    showWriteSettingsExplanationState
+                }
 
                 // Read the latest state at tap time so the flip is reliable even after
                 // resume/minimize. The UI follows the user's intent immediately; the system
@@ -69,9 +78,9 @@ class MainActivity : ComponentActivity() {
                         }
                         isEnabledState.value = desired
                     } else {
-                        // No permission yet: remember intent, prompt, auto-apply on resume.
+                        // Explain the special permission before handing off to Android Settings.
                         pendingDesired = desired
-                        openWriteSettingsPermissionScreen()
+                        showWriteSettingsExplanationState.value = true
                     }
                 }
 
@@ -87,6 +96,19 @@ class MainActivity : ComponentActivity() {
                         NeverSleepController.setAdsEnabled(this, enabled)
                     },
                 )
+
+                if (showWriteSettingsExplanation) {
+                    WriteSettingsPermissionDialog(
+                        onContinue = {
+                            showWriteSettingsExplanationState.value = false
+                            openWriteSettingsPermissionScreen()
+                        },
+                        onDismiss = {
+                            pendingDesired = null
+                            showWriteSettingsExplanationState.value = false
+                        },
+                    )
+                }
             }
         }
     }

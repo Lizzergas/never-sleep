@@ -1,16 +1,21 @@
 package com.lizz.neversleep
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,9 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /**
  * The Never Sleep home screen: morphing background, centred title + toggle, and the
@@ -39,11 +41,6 @@ internal fun NeverSleepScreen(
     onSetShowAds: (Boolean) -> Unit,
 ) {
     var showSettingsDialog by remember { mutableStateOf(false) }
-    val bottomChromePadding = when {
-        screenshotMode -> 0.dp
-        showAds -> 230.dp
-        else -> 180.dp
-    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -53,56 +50,43 @@ internal fun NeverSleepScreen(
             // Full-screen background that morphs Normal↔Never with a windy swoosh.
             NeverSleepBackground(isEnabled = isEnabled, modifier = Modifier.fillMaxSize())
 
-            if (!screenshotMode) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = innerPadding.calculateTopPadding())
-                        .padding(12.dp),
-                ) {
-                    IconButton(onClick = { showSettingsDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
-                            tint = Color.White.copy(alpha = 0.65f),
-                        )
-                    }
-                }
-            }
-
-            // Main content: title + button always centered.
-            // Apply top inset so it doesn't sit under the status bar.
-            // Keep bottom reserve for the disclaimer + optional ad (these live in the bottom column).
             Column(
                 modifier = Modifier
-                    .align(Alignment.Center)
+                    .fillMaxSize()
                     .padding(top = innerPadding.calculateTopPadding())
-                    .padding(bottom = bottomChromePadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .padding(bottom = innerPadding.calculateBottomPadding()),
             ) {
-                Text(
-                    text = "never sleep",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White.copy(alpha = 0.6f),
-                    letterSpacing = 4.sp,
-                )
-
-                Spacer(Modifier.height(48.dp))
-
-                NeverSleepToggleButton(
-                    isEnabled = isEnabled,
-                    onToggle = onToggle,
-                )
-            }
-
-            if (!screenshotMode) {
-                Column(
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = innerPadding.calculateBottomPadding())
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .weight(1f),
                 ) {
+                    AdaptivePrimaryContent(
+                        isEnabled = isEnabled,
+                        onToggle = onToggle,
+                    )
+
+                    if (!screenshotMode) {
+                        IconButton(
+                            onClick = { showSettingsDialog = true },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(NeverSleepSpacing.Sm)
+                                .sizeIn(
+                                    minWidth = NeverSleepDimensions.TouchTarget,
+                                    minHeight = NeverSleepDimensions.TouchTarget,
+                                ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = NeverSleepColors.ContentMuted,
+                            )
+                        }
+                    }
+                }
+
+                if (!screenshotMode) {
                     DisclaimerSection(
                         modifier = Modifier.fillMaxWidth(),
                         privacyPolicyUrl = BuildConfig.PRIVACY_POLICY_URL,
@@ -111,7 +95,7 @@ internal fun NeverSleepScreen(
                         AdBanner(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp),
+                                .height(NeverSleepDimensions.AdHeight),
                         )
                     }
                 }
@@ -126,4 +110,69 @@ internal fun NeverSleepScreen(
             onDismiss = { showSettingsDialog = false },
         )
     }
+}
+
+@Composable
+private fun AdaptivePrimaryContent(
+    isEnabled: Boolean,
+    onToggle: () -> Unit,
+) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val isLandscape = maxWidth > maxHeight
+        val maximum = if (isLandscape) {
+            NeverSleepDimensions.ToggleLandscapeMax
+        } else {
+            NeverSleepDimensions.ToggleMax
+        }
+        val widthBound = maxWidth * if (isLandscape) 0.34f else 0.64f
+        val heightBound = maxHeight * if (isLandscape) 0.66f else 0.52f
+        val controlSize = minOf(maximum, widthBound, heightBound)
+            .coerceAtLeast(NeverSleepDimensions.ToggleMinimum)
+
+        if (isLandscape) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        horizontal = NeverSleepSpacing.Xl,
+                        vertical = NeverSleepSpacing.Sm,
+                    ),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                BrandLabel()
+                NeverSleepToggleButton(
+                    isEnabled = isEnabled,
+                    onToggle = onToggle,
+                    controlSize = controlSize,
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = NeverSleepSpacing.Lg),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                BrandLabel()
+                Spacer(Modifier.height(NeverSleepSpacing.Xl))
+                NeverSleepToggleButton(
+                    isEnabled = isEnabled,
+                    onToggle = onToggle,
+                    controlSize = controlSize,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BrandLabel() {
+    Text(
+        text = "never sleep",
+        style = MaterialTheme.typography.titleLarge,
+        color = NeverSleepColors.ContentMuted,
+        maxLines = 1,
+    )
 }

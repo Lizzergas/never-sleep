@@ -11,20 +11,20 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,9 +38,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.PI
@@ -93,9 +97,12 @@ fun NeverSleepToggleButton(
     isEnabled: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
+    controlSize: Dp = NeverSleepDimensions.ToggleMax,
 ) {
     val haptic = LocalHapticFeedback.current
-    var isPressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val indication = LocalIndication.current
 
     val glowStrength by animateFloatAsState(
         targetValue = if (isEnabled) 1f else 0.45f,
@@ -128,15 +135,19 @@ fun NeverSleepToggleButton(
 
     Box(
         modifier = modifier
-            .size(210.dp)
+            .size(controlSize)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             },
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(modifier = Modifier.size(240.dp)) {
-            val bloomColor = if (isEnabled) Color(0xFF7C4DFF) else Color(0xFF4A6080)
+        Canvas(modifier = Modifier.size(controlSize * 1.14f)) {
+            val bloomColor = if (isEnabled) {
+                NeverSleepColors.NeverAmbient
+            } else {
+                NeverSleepColors.NormalAmbient
+            }
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
@@ -154,22 +165,26 @@ fun NeverSleepToggleButton(
 
         Box(
             modifier = Modifier
-                .size(210.dp)
+                .size(controlSize)
                 .clip(CircleShape)
-                .pointerInput(onToggle) {
-                    detectTapGestures(
-                        onPress = {
-                            isPressed = true
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            tryAwaitRelease()
-                            isPressed = false
-                        },
-                        onTap = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onToggle()
-                        },
-                    )
-                },
+                .semantics {
+                    contentDescription = "Never Sleep"
+                    stateDescription = if (isEnabled) {
+                        "Never mode. Screen stays awake."
+                    } else {
+                        "Normal mode. System timeout is restored."
+                    }
+                }.toggleable(
+                    value = isEnabled,
+                    interactionSource = interactionSource,
+                    indication = indication,
+                    enabled = true,
+                    role = Role.Switch,
+                    onValueChange = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onToggle()
+                    },
+                ),
             contentAlignment = Alignment.Center,
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -203,17 +218,17 @@ fun NeverSleepToggleButton(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = controlSize * 0.16f),
             ) {
-                Spacer(Modifier.height(118.dp))
                 Text(
                     text = if (isEnabled) "NEVER" else "NORMAL",
-                    color = Color.White.copy(alpha = 0.92f),
-                    fontSize = 14.sp,
+                    color = NeverSleepColors.Content,
+                    fontSize = if (controlSize < 180.dp) 12.sp else 14.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 2.sp,
                 )
-                Spacer(Modifier.height(36.dp))
             }
         }
     }
