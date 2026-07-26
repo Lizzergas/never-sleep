@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val EXTRA_SCREENSHOT_MODE = "screenshot_mode"
         const val EXTRA_CAPTURE_NEVER = "capture_never"
+        const val EXTRA_REQUEST_WRITE_SETTINGS = "request_write_settings"
     }
 
     // Class-level state so onResume() can refresh it when the app is minimized/resumed.
@@ -33,6 +34,8 @@ class MainActivity : ComponentActivity() {
 
     // Ads visibility (persisted; default true so the stub ad shows unless the user disables it).
     private val showAdsState = mutableStateOf(true)
+    private val canWriteSettingsState = mutableStateOf(false)
+    private lateinit var adConsentManager: AdConsentManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,10 +46,26 @@ class MainActivity : ComponentActivity() {
 
         isEnabledState.value = NeverSleepController.isEnabled(this)
         showAdsState.value = NeverSleepController.areAdsEnabled(this)
+        canWriteSettingsState.value = Settings.System.canWrite(this)
 
-        if (intent.getBooleanExtra(EXTRA_SCREENSHOT_MODE, false) &&
-            Settings.System.canWrite(this)
+        val screenshotMode = intent.getBooleanExtra(EXTRA_SCREENSHOT_MODE, false)
+        val neverSleepApplication = application as NeverSleepApplication
+        adConsentManager = AdConsentManager(
+            activity = this,
+            onAdsMayLoad = neverSleepApplication::initializeMobileAds,
+        )
+        if (!screenshotMode) {
+            adConsentManager.gatherConsent(requestAds = showAdsState.value)
+        }
+
+        if (intent.getBooleanExtra(EXTRA_REQUEST_WRITE_SETTINGS, false) &&
+            !Settings.System.canWrite(this)
         ) {
+            pendingDesired = true
+            showWriteSettingsExplanationState.value = true
+        }
+
+        if (screenshotMode && Settings.System.canWrite(this)) {
             val captureNever = intent.getBooleanExtra(EXTRA_CAPTURE_NEVER, false)
             if (captureNever) {
                 NeverSleepController.setNeverSleep(this)
@@ -61,6 +80,14 @@ class MainActivity : ComponentActivity() {
             NeverSleepTheme {
                 val isEnabled by remember { isEnabledState }
                 val showAds by remember { showAdsState }
+                val canWriteSettings by remember { canWriteSettingsState }
+                val canRequestAds by remember { adConsentManager.canRequestAdsState }
+                val privacyOptionsRequired by remember {
+                    adConsentManager.privacyOptionsRequiredState
+                }
+                val mobileAdsReady by remember {
+                    neverSleepApplication.mobileAdsReadyState
+                }
                 val showWriteSettingsExplanation by remember {
                     showWriteSettingsExplanationState
                 }
@@ -84,17 +111,25 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val screenshotMode = intent.getBooleanExtra(EXTRA_SCREENSHOT_MODE, false)
-
                 NeverSleepScreen(
                     isEnabled = isEnabled,
                     onToggle = onToggle,
-                    showAds = showAds && !screenshotMode,
+                    showAds = showAds,
+                    showAdBanner = showAds &&
+                        canRequestAds &&
+                        mobileAdsReady &&
+                        !screenshotMode,
+                    canWriteSettings = canWriteSettings,
+                    privacyOptionsRequired = privacyOptionsRequired,
                     screenshotMode = screenshotMode,
                     onSetShowAds = { enabled ->
                         showAdsState.value = enabled
                         NeverSleepController.setAdsEnabled(this, enabled)
+                        adConsentManager.setAdsRequested(enabled)
                     },
+                    onOpenPrivacyPolicy = ::openPrivacyPolicy,
+                    onOpenPrivacyOptions = adConsentManager::showPrivacyOptions,
+                    onOpenWriteSettings = ::openWriteSettingsPermissionScreen,
                 )
 
                 if (showWriteSettingsExplanation) {
@@ -118,6 +153,7 @@ class MainActivity : ComponentActivity() {
         // Refresh state when the app returns from background — fixes stale toggle state.
         isEnabledState.value = NeverSleepController.isEnabled(this)
         showAdsState.value = NeverSleepController.areAdsEnabled(this)
+        canWriteSettingsState.value = Settings.System.canWrite(this)
 
         // Apply a toggle that was pending on the write-settings permission grant.
         if (pendingDesired != null && Settings.System.canWrite(this)) {
@@ -138,5 +174,14 @@ class MainActivity : ComponentActivity() {
             Uri.parse("package:$packageName"),
         )
         startActivity(intent)
+    }
+
+    private fun openPrivacyPolicy() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(BuildConfig.PRIVACY_POLICY_URL),
+            ),
+        )
     }
 }

@@ -19,22 +19,23 @@ internal fun WriteSettingsPermissionDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Allow timeout changes",
+                text = "Allow screen timeout control",
                 style = MaterialTheme.typography.titleMedium,
             )
         },
         text = {
             Text(
-                text = "Never Sleep needs “Modify system settings” access to change the " +
-                    "screen-off timeout. Android will open Special app access, where you can " +
-                    "allow it. When you switch back to Normal, the app restores your previous timeout.",
+                text = "Never Sleep reads and changes your screen timeout so it can keep the " +
+                    "screen awake and restore your previous setting. The timeout value stays " +
+                    "on this device.\n\nAndroid will open Special app access, where you can " +
+                    "allow or revoke access. Keeping the screen awake can use more battery.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
         confirmButton = {
             TextButton(onClick = onContinue) {
-                Text("Continue")
+                Text("Open settings")
             }
         },
         dismissButton = {

@@ -21,6 +21,7 @@ class NeverSleepWidgetReceiver : BroadcastReceiver() {
                 // Permission issue - open main activity (user can grant from there)
                 val launchIntent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    putExtra(MainActivity.EXTRA_REQUEST_WRITE_SETTINGS, true)
                 }
                 context.startActivity(launchIntent)
             }

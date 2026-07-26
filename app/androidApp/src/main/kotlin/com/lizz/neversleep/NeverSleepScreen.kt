@@ -28,8 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 /**
- * The Never Sleep home screen: morphing background, centred title + toggle, and the
- * bottom chrome (disclaimer + optional ad). Stateless apart from the settings-dialog
+ * The Never Sleep home screen: morphing background, centred title + toggle, and an
+ * optional ad. Stateless apart from the settings-dialog
  * visibility — all app state is passed in, so it renders any (isEnabled, showAds) pair.
  */
 @Composable
@@ -37,8 +37,14 @@ internal fun NeverSleepScreen(
     onToggle: () -> Unit,
     isEnabled: Boolean,
     showAds: Boolean,
+    showAdBanner: Boolean,
+    canWriteSettings: Boolean,
+    privacyOptionsRequired: Boolean,
     screenshotMode: Boolean,
     onSetShowAds: (Boolean) -> Unit,
+    onOpenPrivacyPolicy: () -> Unit,
+    onOpenPrivacyOptions: () -> Unit,
+    onOpenWriteSettings: () -> Unit,
 ) {
     var showSettingsDialog by remember { mutableStateOf(false) }
 
@@ -86,18 +92,12 @@ internal fun NeverSleepScreen(
                     }
                 }
 
-                if (!screenshotMode) {
-                    DisclaimerSection(
-                        modifier = Modifier.fillMaxWidth(),
-                        privacyPolicyUrl = BuildConfig.PRIVACY_POLICY_URL,
+                if (!screenshotMode && showAdBanner) {
+                    AdBanner(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(NeverSleepDimensions.AdHeight),
                     )
-                    if (showAds) {
-                        AdBanner(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(NeverSleepDimensions.AdHeight),
-                        )
-                    }
                 }
             }
         }
@@ -106,7 +106,21 @@ internal fun NeverSleepScreen(
     if (showSettingsDialog && !screenshotMode) {
         SettingsDialog(
             showAds = showAds,
+            canWriteSettings = canWriteSettings,
+            privacyOptionsRequired = privacyOptionsRequired,
             onSetShowAds = onSetShowAds,
+            onOpenPrivacyPolicy = {
+                showSettingsDialog = false
+                onOpenPrivacyPolicy()
+            },
+            onOpenPrivacyOptions = {
+                showSettingsDialog = false
+                onOpenPrivacyOptions()
+            },
+            onOpenWriteSettings = {
+                showSettingsDialog = false
+                onOpenWriteSettings()
+            },
             onDismiss = { showSettingsDialog = false },
         )
     }

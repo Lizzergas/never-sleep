@@ -17,6 +17,7 @@ kotlin {
 
 dependencies {
     implementation(libs.play.services.ads)
+    implementation(libs.user.messaging.platform)
 
     // Compose for UI
     implementation(libs.compose.runtime)

@@ -55,7 +55,7 @@
         <!-- Receiver for widget clicks (to toggle without opening full app) -->
         <receiver
             android:name=".NeverSleepWidgetReceiver"
-            android:exported="true" />
+            android:exported="false" />
     </application>
 
 </manifest>

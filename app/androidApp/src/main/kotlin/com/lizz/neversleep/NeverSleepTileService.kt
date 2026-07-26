@@ -1,5 +1,6 @@
 package com.lizz.neversleep
 
+import android.content.Intent
 import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -16,12 +17,10 @@ class NeverSleepTileService : TileService() {
         val wasEnabled = NeverSleepController.isEnabled(this)
         val success = NeverSleepController.toggle(this)
         if (!success && !NeverSleepController.isEnabled(this)) {
-            // Permission missing - open the settings screen
-            val intent = android.content
-                .Intent(
-                    android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    android.net.Uri.parse("package:$packageName"),
-                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            // Explain the special access in-app before opening Android Settings.
+            val intent = Intent(this, MainActivity::class.java)
+                .putExtra(MainActivity.EXTRA_REQUEST_WRITE_SETTINGS, true)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivityAndCollapse(intent)
         }
         updateTile()
