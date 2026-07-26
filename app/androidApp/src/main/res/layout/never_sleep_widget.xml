@@ -12,6 +12,7 @@
         android:id="@+id/widget_icon"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:importantForAccessibility="no"
         android:scaleType="centerInside"
         android:src="@drawable/ic_moon" />
 

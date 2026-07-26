@@ -91,7 +91,9 @@ internal class AdConsentManager(
         consentFormCheckInFlight = true
         UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
             consentFormCheckInFlight = false
-            consentFormCheckComplete = true
+            // A transient load/show failure should be retryable if the user turns ads
+            // off and on again during this session.
+            consentFormCheckComplete = formError == null
             if (formError != null) {
                 Log.w(TAG, "Unable to present the consent form: ${formError.message}")
             }

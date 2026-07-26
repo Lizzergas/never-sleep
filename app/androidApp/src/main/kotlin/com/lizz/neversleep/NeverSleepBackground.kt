@@ -173,7 +173,7 @@ half4 main(float2 fragCoord) {
     half3 streak = mix(half3(1.0, 0.7, 0.35), half3(0.45, 0.65, 1.0), iMode);
     col = col + streak * band * flash * 0.5;
 
-    // Keep the top (status bar) and bottom (disclaimer panel) darker for legibility.
+    // Keep the top (status bar) and bottom (optional ad) darker for legibility.
     float vY = smoothstep(0.0, 0.16, uv.y) * smoothstep(1.0, 0.84, uv.y);
     col = col * mix(0.55, 1.0, vY);
 
@@ -276,7 +276,7 @@ private fun CanvasMorphBackground(
             }
         }
 
-        // Vignette top (status bar) and bottom (disclaimer panel).
+        // Vignette top (status bar) and bottom (optional ad).
         drawRect(
             brush = Brush.verticalGradient(
                 colors = listOf(Color.Black.copy(alpha = 0.45f), Color.Transparent),

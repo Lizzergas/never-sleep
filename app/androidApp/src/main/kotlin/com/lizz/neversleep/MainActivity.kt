@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_SCREENSHOT_MODE = "screenshot_mode"
         const val EXTRA_CAPTURE_NEVER = "capture_never"
         const val EXTRA_REQUEST_WRITE_SETTINGS = "request_write_settings"
+        const val EXTRA_DESIRED_ENABLED = "desired_enabled"
     }
 
     // Class-level state so onResume() can refresh it when the app is minimized/resumed.
@@ -36,6 +37,8 @@ class MainActivity : ComponentActivity() {
     private val showAdsState = mutableStateOf(true)
     private val canWriteSettingsState = mutableStateOf(false)
     private lateinit var adConsentManager: AdConsentManager
+    private var screenshotMode = false
+    private var consentGatherStarted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,21 +51,15 @@ class MainActivity : ComponentActivity() {
         showAdsState.value = NeverSleepController.areAdsEnabled(this)
         canWriteSettingsState.value = Settings.System.canWrite(this)
 
-        val screenshotMode = intent.getBooleanExtra(EXTRA_SCREENSHOT_MODE, false)
+        screenshotMode = intent.getBooleanExtra(EXTRA_SCREENSHOT_MODE, false)
         val neverSleepApplication = application as NeverSleepApplication
         adConsentManager = AdConsentManager(
             activity = this,
             onAdsMayLoad = neverSleepApplication::initializeMobileAds,
         )
-        if (!screenshotMode) {
-            adConsentManager.gatherConsent(requestAds = showAdsState.value)
-        }
 
-        if (intent.getBooleanExtra(EXTRA_REQUEST_WRITE_SETTINGS, false) &&
-            !Settings.System.canWrite(this)
-        ) {
-            pendingDesired = true
-            showWriteSettingsExplanationState.value = true
+        if (!acceptWriteSettingsRequest(intent)) {
+            gatherConsentIfNeeded()
         }
 
         if (screenshotMode && Settings.System.canWrite(this)) {
@@ -93,21 +90,15 @@ class MainActivity : ComponentActivity() {
                 }
 
                 // Read the latest state at tap time so the flip is reliable even after
-                // resume/minimize. The UI follows the user's intent immediately; the system
-                // value may be clamped by the device.
+                // resume/minimize. The UI always reflects the resulting system state.
                 val onToggle: () -> Unit = {
                     val desired = !isEnabledState.value
                     if (Settings.System.canWrite(this)) {
-                        if (desired) {
-                            NeverSleepController.setNeverSleep(this)
-                        } else {
-                            NeverSleepController.setNormal(this)
-                        }
-                        isEnabledState.value = desired
+                        setDesiredMode(desired)
+                        isEnabledState.value = NeverSleepController.isEnabled(this)
                     } else {
                         // Explain the special permission before handing off to Android Settings.
-                        pendingDesired = desired
-                        showWriteSettingsExplanationState.value = true
+                        requestWriteSettingsAccess(desired)
                     }
                 }
 
@@ -129,7 +120,13 @@ class MainActivity : ComponentActivity() {
                     },
                     onOpenPrivacyPolicy = ::openPrivacyPolicy,
                     onOpenPrivacyOptions = adConsentManager::showPrivacyOptions,
-                    onOpenWriteSettings = ::openWriteSettingsPermissionScreen,
+                    onOpenWriteSettings = {
+                        if (canWriteSettingsState.value) {
+                            openWriteSettingsPermissionScreen()
+                        } else {
+                            requestWriteSettingsAccess(desired = null)
+                        }
+                    },
                 )
 
                 if (showWriteSettingsExplanation) {
@@ -141,6 +138,8 @@ class MainActivity : ComponentActivity() {
                         onDismiss = {
                             pendingDesired = null
                             showWriteSettingsExplanationState.value = false
+                            clearWriteSettingsRequestExtras()
+                            gatherConsentIfNeeded()
                         },
                     )
                 }
@@ -157,15 +156,74 @@ class MainActivity : ComponentActivity() {
 
         // Apply a toggle that was pending on the write-settings permission grant.
         if (pendingDesired != null && Settings.System.canWrite(this)) {
-            val desired = pendingDesired!!
+            applyPendingDesired()
+        } else if (pendingDesired != null && !showWriteSettingsExplanationState.value) {
+            // The user returned without granting access. Do not re-open the rationale
+            // after a later configuration change.
             pendingDesired = null
-            if (desired) {
-                NeverSleepController.setNeverSleep(this)
-            } else {
-                NeverSleepController.setNormal(this)
-            }
-            isEnabledState.value = desired
+            clearWriteSettingsRequestExtras()
         }
+
+        if (!showWriteSettingsExplanationState.value) {
+            gatherConsentIfNeeded()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        canWriteSettingsState.value = Settings.System.canWrite(this)
+        acceptWriteSettingsRequest(intent)
+    }
+
+    private fun acceptWriteSettingsRequest(intent: Intent): Boolean {
+        if (!intent.getBooleanExtra(EXTRA_REQUEST_WRITE_SETTINGS, false)) return false
+
+        pendingDesired = intent.getBooleanExtra(EXTRA_DESIRED_ENABLED, true)
+        if (Settings.System.canWrite(this)) {
+            applyPendingDesired()
+        } else {
+            showWriteSettingsExplanationState.value = true
+        }
+        return true
+    }
+
+    private fun applyPendingDesired() {
+        val desired = pendingDesired ?: return
+        pendingDesired = null
+        setDesiredMode(desired)
+        isEnabledState.value = NeverSleepController.isEnabled(this)
+        clearWriteSettingsRequestExtras()
+    }
+
+    private fun requestWriteSettingsAccess(desired: Boolean?) {
+        pendingDesired = desired
+        if (desired != null) {
+            // Keep the requested transition across activity recreation or process death
+            // while Android's Special app access screen is in the foreground.
+            intent.putExtra(EXTRA_REQUEST_WRITE_SETTINGS, true)
+            intent.putExtra(EXTRA_DESIRED_ENABLED, desired)
+        }
+        showWriteSettingsExplanationState.value = true
+    }
+
+    private fun setDesiredMode(desired: Boolean) {
+        if (desired) {
+            NeverSleepController.setNeverSleep(this)
+        } else {
+            NeverSleepController.setNormal(this)
+        }
+    }
+
+    private fun clearWriteSettingsRequestExtras() {
+        intent.removeExtra(EXTRA_REQUEST_WRITE_SETTINGS)
+        intent.removeExtra(EXTRA_DESIRED_ENABLED)
+    }
+
+    private fun gatherConsentIfNeeded() {
+        if (screenshotMode || consentGatherStarted) return
+        consentGatherStarted = true
+        adConsentManager.gatherConsent(requestAds = showAdsState.value)
     }
 
     private fun openWriteSettingsPermissionScreen() {

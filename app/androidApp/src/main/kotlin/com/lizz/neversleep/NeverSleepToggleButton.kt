@@ -2,6 +2,7 @@ package com.lizz.neversleep
 
 import android.graphics.RuntimeShader
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -189,15 +190,13 @@ fun NeverSleepToggleButton(
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val radius = size.minDimension / 2f
-                if (faceShader != null) {
-                    faceShader.setFloatUniform("iResolution", size.width, size.height)
-                    faceShader.setFloatUniform("iTime", shaderTime)
-                    faceShader.setFloatUniform("iGlow", glowStrength)
-                    faceShader.setFloatUniform("iNeverMode", if (isEnabled) 1f else 0f)
-                    drawCircle(
-                        brush = ShaderBrush(faceShader),
+                if (Build.VERSION.SDK_INT >= 33 && faceShader != null) {
+                    drawToggleFaceShader(
+                        shader = faceShader,
+                        shaderTime = shaderTime,
+                        glowStrength = glowStrength,
+                        isEnabled = isEnabled,
                         radius = radius,
-                        center = center,
                     )
                 } else {
                     drawToggleFaceFallback(
@@ -232,6 +231,25 @@ fun NeverSleepToggleButton(
             }
         }
     }
+}
+
+@RequiresApi(33)
+private fun DrawScope.drawToggleFaceShader(
+    shader: RuntimeShader,
+    shaderTime: Float,
+    glowStrength: Float,
+    isEnabled: Boolean,
+    radius: Float,
+) {
+    shader.setFloatUniform("iResolution", size.width, size.height)
+    shader.setFloatUniform("iTime", shaderTime)
+    shader.setFloatUniform("iGlow", glowStrength)
+    shader.setFloatUniform("iNeverMode", if (isEnabled) 1f else 0f)
+    drawCircle(
+        brush = ShaderBrush(shader),
+        radius = radius,
+        center = center,
+    )
 }
 
 private fun DrawScope.drawToggleFaceFallback(

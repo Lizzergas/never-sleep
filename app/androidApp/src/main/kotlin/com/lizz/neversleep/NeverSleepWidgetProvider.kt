@@ -27,6 +27,16 @@ class NeverSleepWidgetProvider : AppWidgetProvider() {
             R.id.widget_icon,
             if (enabled) R.drawable.ic_moon else R.drawable.ic_sun,
         )
+        views.setContentDescription(
+            R.id.widget_root,
+            context.getString(
+                if (enabled) {
+                    R.string.widget_disable_description
+                } else {
+                    R.string.widget_enable_description
+                },
+            ),
+        )
         // Click handled by the receiver
         val intent = android.content.Intent(context, NeverSleepWidgetReceiver::class.java).apply {
             action = NeverSleepWidgetReceiver.ACTION_TOGGLE
