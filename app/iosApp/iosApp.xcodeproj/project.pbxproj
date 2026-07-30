@@ -6,8 +6,45 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* NeverSleepControl.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* NeverSleepControl.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 33C165962EF9010FAB153469 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000010;
+			remoteInfo = NeverSleepControl;
+		};
+		A10000000000000000000004 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 33C165962EF9010FAB153469 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 98C3AFAF7AA83B5F6C425185;
+			remoteInfo = iosApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A10000000000000000000005 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A10000000000000000000001 /* NeverSleepControl.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		2DEEA17F46668AEE13523E73 /* NeverSleep.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NeverSleep.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000002 /* NeverSleepControl.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NeverSleepControl.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000006 /* NeverSleepTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NeverSleepTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -17,6 +54,13 @@
 				Info.plist,
 			);
 			target = 98C3AFAF7AA83B5F6C425185 /* iosApp */;
+		};
+		A10000000000000000000007 /* Exceptions for "NeverSleepControl" folder in "NeverSleepControl" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A10000000000000000000010 /* NeverSleepControl */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -34,10 +78,37 @@
 			path = Configuration;
 			sourceTree = "<group>";
 		};
+		A10000000000000000000008 /* NeverSleepControl */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A10000000000000000000007 /* Exceptions for "NeverSleepControl" folder in "NeverSleepControl" target */,
+			);
+			path = NeverSleepControl;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000009 /* iosAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = iosAppTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		EBDD0D57D5F22F2AAC805DC5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000011 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000012 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -52,6 +123,8 @@
 			children = (
 				FB981E6E3C2562F2D7941B61 /* Configuration */,
 				900465383FA13F60C874DCD6 /* iosApp */,
+				A10000000000000000000008 /* NeverSleepControl */,
+				A10000000000000000000009 /* iosAppTests */,
 				D1DE6BB4ABE9A6F1D44227F8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -60,6 +133,8 @@
 			isa = PBXGroup;
 			children = (
 				2DEEA17F46668AEE13523E73 /* NeverSleep.app */,
+				A10000000000000000000002 /* NeverSleepControl.appex */,
+				A10000000000000000000006 /* NeverSleepTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,14 +146,15 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2E434BE64F46D2F9349EC9F5 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
-				C498903FE1A441274B386EF5 /* Compile Kotlin Framework */,
 				76E86E602DB80F8BFFAD9CE4 /* Sources */,
 				EBDD0D57D5F22F2AAC805DC5 /* Frameworks */,
 				F751B058ADC6CB283B0C61F7 /* Resources */,
+				A10000000000000000000005 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A10000000000000000000019 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				900465383FA13F60C874DCD6 /* iosApp */,
@@ -90,6 +166,51 @@
 			productReference = 2DEEA17F46668AEE13523E73 /* NeverSleep.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A10000000000000000000010 /* NeverSleepControl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000020 /* Build configuration list for PBXNativeTarget "NeverSleepControl" */;
+			buildPhases = (
+				A10000000000000000000013 /* Sources */,
+				A10000000000000000000011 /* Frameworks */,
+				A10000000000000000000014 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000008 /* NeverSleepControl */,
+			);
+			name = NeverSleepControl;
+			packageProductDependencies = (
+			);
+			productName = NeverSleepControl;
+			productReference = A10000000000000000000002 /* NeverSleepControl.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		A10000000000000000000015 /* iosAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000021 /* Build configuration list for PBXNativeTarget "iosAppTests" */;
+			buildPhases = (
+				A10000000000000000000016 /* Sources */,
+				A10000000000000000000012 /* Frameworks */,
+				A10000000000000000000017 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000018 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000009 /* iosAppTests */,
+			);
+			name = iosAppTests;
+			packageProductDependencies = (
+			);
+			productName = NeverSleepTests;
+			productReference = A10000000000000000000006 /* NeverSleepTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -99,9 +220,16 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
-				TargetAttributes = {
+			TargetAttributes = {
 					98C3AFAF7AA83B5F6C425185 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					A10000000000000000000010 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					A10000000000000000000015 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 98C3AFAF7AA83B5F6C425185;
 					};
 				};
 			};
@@ -120,6 +248,8 @@
 			projectRoot = "";
 			targets = (
 				98C3AFAF7AA83B5F6C425185 /* iosApp */,
+				A10000000000000000000010 /* NeverSleepControl */,
+				A10000000000000000000015 /* iosAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -132,29 +262,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		C498903FE1A441274B386EF5 /* Compile Kotlin Framework */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
+		A10000000000000000000014 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Compile Kotlin Framework";
-			outputFileListPaths = (
-			);
-			outputPaths = (
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000017 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/../..\"\n./gradlew :app:shared:embedAndSignAppleFrameworkForXcode\n";
 		};
-/* End PBXShellScriptBuildPhase section */
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		76E86E602DB80F8BFFAD9CE4 /* Sources */ = {
@@ -164,7 +286,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A10000000000000000000013 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000016 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000000000000000000018 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 98C3AFAF7AA83B5F6C425185 /* iosApp */;
+			targetProxy = A10000000000000000000004 /* PBXContainerItemProxy */;
+		};
+		A10000000000000000000019 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000010 /* NeverSleepControl */;
+			targetProxy = A10000000000000000000003 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		43E9309244456E5F4682F18A /* Debug */ = {
@@ -311,6 +460,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				PRODUCT_MODULE_NAME = NeverSleep;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -338,9 +488,98 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				PRODUCT_MODULE_NAME = NeverSleep;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A10000000000000000000022 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ARCHS = arm64;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = NeverSleepControl/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lizz.neversleep.control;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A10000000000000000000023 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ARCHS = arm64;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = NeverSleepControl/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lizz.neversleep.control;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A10000000000000000000024 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lizz.neversleep.tests;
+				PRODUCT_MODULE_NAME = NeverSleepTests;
+				PRODUCT_NAME = NeverSleepTests;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NeverSleep.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NeverSleep";
+			};
+			name = Debug;
+		};
+		A10000000000000000000025 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lizz.neversleep.tests;
+				PRODUCT_MODULE_NAME = NeverSleepTests;
+				PRODUCT_NAME = NeverSleepTests;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NeverSleep.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NeverSleep";
 			};
 			name = Release;
 		};
@@ -361,6 +600,24 @@
 			buildConfigurations = (
 				AB13BDC9186D2196DCF59EBC /* Debug */,
 				E63B722CF757D2E3E2B2B8A0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000020 /* Build configuration list for PBXNativeTarget "NeverSleepControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000022 /* Debug */,
+				A10000000000000000000023 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000021 /* Build configuration list for PBXNativeTarget "iosAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000024 /* Debug */,
+				A10000000000000000000025 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
