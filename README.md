@@ -11,6 +11,21 @@ Android utility that prevents your screen from turning off due to inactivity.
 
 ## Quick start (Android)
 
+The Gradle daemon requires Amazon Corretto JDK 21 (pinned in
+`gradle/gradle-daemon-jvm.properties`). Before the first Android Studio sync, run
+`./gradlew help` once to let the wrapper download the matching JDK. If the shell
+cannot find Java, set `JAVA_HOME` to Android Studio's bundled JDK first; on macOS
+with Android Studio Preview:
+
+```bash
+export JAVA_HOME="/Applications/Android Studio Preview.app/Contents/jbr/Contents/Home"
+./gradlew help
+```
+
+This also fixes a first-sync failure reporting `Service 'SystemInfo' is not
+available (... enabled=false)` while provisioning the daemon JDK. After the
+command succeeds, retry **Sync Project with Gradle Files** in Android Studio.
+
 ```bash
 ./gradlew :app:androidApp:assembleDebug
 ```
