@@ -24,12 +24,16 @@ screen from turning off due to inactivity.
 
 **Not the product (template scaffold, kept for future expansion)**
 
-- `app/shared`, `app/desktopApp`, `app/iosApp`, `feature/*`, `core/*`, `server/`
+- `app/shared`, `app/desktopApp`, `feature/*`, `core/*`, `server/`
 - The shipping Android app in `app/androidApp` does **not** depend on
   `app:shared`; it is a standalone Compose app.
 
-When changing Never Sleep behavior, work in **`app/androidApp`** unless explicitly
-asked to extend the KMP template.
+When changing Android behavior, work in **`app/androidApp`**.
+The paused iOS prototype in **`app/iosApp`** is a native SwiftUI app.
+Do not resume iOS development or advertise an iOS release unless explicitly asked. It uses only the
+small `core/review` policy framework, not the KMP UI template.
+It keeps its own foreground display awake; it cannot change global Auto-Lock.
+See **docs/IOS_DEVELOPMENT.md** for native tests, intents, and lifecycle behavior.
 
 ---
 
@@ -37,6 +41,7 @@ asked to extend the KMP template.
 
 ```
 app/androidApp/          ← PRODUCT: shipping Android app
+app/iosApp/              ← PAUSED: native iOS foreground display prototype
 assets/play-store/       ← Play Console graphics + preview.html
 scripts/                 ← release-android.sh, generate-play-screenshots.py
 web/                     ← Bun workspace: landing site (+ local-only dev tools)

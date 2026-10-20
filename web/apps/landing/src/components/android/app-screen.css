@@ -1,0 +1,114 @@
+.android-screen {
+    position: relative;
+    width: 360px;
+    height: 780px;
+    overflow: hidden;
+    color: #f1eff8;
+    background: radial-gradient(ellipse at 50% 46%, #b46d3a, #19101b);
+    font-family: "Android Roboto", Roboto, sans-serif;
+    font-synthesis: none;
+    isolation: isolate;
+}
+.android-screen[data-mode="off"] {
+    background: radial-gradient(ellipse at 50% 46%, #292450, #06060f);
+}
+.android-background {
+    position: absolute;
+    inset: 0;
+    width: 360px;
+    height: 780px;
+}
+.android-status {
+    position: absolute;
+    top: 8px;
+    left: 24px;
+    right: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    line-height: 16px;
+    color: #fff;
+}
+.android-content {
+    position: absolute;
+    inset: 24px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+}
+.android-title {
+    padding: 8px 16px;
+    background: rgb(0 0 0 / 55%);
+    border-radius: 50px;
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+.android-toggle {
+    position: relative;
+    flex-shrink: 0;
+    width: 210px;
+    height: 210px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, #3a3548, #101018);
+    color: #f1eff8;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.android-screen[data-mode="off"] .android-toggle {
+    background: radial-gradient(circle, #2a1848, #08081a);
+}
+.android-toggle:active {
+    transform: scale(0.94);
+}
+.android-toggle:focus-visible {
+    outline: 2px solid #f1eff8;
+    outline-offset: 7px;
+}
+.android-bloom {
+    position: absolute;
+    width: 239.4px;
+    height: 239.4px;
+    max-width: none;
+    left: -14.7px;
+    top: -14.7px;
+    pointer-events: none;
+}
+.android-face,
+.android-icon {
+    position: absolute;
+    inset: 0;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+.android-label {
+    position: absolute;
+    bottom: 33.6px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+.android-navigation {
+    position: absolute;
+    bottom: 8px;
+    left: 132px;
+    width: 96px;
+    height: 3px;
+    background: #f1eff8;
+    border-radius: 3px;
+}

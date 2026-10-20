@@ -1,4 +1,6 @@
-Keep your Android screen awake when you need it.
+Keep your screen on with one tap.
+
+Never sleep. Always awake.
 
 Never Sleep changes your screen timeout with one tap. Your screen stays awake while you read, follow a recipe, check a reference, or use another app. Turn it off when you are done to restore your previous timeout.
 
@@ -16,7 +18,7 @@ Turn Never Sleep off before uninstalling, clearing its storage, or revoking perm
 OPTIONAL ADS
 Banner ads support development. You can turn them off in Settings at no charge. Privacy choices are available where required. No account or subscription is needed.
 
-Android 12 or later.
+Android 7 or later.
 Developer: Lizz Studio
 Support: home@lizz.com
 Privacy policy: https://neversleep.app/privacy

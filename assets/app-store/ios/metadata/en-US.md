@@ -10,8 +10,7 @@ Keep this display awake
 
 ## Promotional text
 
-Start a focused display session when a recipe, dashboard, reference, or timer
-needs to stay visible.
+Choose a duration and tap once to keep this display awake while Never Sleep is open.
 
 ## Description
 
@@ -22,19 +21,23 @@ Choose a focused duration or continue until you end the session. The warm
 ready state shifts into a calm night view so you can see the current state at a
 glance.
 
+Your chosen duration is saved locally. Tap again to end the session.
+
 Never Sleep is designed around iOS:
 
 - It does not change your system Auto-Lock setting.
 - It works only while the app is visible and active.
-- Sessions stop when the app leaves the foreground.
+- Leaving the app restores normal Auto-Lock. Return before your session expires
+  to resume keeping the display awake.
 - A Control Center control can open Never Sleep and begin a session quickly.
+- A Home Screen widget and App Shortcut can also open the app and start a session.
 
-Useful for recipes, reference material, dashboards, timers, presentations, and
-other moments when you need one screen to remain visible.
+Never Sleep does not keep other apps awake or display their content. It has no
+ads, accounts, or analytics.
 
 ## Keywords
 
-display,awake,screen,auto-lock,focus,recipe,dashboard,timer,reference,utility
+display,awake,screen,auto-lock,focus,timer,simple,utility
 
 ## Support URL
 

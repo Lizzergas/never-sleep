@@ -13,15 +13,26 @@ repository root. A managed Node.js LTS and Bun are required; the wrapper prefers
 repo-local tools when installed. Remotion downloads its render browser on first
 use. The project stays local and is not deployed with the landing site.
 
-`src/Promo.tsx` defines one silent 14-second app demo. All animation is derived
+`src/Promo.tsx` defines the silent app demo. `src/variants.ts` supplies
+the opening hooks, durations, and whether to show the second tap for the compositions
+in `src/Root.tsx`: `app-demo-screen-off`, `app-demo-one-tap`, and
+`app-demo-stay-on-task`. All animation is derived
 from Remotion's frame clock, including shader uniforms. `sync-assets.mjs` ports the
-Android MORPH_SHADER to WebGL and copies the icon and official Play badge.
-`render.mjs` bundles once and produces a H.264 video without an audio stream,
+Android background and face shaders to WebGL and copies the icon, Roboto font, and official Play badge.
+The phone uses the same `android/AppScreen.tsx` as the website, including the
+Android control dimensions and Canvas icons.
+`render.mjs` bundles once and produces three H.264 videos without audio streams,
 plus inspection frames.
 
-Timeline: 0–1.5s OFF; 1.5–3s tap ON and transition to sun; 3–7s hold ON;
-7–8.5s tap OFF and transition to night; 8.5–9.5s hold OFF; 9.5–10.5s fade
-into the ending; 10.5–14s “Never Sleep”, “Always awake”, and Play CTA.
+Preferred one-tap cut (12 seconds): 0–1.5s OFF; 1.5–2.6s tap ON and transition
+to sun; 2.6–5.5s hold ON; 5.5–6.5s fade into the ending; 6.5–12s closing card.
+The opening reads “Keep your screen on with one tap.” It does not toggle OFF again.
+
+Other two cuts (14 seconds): 0–1.5s OFF; 1.5–2.6s tap ON and transition to sun; 2.6–7s hold ON;
+7–8.1s tap OFF and transition to night; 8.1–9.5s hold OFF; 9.5–10.5s fade
+into the ending; 10.5–14s “Never sleep. Always awake.” and the official
+“Get it on Google Play” badge. Opening text is visible for 3.5 seconds and fades
+out by 4 seconds. There is no second call to action or website address.
 There are no task scenarios, reference screens, voiceovers, or music.
 
 Use the launch and measurement instructions in `marketing/README.md`.

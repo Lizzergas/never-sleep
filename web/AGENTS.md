@@ -39,16 +39,21 @@ Custom domain `neversleep.app` via `public/CNAME`.
 ## Landing architecture
 
 - **Astro-first, static output** — no server runtime on GitHub Pages.
-- **React islands** only where needed: `HeroBackdrop.tsx` (Paper Shaders:
-  `@paper-design/shaders-react`, `client:only="react"`) and `AppToggle.tsx` (the
-  hero's live ON/OFF toggle, `client:visible`).
-- **Design tokens:** `src/styles/tokens.css` · shared styles: `site.css`.
-- **UI components:** `src/components/ui/` (`Button`, `Card`, `Kicker`, …).
-- **Hero preview:** interactive toggle (`AppToggleMock.astro` → `AppToggle.tsx`), a
-  web port of the app's `NeverSleepToggleButton` — the AGSL shader face is ported to
-  WebGL in `toggleFace.ts` with a CSS-gradient fallback. **Not** Play Store
-  screenshot PNGs (those live in `assets/play-store/` for upload only). If the app's
-  `TOGGLE_FACE_SHADER` changes, mirror it in `toggleFace.ts`.
+- **React islands:** `AppToggle.tsx` provides the interactive phone demo (`client:visible`).
+  The page is neutral charcoal/slate. A fixed Android shader backdrop follows the
+  toggle at 25% opacity, sharing its clock and motion preferences. The landing is
+  only a hero and small footer; do not add lower marketing sections or header links.
+- **Styles:** `src/styles/site.css`; Android preview styles are isolated in
+  `src/components/android/app-screen.css`.
+- **Hero preview:** `AppToggleMock.astro` → `AppToggle.tsx` → `android/AppScreen.tsx`.
+  The same `AppScreen` is used by Remotion. It mirrors the Android 360×780 dp
+  screenshot layout with ads hidden, using Roboto, 210 dp toggle, 32 dp gap,
+  and the Android Canvas sun/moon drawing. Do not use store screenshot PNGs.
+- **Shaders:** `node scripts/sync-android-demo.mjs` generates both WebGL shaders
+  directly from Android AGSL. Landing build/dev regenerate them automatically.
+  `android/parity.test.ts` checks source drift and Compose animation timing.
+  The background eases for 1100 ms; glow for 400 ms; icons and face palette switch
+  immediately, matching Android. Respect reduced motion and pause offscreen.
 - **Google Play CTA:** official badge via `GooglePlayBadge.astro` +
   `public/badges/en_badge_web_generic.png` (do not recolor/crop).
 

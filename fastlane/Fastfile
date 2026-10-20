@@ -15,6 +15,13 @@ lane :website do
   sh("bash", File.join(ROOT, "scripts/publish-landing.sh"))
 end
 
+platform :ios do
+  desc "Build and test the native iOS app on Simulator, saving screenshots (no signing or upload)"
+  lane :check do
+    sh("bash", File.join(ROOT, "scripts/check-ios.sh"))
+  end
+end
+
 platform :android do
   desc "Check shipping Android code and build a debug APK"
   lane :check do

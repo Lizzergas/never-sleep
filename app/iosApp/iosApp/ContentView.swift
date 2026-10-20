@@ -1,15 +1,54 @@
 import SwiftUI
+import StoreKit
+import ReviewKit
 
 struct ContentView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.requestReview) private var requestReview
 
     let session: DisplaySessionModel
+    var reviewPolicy: ReviewPolicy? = nil
+    var reviewReady = false
 
     @State private var presentedSheet: SheetDestination?
 
     var body: some View {
+        mainContent
+            .foregroundStyle(NeverSleepTheme.content)
+            .preferredColorScheme(.dark)
+            .sheet(item: $presentedSheet, onDismiss: requestReviewIfReady) { destination in
+                switch destination {
+                case .help:
+                    HelpAndPrivacyView()
+                }
+            }
+            .onChange(of: session.isSessionRequested) { _, _ in
+                requestReviewIfReady()
+            }
+            .onChange(of: scenePhase) { _, _ in
+                requestReviewIfReady()
+            }
+            .onChange(of: reviewReady) { _, _ in
+                requestReviewIfReady()
+            }
+    }
+
+    private func requestReviewIfReady() {
+        guard reviewReady,
+              scenePhase == .active,
+              !session.isSessionRequested,
+              presentedSheet == nil,
+              let reviewPolicy
+        else { return }
+
+        StoreKitReviewRequester(policy: reviewPolicy) {
+            requestReview()
+        }.requestReviewIfEligible()
+    }
+
+    private var mainContent: some View {
         ZStack {
             AmbientBackground(
                 isActive: session.isSessionRequested,
@@ -40,27 +79,11 @@ struct ContentView: View {
 
             helpButton
         }
-        .foregroundStyle(NeverSleepTheme.content)
-        .preferredColorScheme(.dark)
-        .sheet(item: $presentedSheet) { destination in
-            switch destination {
-            case .help:
-                HelpAndPrivacyView()
-            }
-        }
-        .task(id: session.isSessionRequested) {
-            guard session.isSessionRequested else { return }
-
-            while !Task.isCancelled, session.isSessionRequested {
-                try? await Task.sleep(for: .seconds(1))
-                session.tick()
-            }
-        }
     }
 
     private func portraitLayout(controlSize: CGFloat) -> some View {
         VStack(spacing: 0) {
-            Spacer(minLength: dynamicTypeSize.isAccessibilitySize ? 92 : 146)
+            Spacer(minLength: dynamicTypeSize.isAccessibilitySize ? 64 : 80)
 
             brand
 
@@ -72,9 +95,7 @@ struct ContentView: View {
             sessionReadout
                 .padding(.top, 24)
 
-            Spacer(minLength: 72)
-
-            footer
+            Spacer(minLength: 40)
         }
         .padding(.horizontal, NeverSleepTheme.horizontalPadding)
         .padding(.bottom, 24)
@@ -85,8 +106,6 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 24) {
                 brand
                 sessionReadout
-                footer
-                    .frame(maxWidth: 300, alignment: .leading)
             }
 
             NeverSleepControl(session: session, size: controlSize)
@@ -141,31 +160,6 @@ struct ContentView: View {
                 .accessibilityValue(session.selectedDuration.title)
                 .accessibilityIdentifier("sessionDurationPicker")
             }
-        }
-    }
-
-    private var footer: some View {
-        VStack(spacing: 9) {
-            TimelineView(.periodic(from: .now, by: 60)) { context in
-                Text(context.date, format: .dateTime.hour().minute())
-                    .font(.system(.caption, design: .monospaced, weight: .semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(NeverSleepTheme.contentSubtle)
-                    .accessibilityLabel(
-                        "Current time, \(context.date.formatted(date: .omitted, time: .shortened))"
-                    )
-            }
-
-            Text(
-                session.isSessionRequested
-                    ? "Awake while this window remains active. Uses more battery."
-                    : "Auto-Lock stays unchanged until you begin."
-            )
-            .font(.footnote)
-            .foregroundStyle(NeverSleepTheme.contentSubtle)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
-            .accessibilityIdentifier("sessionFootnote")
         }
     }
 

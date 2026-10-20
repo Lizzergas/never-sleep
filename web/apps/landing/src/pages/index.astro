@@ -6,45 +6,17 @@ import AppToggleMock from "../components/AppToggleMock.astro";
 
 <SiteLayout
     title="Keep your Android screen on | Never Sleep"
-    description="Keep recipes, sheet music, and instructions visible. Never Sleep keeps your Android screen on with one tap, a widget, or Quick Settings."
-    showShader={true}
-    showHeader={false}
+    description="Keep your screen on with one tap. Never Sleep for Android."
 >
-    <section class="workbench-intro" aria-labelledby="page-title">
-        <div class="workbench-intro__copy">
-            <p class="product-kind">Never Sleep for Android</p>
-            <h1 id="page-title">Keep your screen on</h1>
-            <p class="lede">Recipes, sheet music, instructions. Keep them in view with one tap.</p>
-            <div class="actions"><GooglePlayBadge /></div>
-            <p class="hint">Android 12 or later. No account needed.</p>
+    <section class="landing-hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+            <h1 id="page-title"><span class="headline-night">Never sleep.</span><br /><span class="headline-day">Always awake.</span></h1>
+            <p class="lede">Keep your screen on with one tap.</p>
+            <div class="actions">
+                <GooglePlayBadge />
+            </div>
         </div>
-        <AppToggleMock aria-label="Interactive demo of the Keep screen on control" />
+        <AppToggleMock aria-label="Try Never Sleep: tap the control to turn it on or off" />
     </section>
 
-    <section class="control-map" aria-labelledby="setup-title">
-        <header>
-            <h2 id="setup-title">How to keep your Android screen on</h2>
-            <p>Turn it on when you need it. Turn it off to restore your previous timeout.</p>
-        </header>
-        <ol class="control-list">
-            <li><span>01</span><div>
-                <h3>Allow access</h3>
-                <p>Grant “Modify system settings” so Never Sleep can change your screen timeout.</p>
-            </div></li>
-            <li><span>02</span><div>
-                <h3>Tap ON</h3>
-                <p>Your screen stays awake, even after you leave the app.</p>
-            </div></li>
-            <li><span>03</span><div>
-                <h3>Keep it within reach</h3>
-                <p>Edit your Quick Settings and add Never Sleep, or place its widget on your home screen.</p>
-            </div></li>
-        </ol>
-    </section>
-
-    <section class="download-close" aria-label="Download Never Sleep">
-        <p>One tap when you need it</p>
-        <GooglePlayBadge large />
-        <p class="hint">Optional ads. Turn them off in Settings.</p>
-    </section>
 </SiteLayout>

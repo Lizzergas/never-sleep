@@ -3,24 +3,37 @@
 Public identity: Lizz Studio, home@lizz.com.
 Play title: **Never Sleep: Keep Screen On**.
 
+Lead promise: **Keep your screen on with one tap.**
+Tagline: **Never sleep. Always awake.**
+
 ## Files and commands
 
 ```bash
 ./scripts/marketing.sh prepare   # campaign links, post captions, blank measurement template
 ./scripts/marketing.sh studio    # edit/preview the app demo
-./scripts/marketing.sh render    # render the silent 14-second portrait video locally
+./scripts/marketing.sh render    # render all three silent portrait videos locally
 ./scripts/marketing.sh report marketing/reports/first-week.json
 ```
 
-Files are written to `dist/marketing/`: `app-demo.mp4`, preview PNGs,
-`app-demo-post.txt`, `campaign-links.json`, and a blank measurement template.
-The video is 1080×1920, 30 fps, H.264, with no audio track or inline dot separators.
+Files are written to `dist/marketing/`: three MP4s, preview PNGs, matching
+`*-post.txt` captions, `campaign-links.json`, and a blank measurement template.
+`launch-kit.zip` packages the current variants and their public launch materials.
+Each video is 1080×1920, 30 fps, H.264, with no audio track or inline dot separators.
 
-The video shows only the app: OFF at night, a tap to ON with the sun shader,
-then a tap back to OFF. It ends with “Never Sleep”, “Always awake”, and
-“Stay on task, even between taps.” The app scene uses a WebGL port of its actual
-Android background shader and the website toggle shader. The permission step is
-omitted for pacing; the website explains setup. Release the promotional clip once
+| Video | Opening text | Campaign |
+| --- | --- | --- |
+| `app-demo-screen-off.mp4` | Screen keeps turning off? | `screen_off_v1` |
+| `app-demo-one-tap.mp4` | Keep your screen on with one tap. | `one_tap_v1` |
+| `app-demo-stay-on-task.mp4` | Stay on task. Even between taps. | `stay_on_task_v1` |
+
+The preferred one-tap cut is 12 seconds: OFF at night, a tap to ON with the sun
+shader, then a fade directly into the ending. The other two cuts are 14 seconds
+and also show a tap back to OFF before the ending.
+Every video ends with “Never sleep. Always awake.” and the official “Get it on Google Play”
+badge as its single call to action. The app scene uses a WebGL port of its actual
+Android background and toggle shaders. The website and video share the same
+Android-based layout, typography, icons, and transition timing. The permission step is
+omitted for pacing; the app explains the required permission. Release the promotional clip once
 the advertised Android UI and public Play listing are live. Nothing here posts to
 social networks or submits the app to Play.
 
@@ -29,7 +42,8 @@ social networks or submits the app to Play.
 Use a different source/campaign pair for each channel and creative:
 
 - Sources: `youtube`, `instagram`, `tiktok`, `community`, `website`
-- Campaigns: `launch_v1` (the app demo, separated by channel)
+- Campaigns: `screen_off_v1`, `one_tap_v1`, `stay_on_task_v1` (one per opening)
+- General website launch links retain `launch_v1`.
 
 `campaign-links.json` contains both direct Play links and website links. Use the
 tracked link where a platform supports clickable destinations. A shared profile

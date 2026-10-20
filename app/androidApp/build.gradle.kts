@@ -16,6 +16,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(projects.core.review)
+    implementation(libs.play.review)
     implementation(libs.play.services.ads)
     implementation(libs.user.messaging.platform)
 
@@ -32,9 +34,13 @@ dependencies {
 
     // Activity + Compose integration
     implementation(libs.androidx.activity.compose)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
 }
 
 android {
+    testOptions.unitTests.isIncludeAndroidResources = true
     namespace = "com.lizz.neversleep"
     compileSdk = libs.versions.android.compileSdk
         .get()

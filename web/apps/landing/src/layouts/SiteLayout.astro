@@ -1,15 +1,11 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import { HeroBackdrop } from "../components/HeroBackdrop";
-import { playCampaignUrl } from "../lib/attribution";
 import "../styles/site.css";
-import "../styles/hallmark.css";
 
 interface Props {
     title: string;
     description?: string;
     currentPath?: string;
-    showShader?: boolean;
     showHeader?: boolean;
 }
 
@@ -17,16 +13,11 @@ const {
     title,
     description = "Never Sleep — keep your Android screen awake with one tap.",
     currentPath = Astro.url.pathname,
-    showShader = false,
     showHeader = true,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://neversleep.app");
 
-function navCurrent(href: string) {
-    if (href === "/") return currentPath === "/" ? "page" : undefined;
-    return currentPath.startsWith(href) ? "page" : undefined;
-}
 ---
 
 <!doctype html>
@@ -44,30 +35,24 @@ function navCurrent(href: string) {
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
-        <meta name="theme-color" content="#0d0d1a" />
+        <meta name="theme-color" content="#15191e" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
             rel="stylesheet"
         />
         <ClientRouter />
     </head>
-    <body>
-        {showShader ? <HeroBackdrop client:only="react" /> : null}
+    <body class:list={[currentPath === "/" && "home"]}>
         {
             showHeader ? (
                 <header class="site-header">
                     <div class="site-header__inner">
                         <a class="brand" href="/">
-                            <img src="/icon-512.png" alt="" width="28" height="28" />
+                            <img src="/icon-512.png" alt="" width="48" height="48" />
                             Never Sleep
                         </a>
-                        <nav aria-label="Site">
-                            <a href="/privacy" aria-current={navCurrent("/privacy")}>
-                                Privacy
-                            </a>
-                        </nav>
                     </div>
                 </header>
             ) : null
@@ -80,9 +65,6 @@ function navCurrent(href: string) {
                 <span>© {new Date().getFullYear()} Lizz Studio</span>
                 <a href="/privacy">Privacy policy</a>
                 <a href="mailto:home@lizz.com">Support</a>
-                <a href={playCampaignUrl()} data-play-link>
-                    Google Play
-                </a>
             </div>
         </footer>
         <script>

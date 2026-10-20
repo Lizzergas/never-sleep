@@ -1,17 +1,9 @@
 ---
 import { AppToggle } from "./AppToggle";
-
-interface Props {
-    "aria-label"?: string;
-}
-
-const { "aria-label": ariaLabel = "App preview" } = Astro.props;
+interface Props { "aria-label"?: string; }
+const { "aria-label": ariaLabel = "Interactive app preview" } = Astro.props;
 ---
-
-<figure class="workbench-preview" aria-label={ariaLabel}>
-    <div class="toggle-stage">
-        <p class="toggle-stage__title">Keep screen on</p>
-        <AppToggle client:visible />
-    </div>
-    <figcaption>Try the demo</figcaption>
+<figure class="app-preview" aria-label={ariaLabel}>
+    <AppToggle client:visible />
+    <noscript><p class="hint">Enable JavaScript to try the ON and OFF control.</p></noscript>
 </figure>

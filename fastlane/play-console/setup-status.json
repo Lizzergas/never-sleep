@@ -1,0 +1,61 @@
+{
+  "verified_at": "2026-10-20",
+  "developer_name": "Lizz Studio",
+  "support_email": "home@lizz.com",
+  "package_name": "com.lizz.neversleep",
+  "play_app_id": "4975529923752469350",
+  "listing": {
+    "status": "Ready to send for review",
+    "locale": "en-US",
+    "title": "Never Sleep: Keep Screen On",
+    "icon": "assets/play-store/icon-512.png",
+    "feature_graphic": "assets/play-store/feature-graphic.png",
+    "video_url": "https://www.youtube.com/watch?v=znZU0aLpdf4",
+    "video_source": "dist/marketing/app-demo-one-tap.mp4",
+    "video_visibility": "Unlisted",
+    "youtube_channel": "https://www.youtube.com/@LizzStudio",
+    "youtube_channel_id": "UCW_LDiIDMGO6c-ndINxHNlw",
+    "youtube_channel_owner": "skominas.ainis@gmail.com",
+    "phone_screenshots_in_order": [
+      "assets/play-store/screenshots/02-never-sleep.png",
+      "assets/play-store/screenshots/01-normal.png",
+      "assets/play-store/screenshots/03-settings.png",
+      "assets/play-store/screenshots/04-permission.png"
+    ],
+    "ai_asset_labels": ["icon-512.png", "feature-graphic.png"]
+  },
+  "declarations": {
+    "privacy_url": "https://neversleep.app/privacy",
+    "contains_ads": true,
+    "restricted_access": false,
+    "intended_audience": ["13-15", "16-17", "18+"],
+    "iarc_completed": true,
+    "esrb": "Everyone",
+    "pegi": "3",
+    "data_safety": "Saved; import source is data-safety.csv",
+    "government_app": false,
+    "financial_features": false,
+    "health_features": false,
+    "category": "Tools"
+  },
+  "internal_release": {
+    "track_id": "4701668230313702939",
+    "name": "1.0.0 — Initial testing",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "bundle": "dist/release/androidApp-release.aab",
+    "aab_sha256": "aaebdcda40bdef733a6e4a8c27e771c3f483df97331c5d50e5afdace5d8250fe",
+    "upload": "Accepted and processed; visible on Preview and confirm",
+    "min_sdk": 24,
+    "target_sdk": 37,
+    "estimated_new_install_size": "9.93 MB",
+    "validation": "2 warnings; details not yet inspected because the Chrome extension disconnected",
+    "published": false
+  },
+  "remaining": [
+    "Inspect the two internal release warnings.",
+    "Choose tester Google accounts and publish a testing release.",
+    "Complete a closed test with at least 12 opted-in testers for 14 continuous days, then apply for production access.",
+    "Finish AdMob consent-message configuration and app review/store linking."
+  ]
+}

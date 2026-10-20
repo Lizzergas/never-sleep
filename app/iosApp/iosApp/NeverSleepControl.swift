@@ -9,14 +9,14 @@ struct NeverSleepControl: View {
     @State private var mode: Float = 0
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30)) { timeline in
-            Button {
-                if session.isSessionRequested {
-                    session.end()
-                } else {
-                    session.start()
-                }
-            } label: {
+        Button {
+            if session.isSessionRequested {
+                session.end()
+            } else {
+                session.start()
+            }
+        } label: {
+            TimelineView(.animation(minimumInterval: 1 / 30, paused: reduceMotion)) { timeline in
                 ZStack {
                     controlFace(time: timeline.date.timeIntervalSinceReferenceDate)
                     CelestialMark(
@@ -40,21 +40,20 @@ struct NeverSleepControl: View {
                 .frame(width: size, height: size)
                 .contentShape(Circle())
             }
-            .buttonStyle(OrbButtonStyle(reduceMotion: reduceMotion))
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(
-                session.isSessionRequested
-                    ? "End Display Session"
-                    : "Start Display Session"
-            )
-            .accessibilityValue(session.accessibilityStatus(at: timeline.date))
-            .accessibilityHint(
-                session.isSessionRequested
-                    ? "Restores normal Auto-Lock behavior"
-                    : "Keeps this display awake while Never Sleep remains open"
-            )
-            .accessibilityIdentifier("startEndSessionButton")
         }
+        .buttonStyle(OrbButtonStyle(reduceMotion: reduceMotion))
+        .accessibilityElement(children: .ignore)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(
+            session.isSessionRequested ? "End Display Session" : "Start Display Session"
+        )
+        .accessibilityValue(session.isSessionRequested ? "Active" : "Ready")
+        .accessibilityHint(
+            session.isSessionRequested
+                ? "Restores normal Auto-Lock behavior"
+                : "Keeps this display awake while Never Sleep remains open"
+        )
+        .accessibilityIdentifier("startEndSessionButton")
         .frame(width: size, height: size)
         .sensoryFeedback(.impact(weight: .medium, intensity: 0.7), trigger: session.isSessionRequested)
         .onAppear {

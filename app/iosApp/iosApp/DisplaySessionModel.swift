@@ -43,7 +43,14 @@ enum DisplaySessionDuration: String, CaseIterable, Identifiable {
 final class DisplaySessionModel {
     private(set) var startedAt: Date?
     private(set) var endDate: Date?
-    var selectedDuration: DisplaySessionDuration = .thirtyMinutes
+    var selectedDuration: DisplaySessionDuration {
+        didSet {
+            preferences?.set(selectedDuration.rawValue, forKey: "sessionDuration")
+        }
+    }
+
+    @ObservationIgnored
+    private let preferences: UserDefaults?
 
     @ObservationIgnored
     private let coordinator: IdleTimerCoordinator
@@ -57,14 +64,23 @@ final class DisplaySessionModel {
     @ObservationIgnored
     private var isSceneActive = false
 
+    @ObservationIgnored
+    private let onSessionCompleted: () -> Void
+
     init(
         coordinator: IdleTimerCoordinator,
         sceneID: UUID = UUID(),
-        validationDuration: TimeInterval? = nil
+        validationDuration: TimeInterval? = nil,
+        preferences: UserDefaults? = nil,
+        onSessionCompleted: @escaping () -> Void = {}
     ) {
         self.coordinator = coordinator
         self.sceneID = sceneID
         self.validationDuration = validationDuration
+        self.preferences = preferences
+        self.onSessionCompleted = onSessionCompleted
+        self.selectedDuration = preferences?.string(forKey: "sessionDuration")
+            .flatMap(DisplaySessionDuration.init(rawValue:)) ?? .untilEnded
     }
 
     var isSessionRequested: Bool {
@@ -101,6 +117,8 @@ final class DisplaySessionModel {
     }
 
     func start(now: Date = Date()) {
+        tick(now: now)
+        guard !isSessionRequested else { return }
         startedAt = now
 
         let interval = validationDuration ?? selectedDuration.timeInterval
@@ -109,9 +127,11 @@ final class DisplaySessionModel {
     }
 
     func end() {
+        guard isSessionRequested else { return }
         startedAt = nil
         endDate = nil
         syncCoordinator()
+        onSessionCompleted()
     }
 
     func tick(now: Date = Date()) {

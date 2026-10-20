@@ -28,8 +28,10 @@ Format: `bun run format` (Oxfmt; `.astro` files are manual for now).
 
 ## Landing site
 
-- **Home** — hero with a live Never/Normal toggle (WebGL port of the app button),
-  feature cards, official Google Play badge
+- **Home** — charcoal/slate layout with an interactive Android ON/OFF demo,
+  the official Google Play badge, and a subtle matching shader backdrop. No lower
+  marketing sections. The website and Remotion
+  video share the Android-derived layout, icons, and generated shaders.
 - **Privacy** — Play-required policy at `/privacy`
 - **Deploy** — `../scripts/fastlane.sh website` checks and builds locally, then
   pushes static output to `gh-pages`. GitHub Pages hosts it at `neversleep.app`.

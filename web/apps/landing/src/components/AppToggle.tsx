@@ -1,171 +1,150 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createToggleFace, type ToggleFace } from "./toggleFace";
-import { modeLabel, nextMode, type ToggleMode } from "./toggleMode";
+import { AppScreen } from "./android/AppScreen";
+import { ANDROID_TIMING, fastOutSlowIn } from "./android/animation";
+import type { ToggleMode } from "./toggleMode";
+import { createShader } from "./android/shader";
+import { BACKGROUND_SHADER } from "./android/shaders.generated";
 
-interface Props {
-    /** Which face to show first. Defaults to "on" (the app's headline state). */
-    defaultMode?: ToggleMode;
-}
-
-const GLOW_ON = 1;
-const GLOW_OFF = 0.45;
-// Eased-transition speed (per second). ~matches the app's 400ms glow tween.
-const EASE_RATE = 8;
-// Frozen clock used when the visitor prefers reduced motion (no nebula/rim animation).
-const STILL_TIME = 0;
-
-function prefersReducedMotion(): boolean {
-    return (
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    );
-}
-
-/**
- * The live hero toggle — a web port of NeverSleepToggleButton. It renders a real
- * `role="switch"` button so it toggles by click, tap, Enter, and Space, with the WebGL
- * shader face ({@link createToggleFace}) layered over a CSS gradient fallback.
- */
-export function AppToggle({ defaultMode = "on" }: Props) {
-    const [mode, setMode] = useState<ToggleMode>(defaultMode);
-
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const faceRef = useRef<HTMLSpanElement | null>(null);
-    // Mode mirror + eased animation values, read inside the rAF loop without re-subscribing.
-    const targetRef = useRef<ToggleMode>(defaultMode);
-    const glowRef = useRef(defaultMode === "on" ? GLOW_ON : GLOW_OFF);
-    const neverRef = useRef(defaultMode === "off" ? 1 : 0);
-
-    targetRef.current = mode;
-
-    const toggle = useCallback(() => setMode((m) => nextMode(m)), []);
+export function AppToggle({ defaultMode = "on" }: { defaultMode?: ToggleMode }) {
+    const initial = defaultMode === "on";
+    const [enabled, setEnabled] = useState(initial);
+    const [clock, setClock] = useState("");
+    const [frame, setFrame] = useState({
+        night: initial ? 0 : 1,
+        glow: initial ? 1 : 0.45,
+        timeMs: 0,
+    });
+    const stage = useRef<HTMLDivElement>(null);
+    const ambientCanvas = useRef<HTMLCanvasElement>(null);
+    const values = useRef(frame);
+    const target = useRef(initial);
+    const transition = useRef({ started: 0, night: frame.night, glow: frame.glow });
+    const restart = useRef<() => void>(() => {});
+    const toggle = useCallback(() => {
+        target.current = !target.current;
+        transition.current = {
+            started: performance.now(),
+            night: values.current.night,
+            glow: values.current.glow,
+        };
+        setEnabled(target.current);
+        restart.current();
+    }, []);
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        const stage = faceRef.current;
-        if (!canvas || !stage) return;
-
-        const face: ToggleFace | null = createToggleFace(canvas);
-        if (face) canvas.dataset.active = "true";
-
-        const dpr = Math.min(2, typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1);
-        const applySize = () => {
-            const rect = stage.getBoundingClientRect();
-            if (rect.width > 0) face?.resize(rect.width, rect.height, dpr);
+        const formatter = new Intl.DateTimeFormat(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+        });
+        let timer: ReturnType<typeof setTimeout>;
+        const update = () => {
+            clearTimeout(timer);
+            if (document.hidden) return;
+            setClock(formatter.format(new Date()));
+            timer = setTimeout(update, 60_000 - (Date.now() % 60_000));
         };
-        applySize();
+        update();
+        document.addEventListener("visibilitychange", update);
+        return () => {
+            clearTimeout(timer);
+            document.removeEventListener("visibilitychange", update);
+        };
+    }, []);
 
-        const observer = new ResizeObserver(applySize);
-        observer.observe(stage);
-
-        const reduced = prefersReducedMotion();
+    useEffect(() => {
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const ambient = createShader(ambientCanvas.current!, BACKGROUND_SHADER);
+        const resizeAmbient = () => {
+            ambient?.resize(
+                window.innerWidth,
+                window.innerHeight,
+                Math.min(1, 960 / window.innerWidth),
+            );
+            ambient?.draw({
+                iMode: values.current.night,
+                iTime: (values.current.timeMs % ANDROID_TIMING.backgroundLoop) / 40,
+            });
+        };
+        resizeAmbient();
+        window.addEventListener("resize", resizeAmbient);
+        let visible = true;
         let raf = 0;
-        let start = 0;
         let last = 0;
-
-        const frame = (now: number) => {
-            if (start === 0) {
-                start = now;
-                last = now;
+        let timeMs = 0;
+        const tick = (now: number) => {
+            raf = 0;
+            if (!visible || document.hidden) {
+                last = 0;
+                return;
             }
-            const dt = Math.min(0.05, (now - last) / 1000);
+            if (!reduced.matches && last && now - last < 1000 / 30) {
+                raf = requestAnimationFrame(tick);
+                return;
+            }
+            const delta = last ? now - last : 0;
             last = now;
-
-            const glowTarget = targetRef.current === "on" ? GLOW_ON : GLOW_OFF;
-            const neverTarget = targetRef.current === "off" ? 1 : 0;
-            const k = Math.min(1, dt * EASE_RATE);
-            glowRef.current += (glowTarget - glowRef.current) * k;
-            neverRef.current += (neverTarget - neverRef.current) * k;
-
-            const time = reduced ? STILL_TIME : (now - start) / 12;
-            face?.render({ time, glow: glowRef.current, neverMode: neverRef.current });
-
-            const settled =
-                Math.abs(glowRef.current - glowTarget) < 0.002 &&
-                Math.abs(neverRef.current - neverTarget) < 0.002;
-            // With motion enabled we animate forever (nebula + rim pulse); with reduced motion we
-            // only run long enough to cross-fade to the new state, then stop.
-            if (!reduced || !settled) raf = requestAnimationFrame(frame);
+            if (!reduced.matches) timeMs += delta;
+            const elapsed = now - transition.current.started;
+            const n = target.current ? 0 : 1;
+            const g = target.current ? 1 : 0.45;
+            const next = {
+                night:
+                    transition.current.night +
+                    (n - transition.current.night) *
+                        (reduced.matches ? 1 : fastOutSlowIn(elapsed / ANDROID_TIMING.background)),
+                glow:
+                    transition.current.glow +
+                    (g - transition.current.glow) *
+                        (reduced.matches ? 1 : fastOutSlowIn(elapsed / ANDROID_TIMING.glow)),
+                timeMs,
+            };
+            ambient?.draw({
+                iMode: next.night,
+                iTime: (next.timeMs % ANDROID_TIMING.backgroundLoop) / 40,
+            });
+            values.current = next;
+            setFrame(next);
+            if (!reduced.matches) raf = requestAnimationFrame(tick);
         };
-        raf = requestAnimationFrame(frame);
-
+        const start = () => {
+            if (document.hidden) {
+                cancelAnimationFrame(raf);
+                raf = 0;
+                last = 0;
+                return;
+            }
+            if (!raf) raf = requestAnimationFrame(tick);
+        };
+        restart.current = start;
+        const observer = new IntersectionObserver(([entry]) => {
+            if (!entry) return;
+            visible = entry.isIntersecting;
+            if (visible) start();
+        });
+        observer.observe(stage.current!);
+        document.addEventListener("visibilitychange", start);
+        reduced.addEventListener("change", start);
+        start();
         return () => {
             cancelAnimationFrame(raf);
             observer.disconnect();
-            face?.dispose();
+            window.removeEventListener("resize", resizeAmbient);
+            ambient?.dispose();
+            document.removeEventListener("visibilitychange", start);
+            reduced.removeEventListener("change", start);
         };
-        // Re-arm the loop on mode changes so reduced-motion visitors get the cross-fade frames.
-    }, [mode]);
+    }, []);
 
     return (
-        <button
-            type="button"
-            role="switch"
-            aria-checked={mode === "on"}
-            aria-label="Keep screen on"
-            className="app-toggle"
-            data-mode={mode}
-            onClick={toggle}
-        >
-            <span ref={faceRef} className="app-toggle__face" aria-hidden="true">
-                <span className="app-toggle__gradient" />
-                <canvas ref={canvasRef} className="app-toggle__canvas" />
-                <span className="app-toggle__icon app-toggle__icon--moon">
-                    <MoonIcon />
-                </span>
-                <span className="app-toggle__icon app-toggle__icon--sun">
-                    <SunIcon />
-                </span>
-            </span>
-            <span className="app-toggle__label">{modeLabel(mode)}</span>
-        </button>
-    );
-}
-
-function MoonIcon() {
-    return (
-        <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">
-            <defs>
-                <radialGradient id="ns-moon" cx="38%" cy="42%" r="70%">
-                    <stop offset="0%" stopColor="var(--color-ink)" />
-                    <stop offset="45%" stopColor="var(--color-state-never-cool)" />
-                    <stop offset="80%" stopColor="var(--color-state-never)" />
-                    <stop offset="100%" stopColor="var(--color-toggle-never-core)" />
-                </radialGradient>
-                <mask id="ns-crescent">
-                    <circle cx="50" cy="50" r="26" fill="white" />
-                    <circle cx="62" cy="44" r="23" fill="black" />
-                </mask>
-            </defs>
-            <circle cx="50" cy="50" r="26" fill="url(#ns-moon)" mask="url(#ns-crescent)" />
-        </svg>
-    );
-}
-
-function SunIcon() {
-    const rays = Array.from({ length: 8 }, (_, i) => i * 45);
-    return (
-        <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">
-            <defs>
-                <radialGradient id="ns-sun" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="var(--color-ink)" />
-                    <stop offset="60%" stopColor="var(--color-state-normal-soft)" />
-                    <stop offset="100%" stopColor="var(--color-state-normal)" />
-                </radialGradient>
-            </defs>
-            <g stroke="var(--color-state-normal-soft)" strokeWidth="2.4" strokeLinecap="round">
-                {rays.map((deg) => (
-                    <line
-                        key={deg}
-                        x1="50"
-                        y1="20"
-                        x2="50"
-                        y2="30"
-                        transform={`rotate(${deg} 50 50)`}
-                    />
-                ))}
-            </g>
-            <circle cx="50" cy="50" r="14" fill="url(#ns-sun)" />
-        </svg>
+        <div className="live-demo" ref={stage}>
+            <div className="page-ambient" data-mode={enabled ? "on" : "off"} aria-hidden="true">
+                <canvas ref={ambientCanvas} />
+            </div>
+            <div className="device-frame">
+                <div className="device-viewport">
+                    <AppScreen enabled={enabled} {...frame} clock={clock} onToggle={toggle} />
+                </div>
+            </div>
+        </div>
     );
 }

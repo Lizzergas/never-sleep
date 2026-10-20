@@ -179,7 +179,6 @@ def polish_screenshot(
     # Soft fade at top of app panel into header
     mask = Image.new("L", (new_w, new_h), 255)
     md = ImageDraw.Draw(mask)
-    md.rectangle((0, 0, new_w, int(new_h * 0.08)), fill=0)
     for y in range(int(new_h * 0.08)):
         alpha = int(255 * (y / max(new_h * 0.08, 1)))
         md.line([(0, y), (new_w, y)], fill=alpha)
@@ -258,16 +257,16 @@ def main() -> None:
         (
             normal_raw,
             out_dir / "01-normal.png",
-            "Normal mode",
-            "Your usual screen timeout",
-            (255, 183, 77),
+            "Back to your usual timeout",
+            "Switch off when you are done",
+            (124, 77, 255),
         ),
         (
             never_raw,
             out_dir / "02-never-sleep.png",
-            "Never sleep",
             "Keep your screen awake",
-            (0, 229, 255),
+            "One tap to stay on",
+            (255, 183, 77),
         ),
     ]
 

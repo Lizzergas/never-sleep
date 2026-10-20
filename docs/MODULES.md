@@ -11,6 +11,7 @@ build-logic/        Gradle convention plugins (template.kmp.library, template.km
 core/
   model/            DTOs shared with the server, AppError, ApiResult — UI-free
   common/           coroutines + Kermit logging facade — UI-free
+  review/           Product: shared review eligibility + storage/presenter interfaces; ReviewKit iOS framework
   connectivity/     online/offline Flow (ConnectivityManager / NWPathMonitor / JVM polling)
   network/          Ktor client factory, safeGet/safeApiCall error mapping, Koin-owned HttpClient
   database/         Room 3 KMP setup: driver, per-platform builders, sample Note entity
@@ -43,6 +44,45 @@ web/                Optional Bun workspace: Astro landing, Vite admin, TS API cl
   Koin startup.
 - `web/` is not a Gradle module. Keep web tooling, package manifests, and
   generated artifacts inside `web/`; it talks to `server` over HTTP `/api/*`.
+
+## Product review requests
+
+`core:review` is a standalone product module with no template UI dependencies and
+an Android minimum SDK of 24. `app:androidApp` depends on it directly. The native
+SwiftUI app imports its `ReviewKit` framework; Xcode's **Build ReviewKit** phase
+runs `:core:review:embedAndSignAppleFrameworkForXcode` before compiling Swift.
+Building iOS therefore requires the repository's Gradle/JDK setup as well as Xcode.
+
+`ReviewPolicy` becomes eligible after five completed sessions. Platform adapters
+record only real completed sessions, serialize access on the main thread, and
+call `claimRequest()` immediately before native presentation. A saved claim
+permits one automatic attempt; it does not mean the sheet appeared or a review
+was submitted. Storage failure or an unavailable presenter must not consume the
+request. The session count saturates at the eligibility threshold.
+
+Android stores review state in the existing `never_sleep_prefs` preferences.
+`NeverSleepController` records successful ON → OFF cycles from the app, tile,
+and widget. Repeated OFF calls, failed changes, external timeout changes, and
+screenshot-mode transitions do not count. `MainActivity` owns the Google Play
+adapter and waits for a resumed, idle screen without permission/consent dialogs.
+Background usage is considered when the Activity next resumes. SDK preparation
+failure leaves eligibility pending and can retry with a new Activity.
+
+iOS uses a `UserDefaults` storage adapter and a scene-owned StoreKit request
+action. Manual session endings and timer expiry count once; backgrounding does
+not end a session. Presentation waits for the launch sequence, an active idle
+scene, and dismissal of help/desk content. Previews and validation sessions do
+not record usage or request reviews. `NoOpReviewRequester` is available to hosts
+without native review support and leaves eligibility unchanged.
+
+Run `./gradlew :core:review:jvmTest :app:androidApp:testDebugUnitTest` for the
+shared policy and Android integration tests. The Xcode `NeverSleep` scheme's
+unit tests include `ReviewPromptTests`, exercising Swift storage, the shared
+policy, and the StoreKit adapter with an injected action. Actual Google Play
+sheet display must be checked using a Play-installed build; fake presenters
+cannot verify store-controlled display or submission. See the official
+[Google Play integration](https://developer.android.com/guide/playcore/in-app-review/kotlin-java)
+and [StoreKit review action](https://developer.apple.com/documentation/storekit/requestreviewaction).
 
 ## Adding a feature (4 wiring touchpoints)
 

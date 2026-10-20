@@ -41,6 +41,35 @@ separate Android 12 minimum.
 Product code lives in `app/androidApp/src/main/kotlin/com/lizz/neversleep/` —
 mainly `MainActivity.kt`, `NeverSleepController.kt`, tile/widget services.
 
+## iOS prototype (paused)
+
+iOS development is paused: the prototype cannot provide the Android product’s
+system-wide keep-awake behavior. No iOS release is planned.
+
+`app/iosApp` is a standalone SwiftUI app for iPhone and iPad on iOS 18.2+.
+Open `app/iosApp/iosApp.xcodeproj` and choose the **NeverSleep** scheme.
+It does not use the KMP UI template. Its small review-prompt policy is shared
+through the `core/review` Kotlin framework, built by the Xcode scheme.
+
+iOS sessions keep **Never Sleep itself** awake with one tap and a duration picker.
+Leaving the app restores normal Auto-Lock;
+returning before the session expires resumes protection. The user's global
+Auto-Lock setting and other apps are never changed. A Control Center control,
+Home Screen widget, and App Shortcut open the app and start a session.
+
+Build and run unit/UI tests with an installed iOS Simulator:
+
+```bash
+./scripts/fastlane.sh ios check
+# Or without Fastlane; optionally supply an explicit Simulator UDID:
+bash scripts/check-ios.sh
+```
+
+The check boots the selected simulator and writes results and screenshot
+attachments to `dist/ios-check/`. See [iOS development](docs/IOS_DEVELOPMENT.md)
+for architecture and manual verification. Signing and App Store delivery are
+separate from these simulator checks.
+
 ## Release to Google Play
 
 ```bash

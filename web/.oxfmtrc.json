@@ -15,6 +15,7 @@
     ".cache/**",
     ".turbo/**",
     "**/*.astro",
-    "apps/promo/src/generated/**"
+    "apps/promo/src/generated/**",
+    "**/*.generated.ts"
   ]
 }

@@ -6,9 +6,11 @@ struct LaunchExperienceView<Content: View>: View {
     @State private var phase = LaunchPhase.resting
 
     private let content: Content
+    private let onFinished: () -> Void
 
-    init(@ViewBuilder content: () -> Content) {
+    init(onFinished: @escaping () -> Void = {}, @ViewBuilder content: () -> Content) {
         self.content = content()
+        self.onFinished = onFinished
     }
 
     var body: some View {
@@ -132,6 +134,7 @@ struct LaunchExperienceView<Content: View>: View {
             try? await Task.sleep(for: .milliseconds(180))
             guard !Task.isCancelled else { return }
             phase = .finished
+            onFinished()
             return
         }
 
@@ -152,6 +155,7 @@ struct LaunchExperienceView<Content: View>: View {
         try? await Task.sleep(for: .milliseconds(420))
         guard !Task.isCancelled else { return }
         phase = .finished
+        onFinished()
     }
 }
 

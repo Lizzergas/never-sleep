@@ -1,6 +1,14 @@
 /** Public campaign labels only. Never forward arbitrary visitor input to Google. */
 export const SOURCES = ["website", "youtube", "instagram", "tiktok", "community"] as const;
-export const CAMPAIGNS = ["launch_v1", "recipe_v1", "music_v1", "workshop_v1"] as const;
+export const CAMPAIGNS = [
+    "launch_v1",
+    "screen_off_v1",
+    "one_tap_v1",
+    "stay_on_task_v1",
+    "recipe_v1",
+    "music_v1",
+    "workshop_v1",
+] as const;
 export const PLAY_URL = "https://play.google.com/store/apps/details?id=com.lizz.neversleep";
 
 export function playCampaignUrl(search = ""): string {

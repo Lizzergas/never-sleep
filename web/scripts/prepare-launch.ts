@@ -2,11 +2,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { SOURCES, playCampaignUrl } from "../apps/landing/src/lib/attribution";
+import { VIDEO_VARIANTS } from "../apps/promo/src/variants";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const output = path.join(root, "dist/marketing");
 await mkdir(output, { recursive: true });
 const links = SOURCES.flatMap((source) =>
-    ["launch_v1"].map((campaign) => {
+    ["launch_v1", ...VIDEO_VARIANTS.map((variant) => variant.campaign)].map((campaign) => {
         const query = new URLSearchParams({ utm_source: source, utm_campaign: campaign });
         return {
             source,
@@ -17,12 +18,10 @@ const links = SOURCES.flatMap((source) =>
     }),
 );
 await writeFile(path.join(output, "campaign-links.json"), JSON.stringify(links, null, 2) + "\n");
-const captions = {
-    "app-demo":
-        "Never Sleep. Always awake. Keep your screen on and stay on task, even between taps. Tap ON to stay awake. Tap OFF to restore your usual timeout.",
-};
-for (const [name, caption] of Object.entries(captions)) {
-    const campaign = "launch_v1";
+for (const { id: name, opening, campaign } of VIDEO_VARIANTS) {
+    const promise = "Keep your screen on with one tap.";
+    const lead = opening === promise ? promise : `${opening}\n\n${promise}`;
+    const caption = `${lead}\nNever sleep. Always awake.\n\nGet it on Google Play.`;
     const destinations = links.filter(
         (link) =>
             link.campaign === campaign && ["youtube", "instagram", "tiktok"].includes(link.source),
@@ -42,7 +41,7 @@ await writeFile(
     await readFile(path.join(root, "marketing/measurement-template.json")),
 );
 console.log(
-    `Prepared ${links.length} campaign links, one app demo caption, and a blank measurement template in ${output}`,
+    `Prepared ${links.length} campaign links, three app demo captions, and a blank measurement template in ${output}`,
 );
 
 // Package only public launch materials, never reports or release credentials.
@@ -70,8 +69,14 @@ const listing = Object.fromEntries(
 );
 await writeFile(path.join(output, "play-listing.json"), JSON.stringify(listing, null, 2) + "\n");
 files.push("play-listing.json");
-for (const name of Object.keys(captions))
-    files.push(`${name}-post.txt`, `${name}.mp4`, `${name}-150.png`);
+for (const { id: name, durationInFrames } of VIDEO_VARIANTS)
+    files.push(
+        `${name}-post.txt`,
+        `${name}.mp4`,
+        `${name}-15.png`,
+        `${name}-150.png`,
+        `${name}-${durationInFrames - 60}.png`,
+    );
 if (files.every((file) => existsSync(path.join(output, file)))) {
     const hashes = Object.fromEntries(
         await Promise.all(

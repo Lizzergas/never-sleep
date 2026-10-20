@@ -21,10 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,8 +29,8 @@ import androidx.compose.ui.unit.sp
 
 /**
  * The Never Sleep home screen: morphing background, centred title + toggle, and an
- * optional ad. Stateless apart from the settings-dialog
- * visibility — all app state is passed in, so it renders any (isEnabled, showAds) pair.
+ * optional ad. Dialog visibility is owned by the Activity so native review
+ * presentation can wait until settings are dismissed.
  */
 @Composable
 internal fun NeverSleepScreen(
@@ -45,13 +41,13 @@ internal fun NeverSleepScreen(
     canWriteSettings: Boolean,
     privacyOptionsRequired: Boolean,
     screenshotMode: Boolean,
+    showSettingsDialog: Boolean,
+    onSetShowSettingsDialog: (Boolean) -> Unit,
     onSetShowAds: (Boolean) -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
     onOpenPrivacyOptions: () -> Unit,
     onOpenWriteSettings: () -> Unit,
 ) {
-    var showSettingsDialog by remember { mutableStateOf(false) }
-
     Scaffold(
         containerColor = Color.Transparent,
         // Let the shader draw full-bleed under the status bar; insets are applied to content below
@@ -78,7 +74,7 @@ internal fun NeverSleepScreen(
 
                     if (!screenshotMode) {
                         IconButton(
-                            onClick = { showSettingsDialog = true },
+                            onClick = { onSetShowSettingsDialog(true) },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(NeverSleepSpacing.Sm)
@@ -114,18 +110,18 @@ internal fun NeverSleepScreen(
             privacyOptionsRequired = privacyOptionsRequired,
             onSetShowAds = onSetShowAds,
             onOpenPrivacyPolicy = {
-                showSettingsDialog = false
+                onSetShowSettingsDialog(false)
                 onOpenPrivacyPolicy()
             },
             onOpenPrivacyOptions = {
-                showSettingsDialog = false
+                onSetShowSettingsDialog(false)
                 onOpenPrivacyOptions()
             },
             onOpenWriteSettings = {
-                showSettingsDialog = false
+                onSetShowSettingsDialog(false)
                 onOpenWriteSettings()
             },
-            onDismiss = { showSettingsDialog = false },
+            onDismiss = { onSetShowSettingsDialog(false) },
         )
     }
 }

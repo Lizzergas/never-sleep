@@ -8,9 +8,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.lizz.neversleep.review.ReviewRequester
 import android.graphics.Color as AndroidColor
 
 /**
@@ -32,13 +34,23 @@ class MainActivity : ComponentActivity() {
     // Desired state remembered while we prompt for the write-settings permission.
     private var pendingDesired: Boolean? = null
     private val showWriteSettingsExplanationState = mutableStateOf(false)
+    private val showSettingsDialogState = mutableStateOf(false)
 
     // Ads visibility (persisted; default true so the stub ad shows unless the user disables it).
     private val showAdsState = mutableStateOf(true)
     private val canWriteSettingsState = mutableStateOf(false)
     private lateinit var adConsentManager: AdConsentManager
+    private lateinit var reviewRequester: ReviewRequester
     private var screenshotMode = false
     private var consentGatherStarted = false
+    private val canPresentReview: () -> Boolean = {
+        !screenshotMode &&
+            !isEnabledState.value &&
+            !showWriteSettingsExplanationState.value &&
+            !showSettingsDialogState.value &&
+            pendingDesired == null &&
+            !adConsentManager.isBusyState.value
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +69,11 @@ class MainActivity : ComponentActivity() {
             activity = this,
             onAdsMayLoad = neverSleepApplication::initializeMobileAds,
         )
+        reviewRequester = GooglePlayReviewRequester(
+            activity = this,
+            policy = neverSleepApplication.reviewPolicy,
+            canPresent = canPresentReview,
+        )
 
         if (!acceptWriteSettingsRequest(intent)) {
             gatherConsentIfNeeded()
@@ -65,10 +82,10 @@ class MainActivity : ComponentActivity() {
         if (screenshotMode && Settings.System.canWrite(this)) {
             val captureNever = intent.getBooleanExtra(EXTRA_CAPTURE_NEVER, false)
             if (captureNever) {
-                NeverSleepController.setNeverSleep(this)
+                NeverSleepController.setNeverSleep(this, countForReview = false)
                 isEnabledState.value = true
             } else {
-                NeverSleepController.setNormal(this)
+                NeverSleepController.setNormal(this, countForReview = false)
                 isEnabledState.value = false
             }
         }
@@ -87,6 +104,12 @@ class MainActivity : ComponentActivity() {
                 }
                 val showWriteSettingsExplanation by remember {
                     showWriteSettingsExplanationState
+                }
+                val consentBusy by remember { adConsentManager.isBusyState }
+                val showSettingsDialog by remember { showSettingsDialogState }
+
+                LaunchedEffect(isEnabled, consentBusy, showWriteSettingsExplanation, showSettingsDialog) {
+                    reviewRequester.requestReviewIfEligible()
                 }
 
                 // Read the latest state at tap time so the flip is reliable even after
@@ -113,6 +136,8 @@ class MainActivity : ComponentActivity() {
                     canWriteSettings = canWriteSettings,
                     privacyOptionsRequired = privacyOptionsRequired,
                     screenshotMode = screenshotMode,
+                    showSettingsDialog = showSettingsDialog,
+                    onSetShowSettingsDialog = { showSettingsDialogState.value = it },
                     onSetShowAds = { enabled ->
                         showAdsState.value = enabled
                         NeverSleepController.setAdsEnabled(this, enabled)
@@ -167,6 +192,9 @@ class MainActivity : ComponentActivity() {
         if (!showWriteSettingsExplanationState.value) {
             gatherConsentIfNeeded()
         }
+        // The posted callback runs after the lifecycle reaches RESUMED, including
+        // returns from widget/tile use without another Compose state change.
+        window.decorView.post { reviewRequester.requestReviewIfEligible() }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -209,9 +237,9 @@ class MainActivity : ComponentActivity() {
 
     private fun setDesiredMode(desired: Boolean) {
         if (desired) {
-            NeverSleepController.setNeverSleep(this)
+            NeverSleepController.setNeverSleep(this, countForReview = !screenshotMode)
         } else {
-            NeverSleepController.setNormal(this)
+            NeverSleepController.setNormal(this, countForReview = !screenshotMode)
         }
     }
 

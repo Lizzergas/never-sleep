@@ -18,7 +18,8 @@ const requested = process.argv.find((arg) => arg.startsWith("--only="))?.split("
 for (const composition of compositions) {
     if (requested && composition.id !== requested) continue;
     const common = { serveUrl, composition, chromiumOptions: { gl: "angle" } };
-    for (const frame of [15, 65, 150, 230, 270, 360]) {
+    const frames = [15, 65, 90, 150, 230, 270, composition.durationInFrames - 60];
+    for (const frame of new Set(frames)) {
         await renderStill({
             ...common,
             frame,

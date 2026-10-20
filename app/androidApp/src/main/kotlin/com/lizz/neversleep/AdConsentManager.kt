@@ -24,7 +24,9 @@ internal class AdConsentManager(
     private var consentFormCheckComplete = false
     private var consentFormCheckInFlight = false
     private var adsRequested = false
+    private var privacyOptionsInFlight = false
 
+    val isBusyState = mutableStateOf(false)
     val canRequestAdsState = mutableStateOf(false)
     val privacyOptionsRequiredState = mutableStateOf(false)
 
@@ -72,7 +74,10 @@ internal class AdConsentManager(
     }
 
     fun showPrivacyOptions() {
+        privacyOptionsInFlight = true
+        refreshState()
         UserMessagingPlatform.showPrivacyOptionsForm(activity) { formError ->
+            privacyOptionsInFlight = false
             if (formError != null) {
                 Log.w(TAG, "Unable to present privacy options: ${formError.message}")
             }
@@ -89,6 +94,7 @@ internal class AdConsentManager(
             return
         }
         consentFormCheckInFlight = true
+        refreshState()
         UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
             consentFormCheckInFlight = false
             // A transient load/show failure should be retryable if the user turns ads
@@ -102,6 +108,7 @@ internal class AdConsentManager(
     }
 
     private fun refreshState() {
+        isBusyState.value = requestInFlight || consentFormCheckInFlight || privacyOptionsInFlight
         val canRequestAds = consentInformation.canRequestAds()
         canRequestAdsState.value = canRequestAds
         privacyOptionsRequiredState.value = consentInformation.privacyOptionsRequirementStatus ==

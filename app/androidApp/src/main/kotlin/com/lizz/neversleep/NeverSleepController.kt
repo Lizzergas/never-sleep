@@ -8,6 +8,7 @@ object NeverSleepController {
     private const val KEY_PREVIOUS_TIMEOUT = "previous_timeout"
     private const val KEY_ENABLED = "never_sleep_enabled"
     private const val KEY_ADS_DISABLED = "ads_disabled"
+    private const val KEY_REVIEW_SESSION_ELIGIBLE = "review_session_eligible"
     private const val DEFAULT_NORMAL_TIMEOUT_MS = 30_000
     private const val NEVER_SLEEP_TIMEOUT_MS = 1_000_000_000
 
@@ -22,7 +23,11 @@ object NeverSleepController {
             // The user, device policy, or OEM changed the timeout outside the app.
             // Stop claiming the feature is active, but keep the previous value so a
             // later enable can replace it with the device's current timeout.
-            prefs.edit().putBoolean(KEY_ENABLED, false).apply()
+            prefs
+                .edit()
+                .putBoolean(KEY_ENABLED, false)
+                .remove(KEY_REVIEW_SESSION_ELIGIBLE)
+                .apply()
         }
         return stillApplied
     }
@@ -36,13 +41,21 @@ object NeverSleepController {
         }
 
     @Synchronized
-    fun setNeverSleep(context: Context): Boolean {
+    fun setNeverSleep(
+        context: Context,
+        countForReview: Boolean = true,
+    ): Boolean {
         if (!Settings.System.canWrite(context)) {
             return false
         }
-        if (isEnabled(context)) return true
-
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (isEnabled(context)) {
+            if (!countForReview) {
+                prefs.edit().putBoolean(KEY_REVIEW_SESSION_ELIGIBLE, false).apply()
+            }
+            return true
+        }
+
         val previous = readTimeout(context) ?: DEFAULT_NORMAL_TIMEOUT_MS
         val hadStoredPrevious = prefs.contains(KEY_PREVIOUS_TIMEOUT)
         val storedPrevious = prefs.getInt(KEY_PREVIOUS_TIMEOUT, DEFAULT_NORMAL_TIMEOUT_MS)
@@ -54,6 +67,7 @@ object NeverSleepController {
             .edit()
             .putInt(KEY_PREVIOUS_TIMEOUT, previous)
             .putBoolean(KEY_ENABLED, true)
+            .putBoolean(KEY_REVIEW_SESSION_ELIGIBLE, countForReview)
             .commit()
         if (!prepared) return false
 
@@ -67,7 +81,10 @@ object NeverSleepController {
             false
         }
         if (!success) {
-            val rollback = prefs.edit().putBoolean(KEY_ENABLED, false)
+            val rollback = prefs
+                .edit()
+                .putBoolean(KEY_ENABLED, false)
+                .remove(KEY_REVIEW_SESSION_ELIGIBLE)
             if (hadStoredPrevious) {
                 rollback.putInt(KEY_PREVIOUS_TIMEOUT, storedPrevious)
             } else {
@@ -82,7 +99,10 @@ object NeverSleepController {
     }
 
     @Synchronized
-    fun setNormal(context: Context): Boolean {
+    fun setNormal(
+        context: Context,
+        countForReview: Boolean = true,
+    ): Boolean {
         if (!Settings.System.canWrite(context)) {
             return false
         }
@@ -100,7 +120,18 @@ object NeverSleepController {
             false
         }
         if (success) {
-            prefs.edit().putBoolean(KEY_ENABLED, false).apply()
+            val completedReviewSession = countForReview &&
+                prefs.getBoolean(KEY_REVIEW_SESSION_ELIGIBLE, true)
+            prefs
+                .edit()
+                .putBoolean(KEY_ENABLED, false)
+                .remove(KEY_REVIEW_SESSION_ELIGIBLE)
+                .apply()
+            if (completedReviewSession) {
+                (context.applicationContext as NeverSleepApplication)
+                    .reviewPolicy
+                    .recordCompletedSession()
+            }
             NeverSleepWidgetProvider.updateAll(context)
         }
         return success
