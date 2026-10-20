@@ -227,7 +227,7 @@ h3 {
 }
 
 #page-title {
-    max-width: 8ch;
+    max-width: 12ch;
     margin: 0;
     color: var(--color-ink);
     background: none;
@@ -299,8 +299,8 @@ h3 {
     font-family: var(--font-display);
     font-size: var(--text-xs);
     font-weight: 600;
-    letter-spacing: 0.32em;
-    text-transform: lowercase;
+    letter-spacing: 0.03em;
+    text-transform: none;
 }
 
 .workbench-preview figcaption {
@@ -349,7 +349,7 @@ h3 {
     transition: background-color var(--dur-medium) var(--ease-in-out);
 }
 
-.app-toggle[data-mode="never"] .app-toggle__gradient {
+.app-toggle[data-mode="off"] .app-toggle__gradient {
     background: radial-gradient(
         circle at 50% 46%,
         var(--color-toggle-never-core),
@@ -439,7 +439,7 @@ h3 {
 .control-map {
     display: grid;
     gap: var(--space-2xl);
-    margin-top: var(--space-4xl);
+    margin-top: var(--space-2xl);
 }
 
 .control-list {
@@ -496,6 +496,14 @@ h3 {
     font-family: var(--font-display);
     font-size: var(--text-lg);
     font-weight: 600;
+}
+
+.download-close .hint {
+    flex-basis: 100%;
+    color: var(--color-muted);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 400;
 }
 
 /* Official badge: dimensions only; artwork remains unmodified. */

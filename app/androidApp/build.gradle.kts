@@ -60,9 +60,9 @@ android {
 
     defaultConfig {
         applicationId = "com.lizz.neversleep"
-        minSdk = libs.versions.android.minSdk
-            .get()
-            .toInt()
+        // The standalone product supports Android 7; KMP template modules keep
+        // their own Android 12 minimum in the shared version catalog.
+        minSdk = 24
         targetSdk = libs.versions.android.targetSdk
             .get()
             .toInt()
@@ -94,9 +94,9 @@ android {
         create("release") {
             // These values come from keystore.properties if present.
             // Example keystore.properties (git-ignored):
-            // storeFile=../keystores/never-sleep-release.keystore
+            // storeFile=keystores/never-sleep-upload.keystore
             // storePassword=yourStorePassword
-            // keyAlias=never-sleep
+            // keyAlias=never-sleep-upload
             // keyPassword=yourKeyPassword
             val storeFilePath = keystoreProperties["storeFile"] as? String
             if (storeFilePath != null) {
@@ -134,8 +134,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // Only apply signing config when keystore.properties is fully set up.
-            // You can still produce a signed bundle later or let Google Play App Signing handle it.
+            // Release preflight below rejects missing credentials. Play App Signing
+            // still requires an upload-key signature on the bundle we submit.
             if (keystoreProperties["storeFile"] != null) {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -146,4 +146,18 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+val validateReleaseInputs by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Rejects missing signing or test/placeholder AdMob IDs in release builds."
+    commandLine(
+        "python3",
+        rootProject.file("scripts/android-release.py").absolutePath,
+        "check-config",
+    )
+}
+
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    dependsOn(validateReleaseInputs)
 }

@@ -1,0 +1,44 @@
+{
+  "period_start": null,
+  "period_end": null,
+  "play_reporting_timezone": null,
+  "exported_at": null,
+  "listing_version": "launch_v1",
+  "app_version": null,
+  "overall": {
+    "store_listing_visitors": null,
+    "store_listing_acquisitions": null,
+    "new_users": null,
+    "active_users": null,
+    "user_perceived_crash_rate_percent": null,
+    "user_perceived_anr_rate_percent": null,
+    "admob_revenue_eur": null
+  },
+  "campaigns": [
+    {
+      "source": "youtube",
+      "campaign": "launch_v1",
+      "video_views": null,
+      "store_listing_visitors": null,
+      "store_listing_acquisitions": null,
+      "spend_eur": null
+    },
+    {
+      "source": "instagram",
+      "campaign": "launch_v1",
+      "video_views": null,
+      "store_listing_visitors": null,
+      "store_listing_acquisitions": null,
+      "spend_eur": null
+    },
+    {
+      "source": "tiktok",
+      "campaign": "launch_v1",
+      "video_views": null,
+      "store_listing_visitors": null,
+      "store_listing_acquisitions": null,
+      "spend_eur": null
+    }
+  ],
+  "notes": []
+}

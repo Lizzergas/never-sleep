@@ -1,15 +1,17 @@
 ---
+import { playCampaignUrl } from "../../lib/attribution";
 interface Props {
     large?: boolean;
 }
 
 const { large = false } = Astro.props;
-const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.lizz.neversleep";
+const PLAY_STORE_URL = playCampaignUrl();
 ---
 
 <a
     class:list={["play-badge", large && "play-badge--large"]}
     href={PLAY_STORE_URL}
+    data-play-link
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Get it on Google Play"

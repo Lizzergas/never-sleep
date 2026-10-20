@@ -1,12 +1,12 @@
 /** Which face the hero toggle is showing — mirrors the in-app NeverSleepToggleButton. */
-export type ToggleMode = "never" | "normal";
+export type ToggleMode = "on" | "off";
 
 /** Pure state transition for the toggle. Kept separate from the DOM so it can be unit-tested. */
 export function nextMode(mode: ToggleMode): ToggleMode {
-    return mode === "never" ? "normal" : "never";
+    return mode === "on" ? "off" : "on";
 }
 
-/** Uppercase label rendered inside the circle for a given mode ("NEVER" / "NORMAL"). */
+/** Keep screen on is the fixed label; this is its current state. */
 export function modeLabel(mode: ToggleMode): string {
-    return mode === "never" ? "NEVER" : "NORMAL";
+    return mode === "on" ? "ON" : "OFF";
 }

@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import { HeroBackdrop } from "../components/HeroBackdrop";
+import { playCampaignUrl } from "../lib/attribution";
 import "../styles/site.css";
 import "../styles/hallmark.css";
 
@@ -75,14 +76,26 @@ function navCurrent(href: string) {
             <slot />
         </main>
         <footer class="site-footer">
-            <p class="site-footer__statement">Your screen stays awake only when you want it to.</p>
             <div class="site-footer__meta">
-                <span>© {new Date().getFullYear()} Never Sleep.</span>
+                <span>© {new Date().getFullYear()} Lizz Studio</span>
                 <a href="/privacy">Privacy policy</a>
-                <a href="https://play.google.com/store/apps/details?id=com.lizz.neversleep">
+                <a href="mailto:home@lizz.com">Support</a>
+                <a href={playCampaignUrl()} data-play-link>
                     Google Play
                 </a>
             </div>
         </footer>
+        <script>
+            import { playCampaignUrl } from "../lib/attribution";
+            // URL-only attribution. No cookies, storage, identifiers, or tracking requests.
+            function attributePlayLinks() {
+                const href = playCampaignUrl(window.location.search);
+                document.querySelectorAll<HTMLAnchorElement>("[data-play-link]").forEach((link) => {
+                    link.href = href;
+                });
+            }
+            attributePlayLinks();
+            document.addEventListener("astro:page-load", attributePlayLinks);
+        </script>
     </body>
 </html>

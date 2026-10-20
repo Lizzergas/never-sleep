@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
+  # Disabled in GitHub. Local checks: bundle exec fastlane android check_all.
+  # Manual-only if explicitly re-enabled later.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -21,7 +21,7 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Tests and Android build
-        run: ./gradlew jvmTest :server:test :app:androidApp:assembleDebug :app:androidApp:bundleRelease
+        run: ./gradlew jvmTest :server:test :app:androidApp:assembleDebug :app:androidApp:lintDebug
 
   # Lint runs only here and on demand locally (./gradlew qualityCheck) —
   # deliberately not wired into commits or pushes.

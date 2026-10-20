@@ -43,3 +43,16 @@ web/test-results/
 web/.cache/
 web/.turbo/
 web/**/*.tsbuildinfo
+
+# Local release tooling and credentials
+.bundle/
+vendor/bundle/
+fastlane/report.xml
+fastlane/README.md
+fastlane/.env*
+fastlane/play-service-account.json
+__pycache__/
+*.pyc
+.tools/
+.remotion/
+marketing/reports/

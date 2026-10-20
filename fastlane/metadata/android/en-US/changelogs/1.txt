@@ -1,0 +1,2 @@
+First release of Never Sleep.
+Keep your screen awake with the app, Quick Settings tile, or home-screen widget. Restore your previous timeout when you switch off. Includes optional banner ads and privacy controls.

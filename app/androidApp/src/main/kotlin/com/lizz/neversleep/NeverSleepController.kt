@@ -75,6 +75,9 @@ object NeverSleepController {
             }
             rollback.commit()
         }
+        if (success) {
+            NeverSleepWidgetProvider.updateAll(context)
+        }
         return success
     }
 
@@ -98,6 +101,7 @@ object NeverSleepController {
         }
         if (success) {
             prefs.edit().putBoolean(KEY_ENABLED, false).apply()
+            NeverSleepWidgetProvider.updateAll(context)
         }
         return success
     }

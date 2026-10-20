@@ -2,10 +2,19 @@ package com.lizz.neversleep
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.widget.RemoteViews
 
 class NeverSleepWidgetProvider : AppWidgetProvider() {
+    companion object {
+        fun updateAll(context: Context) {
+            val manager = AppWidgetManager.getInstance(context)
+            val ids = manager.getAppWidgetIds(ComponentName(context, NeverSleepWidgetProvider::class.java))
+            NeverSleepWidgetProvider().onUpdate(context, manager, ids)
+        }
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -25,7 +34,7 @@ class NeverSleepWidgetProvider : AppWidgetProvider() {
         val enabled = NeverSleepController.isEnabled(context)
         views.setImageViewResource(
             R.id.widget_icon,
-            if (enabled) R.drawable.ic_moon else R.drawable.ic_sun,
+            if (enabled) R.drawable.ic_sun else R.drawable.ic_moon,
         )
         views.setContentDescription(
             R.id.widget_root,

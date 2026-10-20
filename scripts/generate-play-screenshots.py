@@ -2,17 +2,19 @@
 """
 Capture and polish Google Play phone screenshots.
 
-Best-practice pattern (common on Play Store top charts):
-  - 2 hero screenshots showing core states only
-  - Branded headline band (~30% height) with short benefit copy
+Output:
+  - 2 hero screenshots showing core states
+  - Optional settings and permission screenshots from existing raw captures
+  - Branded headline band (18% height) with short benefit copy
   - Cropped app UI below (no ads, settings, or compliance chrome)
-  - Final 9:16 portrait (1080×2400)
+  - Final 9:16 portrait (1080×1920), within Play's maximum 2:1 aspect ratio
 
 Requires: adb, Pillow, a connected device/emulator, release APK installed.
 """
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 import time
@@ -27,8 +29,8 @@ except ImportError:
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = "com.lizz.neversleep"
 ACTIVITY = f"{PACKAGE}/.MainActivity"
-OUTPUT_W, OUTPUT_H = 1080, 2400
-HEADER_RATIO = 0.30
+OUTPUT_W, OUTPUT_H = 1080, 1920
+HEADER_RATIO = 0.18
 
 FONT_BOLD_CANDIDATES = [
     "/System/Library/Fonts/SFNS.ttf",
@@ -64,19 +66,16 @@ def resolve_device(preferred: str | None) -> str:
     if preferred:
         return preferred
     result = run(["adb", "devices"])
-    emu = None
-    phys = None
+    devices = []
     for line in result.stdout.splitlines()[1:]:
         parts = line.split()
         if len(parts) >= 2 and parts[1] == "device":
-            if parts[0].startswith("emulator-"):
-                emu = parts[0]
-            else:
-                phys = parts[0]
-    device = emu or phys
-    if not device:
+            devices.append(parts[0])
+    if not devices:
         raise SystemExit("No adb device/emulator connected.")
-    return device
+    if len(devices) != 1:
+        raise SystemExit("Multiple devices connected. Select the capture device with --device SERIAL.")
+    return devices[0]
 
 
 def capture_screen(device: str, dest: Path) -> None:
@@ -191,7 +190,7 @@ def polish_screenshot(
 
 def make_comparison(normal: Image.Image, never: Image.Image, dest: Path) -> None:
     """Optional preview: both states in one wide image (not for Play upload)."""
-    w, h = 1080, 2400
+    w, h = OUTPUT_W, OUTPUT_H
     gap = 24
     out = Image.new("RGB", (w * 2 + gap, h), "#0D0D1A")
     out.paste(normal.resize((w, h), Image.Resampling.LANCZOS), (0, 0))
@@ -201,7 +200,7 @@ def make_comparison(normal: Image.Image, never: Image.Image, dest: Path) -> None
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate polished Play Store screenshots")
-    parser.add_argument("--device", help="adb device id (default: emulator preferred)")
+    parser.add_argument("--device", help="adb device id (required when multiple devices are connected)")
     parser.add_argument(
         "--apk",
         type=Path,
@@ -214,31 +213,46 @@ def main() -> None:
         default=ROOT / "assets/play-store/screenshots",
     )
     parser.add_argument("--skip-install", action="store_true")
+    parser.add_argument("--from-raw", action="store_true", help="Re-render existing raw captures without touching a device")
     args = parser.parse_args()
 
-    device = resolve_device(args.device)
     out_dir = args.output
     raw_dir = out_dir / "raw"
     out_dir.mkdir(parents=True, exist_ok=True)
     raw_dir.mkdir(exist_ok=True)
 
-    print(f"==> Device: {device}")
-
-    adb(device, "shell", "input", "keyevent", "KEYCODE_WAKEUP")
-    if not args.skip_install and args.apk.exists():
-        print(f"==> Installing {args.apk}")
-        run(["adb", "-s", device, "install", "-r", str(args.apk)])
-    adb(device, "shell", "appops", "set", PACKAGE, "WRITE_SETTINGS", "allow")
-
-    launch_capture(device, never_mode=False)
     normal_raw = raw_dir / "normal.png"
-    capture_screen(device, normal_raw)
-    print(f"    raw {normal_raw}")
-
-    launch_capture(device, never_mode=True)
     never_raw = raw_dir / "never-sleep.png"
-    capture_screen(device, never_raw)
-    print(f"    raw {never_raw}")
+    if not args.from_raw:
+        device = resolve_device(args.device)
+        print(f"==> Device: {device}")
+        if not args.skip_install:
+            if not args.apk.is_file():
+                raise SystemExit(f"Missing APK: {args.apk}")
+            run(["adb", "-s", device, "install", "-r", str(args.apk)])
+        previous_timeout = run(
+            ["adb", "-s", device, "shell", "settings", "get", "system", "screen_off_timeout"],
+        ).stdout.strip()
+        previous_access = run(
+            ["adb", "-s", device, "shell", "appops", "get", PACKAGE, "WRITE_SETTINGS"],
+        ).stdout
+        access_match = re.search(r"WRITE_SETTINGS: (\w+)", previous_access)
+        previous_mode = access_match.group(1) if access_match else "default"
+        try:
+            adb(device, "shell", "input", "keyevent", "KEYCODE_WAKEUP")
+            adb(device, "shell", "appops", "set", PACKAGE, "WRITE_SETTINGS", "allow")
+            launch_capture(device, never_mode=False)
+            capture_screen(device, normal_raw)
+            launch_capture(device, never_mode=True)
+            capture_screen(device, never_raw)
+        finally:
+            # Never leave a capture phone awake or with newly granted permission.
+            adb(device, "shell", "am", "force-stop", PACKAGE)
+            if previous_timeout == "null":
+                adb(device, "shell", "settings", "delete", "system", "screen_off_timeout")
+            else:
+                adb(device, "shell", "settings", "put", "system", "screen_off_timeout", previous_timeout)
+            adb(device, "shell", "appops", "set", PACKAGE, "WRITE_SETTINGS", previous_mode)
 
     specs = [
         (
@@ -252,7 +266,7 @@ def main() -> None:
             never_raw,
             out_dir / "02-never-sleep.png",
             "Never sleep",
-            "Screen stays on until you switch back",
+            "Keep your screen awake",
             (0, 229, 255),
         ),
     ]
@@ -268,13 +282,17 @@ def main() -> None:
     make_comparison(polished[0], polished[1], compare_path)
     print(f"    {compare_path} (preview only)")
 
-    # Remove legacy 4-up captures if present
-    for legacy in ["03-settings-dialog.png", "04-disclaimer-expanded.png"]:
-        legacy_path = out_dir / legacy
-        if legacy_path.exists():
-            legacy_path.unlink()
+    for raw_name, filename, title, subtitle in [
+        ("settings.png", "03-settings.png", "Your preferences", "Optional ads. Privacy controls."),
+        ("permission.png", "04-permission.png", "You stay in control", "Permission explained before you grant it"),
+    ]:
+        source = raw_dir / raw_name
+        if source.is_file():
+            polish_screenshot(Image.open(source), title, subtitle, (124, 77, 255)).save(
+                out_dir / filename, optimize=True,
+            )
 
-    print("==> Done. Upload 01-normal.png and 02-never-sleep.png to Play Console.")
+    print("==> Done. Upload the numbered PNGs to Play Console; preview-side-by-side is local only.")
 
 
 if __name__ == "__main__":

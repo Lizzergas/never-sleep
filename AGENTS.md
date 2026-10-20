@@ -42,7 +42,7 @@ scripts/                 ← release-android.sh, generate-play-screenshots.py
 web/                     ← Bun workspace: landing site (+ local-only dev tools)
 docs/                    ← ICON_GENERATION, MODULES, ARCHITECTURE (template depth)
 build-logic/             ← Gradle convention plugins (template)
-feature/, core/, server/ ← KMP template modules (CI still compiles them)
+feature/, core/, server/ ← KMP template modules (local check_all compiles them)
 ```
 
 ---
@@ -56,14 +56,15 @@ feature/, core/, server/ ← KMP template modules (CI still compiles them)
 # APK: app/androidApp/build/outputs/apk/debug/androidApp-debug.apk
 
 ./gradlew :app:androidApp:bundleRelease   # Play Store AAB
-./scripts/release-android.sh              # signed APK/AAB → dist/release/
-./scripts/release-android.sh --screenshots  # + Play screenshots on device
+./scripts/fastlane.sh android release     # checked, signed APK/AAB + Play assets → dist/release/
+./scripts/fastlane.sh android check_all   # former CI checks, locally
+uv run --with Pillow scripts/generate-play-screenshots.py --device SERIAL
 ```
 
 Configure once (gitignored): `keystore.properties`, `app/androidApp/admob.properties`
 (examples: `keystore.properties.example`, `admob.properties.example`).
 
-### Kotlin quality (CI `quality` job only)
+### Kotlin quality
 
 ```bash
 ./gradlew qualityCheck      # detekt + ktlint — canonical check
@@ -84,8 +85,8 @@ Local-only Play listing reference (not deployed):
 cd web && bun run dev:landing:play   # copies dev/play-listing.astro → /play
 ```
 
-Deploy: push `web/**` to `main` → GitHub Actions `deploy-landing.yml` →
-GitHub Pages at `neversleep.app`.
+Deploy locally: `./scripts/fastlane.sh website` → static output on `gh-pages` →
+GitHub Pages at `neversleep.app`. Both custom GitHub workflows are disabled.
 
 ### Template / CI (secondary)
 
@@ -134,9 +135,12 @@ Read **web/AGENTS.md** when editing `web/`.
 
 ## Play Store & assets
 
-- Listing copy / AdMob IDs / checklists: `web/apps/landing/dev/play-listing.astro`
+- Upload listing copy: `fastlane/metadata/android/en-US/`.
+- Listing reference / AdMob IDs / checklists: `web/apps/landing/dev/play-listing.astro`
   (local dev) and `assets/play-store/preview.html`.
 - Graphics: `assets/play-store/` (icon, feature graphic, screenshots).
+- Do not use middle dots or bullets as inline text separators in store artwork.
+  Separate short feature labels with whitespace or separate lines.
 - Regenerate screenshots: `python3 scripts/generate-play-screenshots.py`
   (requires adb + device + Pillow).
 - Icon/tile/widget generation prompts: **docs/ICON_GENERATION.md**.
@@ -145,10 +149,12 @@ Read **web/AGENTS.md** when editing `web/`.
 
 ## CI overview
 
+Both workflows are manual-only and disabled in GitHub. Use Fastlane locally.
+
 | Workflow | What it checks |
 |----------|----------------|
-| `ci.yml` | Android debug + release bundle, JVM tests, ktlint/detekt, web checks, iOS compile |
-| `deploy-landing.yml` | Build & publish `web/apps/landing/dist` to GitHub Pages |
+| `ci.yml` | Android debug + lint, JVM tests, ktlint/detekt, web checks, iOS compile |
+| `deploy-landing.yml` | Legacy manual fallback; normal publishing uses the local website lane |
 
 ---
 

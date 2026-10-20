@@ -29,8 +29,11 @@ kotlinx-serialization = "1.11.0"
 ksp = "2.3.9"
 ktor = "3.5.2"
 logback = "1.6.3"
-material3 = "1.11.0-alpha07"
+# Match Compose 1.12's CustomStyle ABI (1.11 alpha crashes JVM text fields).
+material3 = "1.12.0-alpha03"
 navigation3 = "1.1.7"
+# JetBrains UI releases do not share AndroidX runtime version numbers.
+jetbrains-navigation3 = "1.1.2"
 room3 = "3.0.2"
 sqlite = "2.7.0"
 turbine = "1.2.1"
@@ -81,7 +84,7 @@ koin-android = { module = "io.insert-koin:koin-android" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 
 # Navigation3 (JetBrains Compose Multiplatform artifacts)
-jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrains-navigation3" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 
 # DataStore (KMP-capable preferences storage)

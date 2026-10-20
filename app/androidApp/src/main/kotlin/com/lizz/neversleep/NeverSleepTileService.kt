@@ -54,9 +54,14 @@ class NeverSleepTileService : TileService() {
         val tile = qsTile ?: return
         val enabled = NeverSleepController.isEnabled(this)
         tile.state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        tile.label = if (enabled) "Never Sleep" else "Normal Sleep"
-        // Use a simple icon (we'll add drawables)
-        tile.icon = Icon.createWithResource(this, if (enabled) R.drawable.ic_moon else R.drawable.ic_sun)
+        tile.label = getString(R.string.keep_screen_on)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            tile.subtitle = getString(if (enabled) R.string.mode_on else R.string.mode_off)
+        }
+        tile.contentDescription = getString(
+            if (enabled) R.string.mode_on_description else R.string.mode_off_description,
+        )
+        tile.icon = Icon.createWithResource(this, if (enabled) R.drawable.ic_sun else R.drawable.ic_moon)
         tile.updateTile()
     }
 }

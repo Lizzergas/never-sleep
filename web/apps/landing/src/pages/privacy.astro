@@ -9,7 +9,7 @@ import Button from "../components/ui/Button.astro";
 >
     <article class="doc">
         <h1>Privacy Policy</h1>
-        <p class="lede">Last updated: July 26, 2026</p>
+        <p class="lede">Last updated: October 20, 2026</p>
         <div class="actions doc-actions">
             <Button href="/">Back to home</Button>
         </div>
@@ -19,7 +19,8 @@ import Button from "../components/ui/Button.astro";
                 <h2>Overview</h2>
                 <p>
                     Never Sleep is an Android utility that changes your device screen-off timeout when you
-                    explicitly enable the feature. We designed the app to work with minimal data collection.
+                    explicitly enable the feature. Lizz Studio develops and provides the app. Contact us
+                    at <a href="mailto:home@lizz.com">home@lizz.com</a> about this policy or your data.
                 </p>
             </section>
 
@@ -32,14 +33,17 @@ import Button from "../components/ui/Button.astro";
                         previous timeout locally so it can be restored.
                     </li>
                     <li>
-                        <strong>App preferences</strong> — Stored on your device only (e.g. whether ads are
-                        disabled, whether Never Sleep was last enabled).
+                        <strong>App preferences</strong> — The previous timeout, current mode, and ads
+                        preference are stored in the app’s private storage. The app does not send these
+                        settings to Lizz Studio. Android cloud backup and device transfer are disabled
+                        for the app’s stored data.
                     </li>
                     <li>
                         <strong>Advertising data</strong> — If you leave ads enabled and the applicable
                         consent flow permits ad requests, the Google Mobile Ads SDK may automatically
                         collect and share your IP address (which may be used to estimate general location),
-                        interactions with ads, diagnostic information, and device or account identifiers.
+                        app and ad interactions, diagnostic information, and device or account identifiers,
+                        including the Android advertising ID and app set ID.
                         Google uses this information for advertising, analytics, and fraud prevention. See
                         <a href="https://policies.google.com/privacy">Google’s Privacy Policy</a>
                         and
@@ -53,11 +57,12 @@ import Button from "../components/ui/Button.astro";
             <section>
                 <h2>What we do not do</h2>
                 <ul>
-                    <li>We do not operate user accounts or collect names, emails, or contacts.</li>
+                    <li>The app has no user accounts and does not request names, emails, or contacts.</li>
                     <li>We do not sell your personal information.</li>
                     <li>
                         We do not upload your screen-timeout preference to our servers — it stays on your
-                        device.
+                        device. If you email support, we receive the information you choose to send,
+                        including your email address, to respond to your request.
                     </li>
                     <li>We do not request your precise location, contacts, photos, or files.</li>
                 </ul>
@@ -77,12 +82,59 @@ import Button from "../components/ui/Button.astro";
             </section>
 
             <section>
+                <h2>Security and sharing</h2>
+                <p>
+                    Android’s app sandbox protects the app’s local preferences. Google Mobile Ads
+                    encrypts the data it collects in transit using TLS. Advertising and consent data
+                    are processed by Google under its policies; the app does not send your screen-timeout
+                    setting to Google. Lizz Studio does not operate an analytics or account server for
+                    this app. No storage or transmission system can be guaranteed completely secure.
+                </p>
+            </section>
+
+            <section>
+                <h2>Retention and deletion</h2>
+                <p>
+                    Local preferences remain until you clear the app’s storage in Android Settings or
+                    uninstall it. Turn Never Sleep off first so it can restore your previous timeout:
+                    clearing storage or uninstalling while it is enabled may leave the system timeout
+                    unchanged. You can also set your preferred timeout in Android’s display settings.
+                </p>
+                <p>
+                    Google controls the retention of advertising and consent data it processes. See
+                    <a href="https://policies.google.com/technologies/retention">Google’s retention policy</a>
+                    and <a href="https://policies.google.com/privacy">privacy controls</a>. Turning ads
+                    off stops new banner ad requests; it does not delete data already held by Google.
+                    Android’s privacy settings let you reset or delete your advertising ID.
+                </p>
+                <p>
+                    We retain support correspondence for as long as needed to address your inquiry,
+                    meet legal obligations, or handle an ongoing dispute. You can request deletion by emailing
+                    <a href="mailto:home@lizz.com">home@lizz.com</a>. We will explain any information
+                    we must retain. There is no in-app account to delete.
+                </p>
+            </section>
+
+            <section>
                 <h2>Your choices</h2>
                 <p>
                     You can turn ads off at any time in Never Sleep → Settings. Where required, Settings
                     also includes Privacy choices so you can review or change the consent choices presented
                     by Google. You can review or revoke Modify system settings access in Android Settings
-                    without uninstalling the app.
+                    without uninstalling the app. Turn Never Sleep off before revoking access if you
+                    want it to restore your previous timeout. Where applicable, you may contact us to
+                    request access, correction, or deletion of information you have provided to us, or
+                    raise a concern with your local data protection authority.
+                </p>
+            </section>
+
+            <section>
+                <h2>Website campaign links</h2>
+                <p>
+                    Links to Google Play can include a public source and campaign label, such as
+                    the name of a video campaign. Google Play uses these labels in its acquisition
+                    reports. We do not add a personal identifier to these links or use cookies or
+                    local storage for campaign attribution on this website.
                 </p>
             </section>
 
@@ -98,15 +150,17 @@ import Button from "../components/ui/Button.astro";
                 <h2>Changes</h2>
                 <p>
                     We may update this policy. The “Last updated” date at the top will change when we do.
-                    Continued use of the app after changes means you accept the revised policy.
+                    Any consent required for a new use of data will be requested separately.
                 </p>
             </section>
 
             <section>
                 <h2>Contact</h2>
                 <p>
-                    Questions about this policy? Open an issue in the project repository or contact the
-                    developer through your Play Store listing support channel.
+                    Lizz Studio — <a href="mailto:home@lizz.com">home@lizz.com</a>.
+                    For non-private bug reports, you can also use the
+                    <a href="https://github.com/Lizzergas/never-sleep/issues">project’s issue tracker</a>.
+                    GitHub issues are public; please email us for personal or sensitive inquiries.
                 </p>
             </section>
         </div>

@@ -3,12 +3,12 @@ import { createToggleFace, type ToggleFace } from "./toggleFace";
 import { modeLabel, nextMode, type ToggleMode } from "./toggleMode";
 
 interface Props {
-    /** Which face to show first. Defaults to "never" (the app's headline state). */
+    /** Which face to show first. Defaults to "on" (the app's headline state). */
     defaultMode?: ToggleMode;
 }
 
-const GLOW_NEVER = 1;
-const GLOW_NORMAL = 0.45;
+const GLOW_ON = 1;
+const GLOW_OFF = 0.45;
 // Eased-transition speed (per second). ~matches the app's 400ms glow tween.
 const EASE_RATE = 8;
 // Frozen clock used when the visitor prefers reduced motion (no nebula/rim animation).
@@ -26,15 +26,15 @@ function prefersReducedMotion(): boolean {
  * `role="switch"` button so it toggles by click, tap, Enter, and Space, with the WebGL
  * shader face ({@link createToggleFace}) layered over a CSS gradient fallback.
  */
-export function AppToggle({ defaultMode = "never" }: Props) {
+export function AppToggle({ defaultMode = "on" }: Props) {
     const [mode, setMode] = useState<ToggleMode>(defaultMode);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const faceRef = useRef<HTMLSpanElement | null>(null);
     // Mode mirror + eased animation values, read inside the rAF loop without re-subscribing.
     const targetRef = useRef<ToggleMode>(defaultMode);
-    const glowRef = useRef(defaultMode === "never" ? GLOW_NEVER : GLOW_NORMAL);
-    const neverRef = useRef(defaultMode === "never" ? 1 : 0);
+    const glowRef = useRef(defaultMode === "on" ? GLOW_ON : GLOW_OFF);
+    const neverRef = useRef(defaultMode === "off" ? 1 : 0);
 
     targetRef.current = mode;
 
@@ -71,8 +71,8 @@ export function AppToggle({ defaultMode = "never" }: Props) {
             const dt = Math.min(0.05, (now - last) / 1000);
             last = now;
 
-            const glowTarget = targetRef.current === "never" ? GLOW_NEVER : GLOW_NORMAL;
-            const neverTarget = targetRef.current === "never" ? 1 : 0;
+            const glowTarget = targetRef.current === "on" ? GLOW_ON : GLOW_OFF;
+            const neverTarget = targetRef.current === "off" ? 1 : 0;
             const k = Math.min(1, dt * EASE_RATE);
             glowRef.current += (glowTarget - glowRef.current) * k;
             neverRef.current += (neverTarget - neverRef.current) * k;
@@ -101,12 +101,8 @@ export function AppToggle({ defaultMode = "never" }: Props) {
         <button
             type="button"
             role="switch"
-            aria-checked={mode === "never"}
-            aria-label={
-                mode === "never"
-                    ? "Switch to Normal mode and restore the system timeout"
-                    : "Switch to Never mode and keep the screen awake"
-            }
+            aria-checked={mode === "on"}
+            aria-label="Keep screen on"
             className="app-toggle"
             data-mode={mode}
             onClick={toggle}

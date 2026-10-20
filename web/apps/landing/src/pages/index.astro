@@ -2,80 +2,49 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import GooglePlayBadge from "../components/ui/GooglePlayBadge.astro";
 import AppToggleMock from "../components/AppToggleMock.astro";
-
-const description =
-    "Prevent your screen from turning off due to inactivity. One tap to enable screen lock and you are good to go!";
 ---
 
 <SiteLayout
-    title="Never Sleep — Android screen timeout utility"
-    description={description}
+    title="Keep your Android screen on | Never Sleep"
+    description="Keep recipes, sheet music, and instructions visible. Never Sleep keeps your Android screen on with one tap, a widget, or Quick Settings."
     showShader={true}
     showHeader={false}
 >
     <section class="workbench-intro" aria-labelledby="page-title">
         <div class="workbench-intro__copy">
-            <p class="product-kind">Android screen timeout utility</p>
-            <h1 id="page-title">Never Sleep</h1>
-            <p class="lede">{description}</p>
-            <div class="actions" aria-label="Primary links">
-                <GooglePlayBadge />
-                <a class="text-link" href="/privacy">Read the privacy policy</a>
-            </div>
+            <p class="product-kind">Never Sleep for Android</p>
+            <h1 id="page-title">Keep your screen on</h1>
+            <p class="lede">Recipes, sheet music, instructions. Keep them in view with one tap.</p>
+            <div class="actions"><GooglePlayBadge /></div>
+            <p class="hint">Android 12 or later. No account needed.</p>
         </div>
-
-        <AppToggleMock aria-label="Interactive app preview" />
+        <AppToggleMock aria-label="Interactive demo of the Keep screen on control" />
     </section>
 
-    <section class="state-ledger" aria-labelledby="states-title">
-        <div class="state-ledger__intro">
-            <h2 id="states-title">Two states. One setting.</h2>
-            <p>Switching back to Normal restores the timeout the device used before Never mode.</p>
-        </div>
-        <dl class="state-ledger__rows">
-            <div data-state="normal">
-                <dt>Normal</dt>
-                <dd>Uses Android’s system screen timeout.</dd>
-            </div>
-            <div data-state="never">
-                <dt>Never</dt>
-                <dd>Keeps the screen awake until you switch back.</dd>
-            </div>
-        </dl>
-    </section>
-
-    <section class="control-map" aria-labelledby="controls-title">
+    <section class="control-map" aria-labelledby="setup-title">
         <header>
-            <h2 id="controls-title">Built for quick control</h2>
-            <p>Three ways to toggle — same simple idea: your screen stays awake only when you want it to.</p>
+            <h2 id="setup-title">How to keep your Android screen on</h2>
+            <p>Turn it on when you need it. Turn it off to restore your previous timeout.</p>
         </header>
         <ol class="control-list">
-            <li>
-                <span>App</span>
-                <div>
-                    <h3>One-tap toggle</h3>
-                    <p>A large, clear button switches between Normal and Never mode.</p>
-                </div>
-            </li>
-            <li>
-                <span>Shade</span>
-                <div>
-                    <h3>Quick Settings tile</h3>
-                    <p>Add the tile once, then toggle without opening the app.</p>
-                </div>
-            </li>
-            <li>
-                <span>Home</span>
-                <div>
-                    <h3>1×1 widget</h3>
-                    <p>Keep the same control within reach on your launcher.</p>
-                </div>
-            </li>
+            <li><span>01</span><div>
+                <h3>Allow access</h3>
+                <p>Grant “Modify system settings” so Never Sleep can change your screen timeout.</p>
+            </div></li>
+            <li><span>02</span><div>
+                <h3>Tap ON</h3>
+                <p>Your screen stays awake, even after you leave the app.</p>
+            </div></li>
+            <li><span>03</span><div>
+                <h3>Keep it within reach</h3>
+                <p>Edit your Quick Settings and add Never Sleep, or place its widget on your home screen.</p>
+            </div></li>
         </ol>
     </section>
 
     <section class="download-close" aria-label="Download Never Sleep">
-        <p>Never Sleep for Android</p>
+        <p>One tap when you need it</p>
         <GooglePlayBadge large />
+        <p class="hint">Optional ads. Turn them off in Settings.</p>
     </section>
 </SiteLayout>

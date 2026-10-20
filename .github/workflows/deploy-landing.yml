@@ -1,11 +1,8 @@
 name: Deploy landing
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "web/**"
-      - ".github/workflows/deploy-landing.yml"
+  # Disabled in GitHub; publish locally with ./scripts/fastlane.sh website.
+  # Retained as a manual fallback only.
   workflow_dispatch:
 
 concurrency:

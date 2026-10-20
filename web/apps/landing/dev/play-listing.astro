@@ -4,19 +4,29 @@ import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Kicker from "../components/ui/Kicker.astro";
 
-const shortDescription =
-    "Keep your screen awake — one tap, Quick Settings tile, and home-screen widget.";
-const fullDescription = `Never Sleep prevents your Android screen from turning off due to inactivity.
+const listingTitle = 'Never Sleep: Keep Screen On';
+const shortDescription = 'Keep your screen awake with one tap, a widget, or Quick Settings.';
+const fullDescription = `Keep your Android screen awake when you need it.
 
-• One-tap toggle — big, beautiful button to switch between normal and never-sleep mode
-• Quick Settings tile — toggle without opening the app
-• Home-screen widget — 1×1 widget for instant access
-• Restores your previous timeout when you turn it off
+Never Sleep changes your screen timeout with one tap. Your screen stays awake while you read, follow a recipe, check a reference, or use another app. Turn it off when you are done to restore your previous timeout.
 
-The app uses Android's "Modify system settings" permission to change screen-off timeout. You grant this once in system Settings. Battery use may increase while enabled — disable anytime.
+YOUR CHOICE OF CONTROLS
+One-tap toggle in the app
+Quick Settings tile for access from the notification shade
+Compact 1×1 home-screen widget
+Works after you leave the app
 
-Optional banner ads support development. Disable ads in Settings.
+YOU STAY IN CONTROL
+Never Sleep uses Android’s “Modify system settings” permission to change the screen-off timeout. The app explains why it needs access before opening Android Settings. You can revoke access at any time.
 
+Turn Never Sleep off before uninstalling, clearing its storage, or revoking permission so it can restore your previous timeout. Device security policies and manufacturer settings may limit how long the screen stays on. Keeping the display awake uses more battery.
+
+OPTIONAL ADS
+Banner ads support development. You can turn them off in Settings at no charge. Privacy choices are available where required. No account or subscription is needed.
+
+Android 12 or later.
+Developer: Lizz Studio
+Support: home@lizz.com
 Privacy policy: https://neversleep.app/privacy`;
 ---
 
@@ -49,6 +59,14 @@ Privacy policy: https://neversleep.app/privacy`;
                     <dd><code>com.lizz.neversleep</code></dd>
                 </div>
                 <div>
+                    <dt>Developer</dt>
+                    <dd>Lizz Studio</dd>
+                </div>
+                <div>
+                    <dt>Support email</dt>
+                    <dd><a href="mailto:home@lizz.com">home@lizz.com</a></dd>
+                </div>
+                <div>
                     <dt>Category</dt>
                     <dd>Tools</dd>
                 </div>
@@ -56,6 +74,8 @@ Privacy policy: https://neversleep.app/privacy`;
         </Card>
 
         <Card class="listing-card">
+            <h2>App title</h2>
+            <p class="copy-block">{listingTitle}</p>
             <h2>Short description</h2>
             <p class="copy-block">{shortDescription}</p>
             <p class="hint">{shortDescription.length} / 80 characters max</p>
@@ -78,7 +98,7 @@ Privacy policy: https://neversleep.app/privacy`;
         <Card class="listing-card">
             <h2>Hosting</h2>
             <p class="copy-block">
-                GitHub Pages via <code>deploy-landing.yml</code> · custom domain
+                Locally built GitHub Pages site at
                 <code>neversleep.app</code>
             </p>
             <p class="hint">
@@ -113,6 +133,8 @@ Privacy policy: https://neversleep.app/privacy`;
                 <li>Purposes: advertising, analytics, and fraud prevention</li>
                 <li>Data encrypted in transit (AdMob SDK)</li>
                 <li>Users can disable ads and revisit applicable privacy choices in-app</li>
+                <li>App preferences excluded from cloud backup and device transfer</li>
+                <li>Contains ads: Yes. Advertising ID: Yes</li>
             </ul>
             <p class="hint">
                 Verify the live Play Console form against Google Mobile Ads SDK data-disclosure guidance

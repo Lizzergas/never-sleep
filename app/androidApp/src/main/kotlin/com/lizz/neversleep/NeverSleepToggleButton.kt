@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -90,7 +91,7 @@ half4 main(float2 fragCoord) {
  * Main toggle — matches launcher icon branding:
  * - API 33+: AGSL [RuntimeShader] button face + animated neon rim (ShaderBrush in Canvas;
  *   see Android docs "Using RuntimeShader with Jetpack Compose")
- * - API 31–32: Canvas radial-gradient fallback
+ * - API 24–32: Canvas radial-gradient fallback
  * - Vector crescent moon / sun (no emoji)
  */
 @Composable
@@ -104,6 +105,10 @@ fun NeverSleepToggleButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val indication = LocalIndication.current
+    val toggleLabel = stringResource(R.string.keep_screen_on)
+    val modeDescription = stringResource(
+        if (isEnabled) R.string.mode_on_description else R.string.mode_off_description,
+    )
 
     val glowStrength by animateFloatAsState(
         targetValue = if (isEnabled) 1f else 0.45f,
@@ -128,12 +133,6 @@ fun NeverSleepToggleButton(
         label = "shaderTime",
     )
 
-    val faceShader = if (Build.VERSION.SDK_INT >= 33) {
-        remember { RuntimeShader(TOGGLE_FACE_SHADER) }
-    } else {
-        null
-    }
-
     Box(
         modifier = modifier
             .size(controlSize)
@@ -145,9 +144,9 @@ fun NeverSleepToggleButton(
     ) {
         Canvas(modifier = Modifier.size(controlSize * 1.14f)) {
             val bloomColor = if (isEnabled) {
-                NeverSleepColors.NeverAmbient
+                NeverSleepColors.DayAmbient
             } else {
-                NeverSleepColors.NormalAmbient
+                NeverSleepColors.NightAmbient
             }
             drawCircle(
                 brush = Brush.radialGradient(
@@ -169,12 +168,8 @@ fun NeverSleepToggleButton(
                 .size(controlSize)
                 .clip(CircleShape)
                 .semantics {
-                    contentDescription = "Never Sleep"
-                    stateDescription = if (isEnabled) {
-                        "Never mode. Screen stays awake."
-                    } else {
-                        "Normal mode. System timeout is restored."
-                    }
+                    contentDescription = toggleLabel
+                    stateDescription = modeDescription
                 }.toggleable(
                     value = isEnabled,
                     interactionSource = interactionSource,
@@ -188,19 +183,18 @@ fun NeverSleepToggleButton(
                 ),
             contentAlignment = Alignment.Center,
         ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val radius = size.minDimension / 2f
-                if (Build.VERSION.SDK_INT >= 33 && faceShader != null) {
-                    drawToggleFaceShader(
-                        shader = faceShader,
-                        shaderTime = shaderTime,
-                        glowStrength = glowStrength,
-                        isEnabled = isEnabled,
-                        radius = radius,
-                    )
-                } else {
+            // Keep RuntimeShader out of the fallback lambda's captured types.
+            // R8 can otherwise insert a cast before its SDK guard on old Android.
+            if (Build.VERSION.SDK_INT >= 33) {
+                AgslToggleFace(
+                    shaderTime = shaderTime,
+                    glowStrength = glowStrength,
+                    isEnabled = isEnabled,
+                )
+            } else {
+                Canvas(modifier = Modifier.fillMaxSize()) {
                     drawToggleFaceFallback(
-                        isNeverMode = isEnabled,
+                        isNeverMode = !isEnabled,
                         glowStrength = glowStrength,
                         time = shaderTime,
                     )
@@ -209,9 +203,9 @@ fun NeverSleepToggleButton(
 
             Canvas(modifier = Modifier.fillMaxSize()) {
                 if (isEnabled) {
-                    drawBrandMoon(center = Offset(size.width / 2f, size.height * 0.38f))
-                } else {
                     drawBrandSun(center = Offset(size.width / 2f, size.height * 0.38f))
+                } else {
+                    drawBrandMoon(center = Offset(size.width / 2f, size.height * 0.38f))
                 }
             }
 
@@ -222,7 +216,7 @@ fun NeverSleepToggleButton(
                     .padding(bottom = controlSize * 0.16f),
             ) {
                 Text(
-                    text = if (isEnabled) "NEVER" else "NORMAL",
+                    text = stringResource(if (isEnabled) R.string.mode_on else R.string.mode_off),
                     color = NeverSleepColors.Content,
                     fontSize = if (controlSize < 180.dp) 12.sp else 14.sp,
                     fontWeight = FontWeight.Bold,
@@ -230,6 +224,25 @@ fun NeverSleepToggleButton(
                 )
             }
         }
+    }
+}
+
+@Composable
+@RequiresApi(33)
+private fun AgslToggleFace(
+    shaderTime: Float,
+    glowStrength: Float,
+    isEnabled: Boolean,
+) {
+    val shader = remember { RuntimeShader(TOGGLE_FACE_SHADER) }
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        drawToggleFaceShader(
+            shader = shader,
+            shaderTime = shaderTime,
+            glowStrength = glowStrength,
+            isEnabled = isEnabled,
+            radius = size.minDimension / 2f,
+        )
     }
 }
 
@@ -244,7 +257,8 @@ private fun DrawScope.drawToggleFaceShader(
     shader.setFloatUniform("iResolution", size.width, size.height)
     shader.setFloatUniform("iTime", shaderTime)
     shader.setFloatUniform("iGlow", glowStrength)
-    shader.setFloatUniform("iNeverMode", if (isEnabled) 1f else 0f)
+    // The existing shader's "never" palette is the night scene, now the OFF state.
+    shader.setFloatUniform("iNeverMode", if (isEnabled) 0f else 1f)
     drawCircle(
         brush = ShaderBrush(shader),
         radius = radius,

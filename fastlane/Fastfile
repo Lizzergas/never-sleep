@@ -1,0 +1,61 @@
+require "fileutils"
+
+default_platform(:android)
+opt_out_usage
+skip_docs
+
+ROOT = File.expand_path("..", __dir__)
+
+before_all do
+  ENV["ANDROID_HOME"] ||= File.join(Dir.home, "Library/Android/sdk") if RUBY_PLATFORM.include?("darwin")
+end
+
+desc "Build and check the website locally, then publish static files to GitHub Pages"
+lane :website do
+  sh("bash", File.join(ROOT, "scripts/publish-landing.sh"))
+end
+
+platform :android do
+  desc "Check shipping Android code and build a debug APK"
+  lane :check do
+    sh("python3", "-m", "unittest", "discover", "-s", File.join(ROOT, "scripts/tests"))
+    gradle(
+      project_dir: ROOT,
+      tasks: ["qualityCheck", ":app:androidApp:assembleDebug", ":app:androidApp:lintDebug"],
+      flags: "--console=plain"
+    )
+  end
+
+  desc "Run the former CI checks locally, including template tests and iOS compilation"
+  lane :check_all do
+    check
+    gradle(
+      project_dir: ROOT,
+      tasks: ["jvmTest", ":server:test", ":app:shared:compileKotlinIosArm64"],
+      flags: "--console=plain"
+    )
+    Dir.chdir(File.join(ROOT, "web")) do
+      sh("bun", "install", "--frozen-lockfile")
+      ["lint", "format:check", "typecheck", "test", "build"].each { |task| sh("bun", "run", task) }
+    end
+  end
+
+  desc "Validate Play listing copy and all upload graphics"
+  lane :assets do
+    sh("python3", File.join(ROOT, "scripts/android-release.py"), "check-assets")
+  end
+
+  desc "Build and verify signed APK/AAB and package the Play listing (no upload)"
+  lane :release do
+    sh("python3", "-m", "unittest", "discover", "-s", File.join(ROOT, "scripts/tests"))
+    sh("python3", File.join(ROOT, "scripts/android-release.py"), "check-config")
+    assets
+    gradle(
+      project_dir: ROOT,
+      tasks: ["qualityCheck", ":app:androidApp:lintRelease",
+              ":app:androidApp:assembleRelease", ":app:androidApp:bundleRelease"],
+      flags: "--console=plain"
+    )
+    sh("python3", File.join(ROOT, "scripts/android-release.py"), "package")
+  end
+end

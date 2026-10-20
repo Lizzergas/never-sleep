@@ -1,5 +1,6 @@
 package com.lizz.neversleep
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -26,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 
 /**
  * The Never Sleep home screen: morphing background, centred title + toggle, and an
@@ -53,7 +57,7 @@ internal fun NeverSleepScreen(
         // Let the shader draw full-bleed under the status bar; insets are applied to content below
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // Full-screen background that morphs Normal↔Never with a windy swoosh.
+            // Full-screen background that morphs night (OFF) ↔ dawn (ON).
             NeverSleepBackground(isEnabled = isEnabled, modifier = Modifier.fillMaxSize())
 
             Column(
@@ -154,7 +158,7 @@ private fun AdaptivePrimaryContent(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                BrandLabel()
+                ToggleLabel()
                 NeverSleepToggleButton(
                     isEnabled = isEnabled,
                     onToggle = onToggle,
@@ -169,7 +173,7 @@ private fun AdaptivePrimaryContent(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                BrandLabel()
+                ToggleLabel()
                 Spacer(Modifier.height(NeverSleepSpacing.Xl))
                 NeverSleepToggleButton(
                     isEnabled = isEnabled,
@@ -182,11 +186,15 @@ private fun AdaptivePrimaryContent(
 }
 
 @Composable
-private fun BrandLabel() {
+private fun ToggleLabel() {
     Text(
-        text = "never sleep",
+        text = stringResource(R.string.keep_screen_on),
+        modifier = Modifier
+            .background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(50))
+            .padding(horizontal = NeverSleepSpacing.Md, vertical = NeverSleepSpacing.Xs),
         style = MaterialTheme.typography.titleLarge,
-        color = NeverSleepColors.ContentMuted,
+        letterSpacing = 0.5.sp,
+        color = NeverSleepColors.Content,
         maxLines = 1,
     )
 }

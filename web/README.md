@@ -31,7 +31,10 @@ Format: `bun run format` (Oxfmt; `.astro` files are manual for now).
 - **Home** — hero with a live Never/Normal toggle (WebGL port of the app button),
   feature cards, official Google Play badge
 - **Privacy** — Play-required policy at `/privacy`
-- **Deploy** — GitHub Pages via `.github/workflows/deploy-landing.yml`
+- **Deploy** — `../scripts/fastlane.sh website` checks and builds locally, then
+  pushes static output to `gh-pages`. GitHub Pages hosts it at `neversleep.app`.
+  The previous Actions build workflow is disabled.
+- **AdMob verification** — `public/app-ads.txt`, matching the production publisher.
 
 Dev-only Play Console reference: `apps/landing/dev/play-listing.astro` (use
 `bun run dev:landing:play`).

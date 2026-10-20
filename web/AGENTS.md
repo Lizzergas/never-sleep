@@ -24,22 +24,24 @@ bun run dev:landing:play         # + temporary /play page for Play Console copy
 bun run lint && bun run format:check && bun run typecheck && bun run test && bun run build
 ```
 
-Landing-only build (what CI deploys):
+Landing-only build:
 
 ```bash
 bun --filter @neversleep/landing build
 # artifact: apps/landing/dist/
 ```
 
-Deploy: `.github/workflows/deploy-landing.yml` on push to `main` when `web/**`
-changes. Custom domain `neversleep.app` via `public/CNAME`.
+Deploy locally from the repository root: `./scripts/fastlane.sh website`.
+The script checks and builds the site locally, then publishes static output to
+`gh-pages`. Both custom GitHub workflows are disabled and manual-only.
+Custom domain `neversleep.app` via `public/CNAME`.
 
 ## Landing architecture
 
 - **Astro-first, static output** — no server runtime on GitHub Pages.
 - **React islands** only where needed: `HeroBackdrop.tsx` (Paper Shaders:
   `@paper-design/shaders-react`, `client:only="react"`) and `AppToggle.tsx` (the
-  hero's live Never/Normal toggle, `client:visible`).
+  hero's live ON/OFF toggle, `client:visible`).
 - **Design tokens:** `src/styles/tokens.css` · shared styles: `site.css`.
 - **UI components:** `src/components/ui/` (`Button`, `Card`, `Kicker`, …).
 - **Hero preview:** interactive toggle (`AppToggleMock.astro` → `AppToggle.tsx`), a
@@ -67,3 +69,10 @@ changes. Custom domain `neversleep.app` via `public/CNAME`.
 
 When changing legal copy or URLs, keep `app/androidApp` privacy strings in sync
 (`BuildConfig`, `strings.xml`).
+
+## Local marketing videos
+
+`apps/promo` is a Remotion workspace cloned from the official starter. It is not
+deployed. Run `../scripts/marketing.sh render` from `web/` to export videos.
+The landing uses an allowlisted campaign URL helper in `src/lib/attribution.ts`;
+keep it synchronized with `web/scripts/prepare-launch.ts`. No analytics SDK is added.

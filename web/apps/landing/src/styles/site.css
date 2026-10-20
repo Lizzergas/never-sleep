@@ -453,7 +453,7 @@ h1 {
         box-shadow 0.4s ease;
 }
 
-.app-toggle[data-mode="never"] .app-toggle__gradient {
+.app-toggle[data-mode="off"] .app-toggle__gradient {
     background: radial-gradient(circle at 50% 46%, #2a1848, #12122a 55%, #08081a 100%);
     box-shadow: inset 0 0 40px rgb(124 77 255 / 45%);
 }
@@ -476,8 +476,8 @@ h1 {
     transition: opacity 0.4s ease;
 }
 
-.app-toggle[data-mode="never"] .app-toggle__icon--sun,
-.app-toggle[data-mode="normal"] .app-toggle__icon--moon {
+.app-toggle[data-mode="off"] .app-toggle__icon--sun,
+.app-toggle[data-mode="on"] .app-toggle__icon--moon {
     opacity: 0;
 }
 

@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Never Sleep</string>
+    <string name="keep_screen_on">Keep screen on</string>
+    <string name="mode_on">ON</string>
+    <string name="mode_off">OFF</string>
+    <string name="mode_on_description">On. Screen stays awake.</string>
+    <string name="mode_off_description">Off. Screen turns off automatically.</string>
     <string name="privacy_policy_url">https://neversleep.app/privacy</string>
     <string name="widget_enable_description">Turn Never Sleep on</string>
     <string name="widget_disable_description">Turn Never Sleep off</string>

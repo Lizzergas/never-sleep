@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.sp
 /**
  * Shared product roles used by both app states.
  *
- * Normal is warm: sun, amber, and the device's usual timeout.
- * Never is cool: moon, violet, and a screen that stays awake.
+ * ON is warm: sun, amber, and a screen that stays awake.
+ * OFF is cool: moon, violet, and the device's usual timeout.
  */
 internal object NeverSleepColors {
     val Canvas = Color(0xFF0D0D1A)
@@ -26,9 +26,9 @@ internal object NeverSleepColors {
     val ContentSubtle = Color(0xFFA9A3B7)
     val Divider = Color(0xFF3D3850)
     val NormalAccent = Color(0xFFFFB74D)
-    val NormalAmbient = Color(0xFF4A6080)
+    val DayAmbient = Color(0xFFFFB74D)
     val NeverAccent = Color(0xFF9E8CFF)
-    val NeverAmbient = Color(0xFF7C4DFF)
+    val NightAmbient = Color(0xFF7C4DFF)
 }
 
 internal object NeverSleepSpacing {

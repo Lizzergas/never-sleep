@@ -27,12 +27,12 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Full-screen background that morphs with the toggle: a warm "dawn" for Normal mode
- * and a dark, star-lit night for Never mode. The change plays as a wind-warped
+ * Full-screen background that morphs with the toggle: a warm "dawn" when ON
+ * and a dark, star-lit night when OFF. The change plays as a wind-warped
  * "swoosh" sweeping the new state across the screen.
  *
  * Deep module: the whole interface is `NeverSleepBackground(isEnabled, modifier)`.
- * Everything else — the AGSL shader, the API-31/32 Canvas fallback, the eased mode
+ * Everything else — the AGSL shader, the API-24–32 Canvas fallback, the eased mode
  * animation, and the palette maths — stays hidden. Mirrors the API-guard pattern in
  * [NeverSleepToggleButton]; the light is anchored on the toggle so brightness stays
  * centred and the status bar / bottom panel remain legible.
@@ -42,12 +42,12 @@ fun NeverSleepBackground(
     isEnabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    // 0 = Normal (warm dawn), 1 = Never (dark + stars). Eased so the swoosh glides
+    // 0 = ON (warm dawn), 1 = OFF (dark + stars). Eased so the swoosh glides
     // rather than snaps (the button snaps its own iNeverMode; the background must not).
     val mode by animateFloatAsState(
-        targetValue = if (isEnabled) 1f else 0f,
+        targetValue = if (isEnabled) 0f else 1f,
         animationSpec = tween(durationMillis = 1100, easing = FastOutSlowInEasing),
-        label = "neverMode",
+        label = "nightAmount",
     )
 
     if (Build.VERSION.SDK_INT >= 33) {
@@ -221,7 +221,7 @@ private fun AgslMorphBackground(
 }
 
 /**
- * API 31–32 fallback: a clean crossfade of the warm/cold centre bloom plus a
+ * API 24–32 fallback: a clean crossfade of the warm/cold centre bloom plus a
  * star field that fades in with [mode]. No per-pixel wind wipe, but the same feel.
  */
 @Composable
