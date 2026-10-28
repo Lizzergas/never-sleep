@@ -76,7 +76,7 @@ android {
         // === Versioning for Google Play ===
         // Increment versionCode (integer) for EVERY release / upload to Play Store.
         // versionName is the user-visible string (use semantic versioning).
-        versionCode = 1
+        versionCode = 4
         versionName = "1.0.0"
 
         manifestPlaceholders["admobAppId"] = defaultAdmobAppId
@@ -136,6 +136,11 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
+            // Its JNI keep rule otherwise retains unused path-iteration stubs.
+            // proguard-rules.pro verifies that this whole library is discarded.
+            optimization.keepRules {
+                ignoreFrom("androidx.graphics:graphics-path:1.0.1")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -151,6 +156,15 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        // Exclude only when R8 proves the AndroidX path library is unused.
+        // Debug builds retain it for unrestricted tooling and experimentation.
+        variant.packaging.jniLibs.excludes
+            .add("**/libandroidx.graphics.path.so")
     }
 }
 

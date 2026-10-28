@@ -114,6 +114,17 @@ It builds locally and does **not** upload or submit an app for review.
 Use a new `versionCode` for each new bundle uploaded to Play; promote an existing
 release between tracks without rebuilding it.
 
+Release R8 rules rely on dependency consumer rules, with a targeted constructor
+rule for WorkManager's Room database. Avoid package-wide keep rules: they disable
+most shrinking and optimization, and debug builds cannot verify these rules.
+
+The app does not use AndroidX `graphics-path` iteration. Release builds omit its
+stripped native binary and ignore its JNI keep rule. A `-checkdiscard` guard,
+combined with disabled optimization for that package, requires all of its code
+to be removed. If a dependency update or UI change needs path iteration, the
+release build fails; restore the library and its consumer rules before proceeding.
+Debug builds retain the native library.
+
 Store copy: `fastlane/metadata/android/en-US/`. Graphics are symlinked there from
 `assets/play-store/`; the packaged ZIP contains ordinary files.
 Preview: `assets/play-store/preview.html`.

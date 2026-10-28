@@ -1,56 +1,25 @@
-# ProGuard / R8 rules for Never Sleep release builds
-# https://developer.android.com/studio/build/shrink-code
+# Android components declared in the manifest are preserved by AGP. Compose,
+# Google Mobile Ads, UMP, and AndroidX supply their own consumer keep rules.
+# Package-wide keep rules prevent R8 from optimizing almost the entire app.
+# Add a targeted rule here only for a demonstrated reflection or JNI entry point.
 
-# Keep Compose runtime and UI (reflection + lambdas used heavily)
--keep class androidx.compose.** { *; }
--keep class androidx.compose.runtime.** { *; }
--keep class androidx.compose.ui.** { *; }
-
-# Keep Kotlin stdlib and metadata
--keep class kotlin.** { *; }
--keep class kotlin.Metadata { *; }
--dontwarn kotlin.**
-
-# Keep your own app code that may be accessed by name (e.g. via reflection, deep links, etc.)
-# Add specific -keep rules here as your app grows.
--keep class com.lizz.neversleep.** { *; }
-
-# Google Mobile Ads SDK
--keep class com.google.android.gms.ads.** { *; }
--keep class com.google.ads.** { *; }
--dontwarn com.google.android.gms.**
-
-# WorkManager / Room (transitive AdMob dependency — required for release minify)
--keep class * extends androidx.work.Worker
--keep class * extends androidx.work.InputMerger
--keep class androidx.work.** { *; }
--keep class androidx.work.impl.** { *; }
--keep class * extends androidx.room.RoomDatabase
--keep @androidx.room.Entity class *
--dontwarn androidx.work.**
-
-# OkHttp / networking (in case you add real ads or server calls)
--keep class okhttp3.** { *; }
--keep class okio.** { *; }
--dontwarn okhttp3.**
--dontwarn okio.**
-
-# Keep AndroidX Lifecycle / SavedState (common with Compose)
--keep class androidx.lifecycle.** { *; }
-
-# Prevent R8 from stripping important annotations
--keepattributes *Annotation*
--keepattributes Signature
+# Retain useful source locations for Play Console crash reports and retracing.
 -keepattributes SourceFile,LineNumberTable
 
-# If using any custom views or widgets that are inflated by name
--keep public class * extends android.view.View { *; }
+# AdMob's WorkManager dependency uses Room 2.2.5. Its consumer rules preserve
+# database class names, but R8 full mode also needs the constructor that Room
+# invokes through Class.newInstance() during WorkManager initialization.
+-keepclassmembers class androidx.work.impl.WorkDatabase_Impl {
+    public <init>();
+}
 
-# For the WRITE_SETTINGS and system interactions (keep controller classes)
--keep class com.lizz.neversleep.NeverSleepController { *; }
--keep class com.lizz.neversleep.NeverSleepTileService { *; }
--keep class com.lizz.neversleep.NeverSleepWidgetProvider { *; }
--keep class com.lizz.neversleep.NeverSleepWidgetReceiver { *; }
--keep class com.lizz.neversleep.NeverSleepApplication { *; }
--keep class com.lizz.neversleep.AdBanner { *; }
--keep class com.lizz.neversleep.NeverSleepToggleButton { *; }
+# graphics-path 1.0.1 ships stripped native binaries, but this app never uses
+# path iteration. Release packaging omits that unused library and ignores its
+# JNI keep rule. Prevent inlining/merging, then require the entire package to
+# disappear. Any new path-iteration use fails the build instead of shipping
+# code that would load a missing native library. Revisit this guard and the
+# packaging exclusion when upgrading graphics-path or using path iteration.
+-keep,allowshrinking class androidx.graphics.path.** {
+    *;
+}
+-checkdiscard class androidx.graphics.path.**
