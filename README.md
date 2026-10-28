@@ -38,6 +38,12 @@ and remaining physical-device checks. Android 7–12 uses the animated Canvas
 fallback; Android 13+ uses the full shader. KMP template modules retain their
 separate Android 12 minimum.
 
+The product compiles and targets **API 37**, with emulator checks on Android 16
+and Android 17 (including a 16 KB page-size image). The checks cover cold launch,
+the main toggle, exact timeout restoration, operation after leaving/force-stopping
+the app, permission revocation, and Quick Settings. Physical-device OEM behavior
+still needs device-specific verification.
+
 Product code lives in `app/androidApp/src/main/kotlin/com/lizz/neversleep/` —
 mainly `MainActivity.kt`, `NeverSleepController.kt`, tile/widget services.
 

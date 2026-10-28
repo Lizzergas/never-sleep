@@ -137,14 +137,14 @@ You can also generate wider "feature graphic" (1024x500) with a separate prompt 
   - Providing high-res PNG foreground + solid background works reliably.
   - Legacy `mipmap-*` PNGs are still important for older devices and round icons.
 - **Resizing quality**: `sips -Z` (fit within size) produces good results for icons. It preserves aspect and is fast/native on macOS.
-- **Stateful icons (tile + widget)**: Using the same visual language as the launcher creates a cohesive brand. Raster PNGs at 192–256px look much richer than the old simple vectors.
+- **Stateful widget icons**: The widget retains the generated raster artwork at 192px.
 - **Widget layout**: The current 1x1 widget uses a 48dp ImageView on a dark background. Icons with their own glow read well; very busy backgrounds inside the icon can fight the widget bg.
-- **Tile icons**: Quick Settings tiles are small. High contrast + clear silhouette is more important than fine detail.
+- **Tile icons**: Android tints the icon's alpha channel. Use the white-on-transparent 24dp vectors `ic_qs_sun.xml` and `ic_qs_moon.xml`, including the service's default manifest icon. Opaque raster artwork becomes a solid square. See [Android's tile icon requirements](https://developer.android.com/develop/ui/views/quicksettings-tiles#create_your_custom_icon).
 - **Shortcuts**: If you later add `ShortcutManager` (static or dynamic app shortcuts on long-press), use the same generation process. Typical size ~96–128px. Name them `ic_shortcut_*.png`.
 - **Reusability**: Keep the 1024px masters + the generation prompts in `assets/` or this doc. Future rebrands or density additions become trivial.
 - **Testing is mandatory**: Different launchers apply different masks (circle, squircle, rounded square). Always test on a real device.
 - **Play policy / icons**: Use the custom icon everywhere (launcher, Play listing, shortcuts). Avoid anything that looks like a stock Android icon.
-- **Vector vs Raster**: Vectors (the old `ic_moon.xml`) are tiny and scale perfectly but look flat. Generated raster icons give the "premium" feel the user liked. For tile/widget we switched to PNG successfully.
+- **Vector vs Raster**: Keep generated raster artwork for the launcher and widget. Quick Settings uses separate vector silhouettes so system tinting works on Android 7 through 17.
 
 ## File Locations Reference
 

@@ -59,9 +59,10 @@ class NeverSleepTileService : TileService() {
             tile.subtitle = getString(if (enabled) R.string.mode_on else R.string.mode_off)
         }
         tile.contentDescription = getString(
-            if (enabled) R.string.mode_on_description else R.string.mode_off_description,
+            R.string.tile_state_description,
+            getString(if (enabled) R.string.mode_on_description else R.string.mode_off_description),
         )
-        tile.icon = Icon.createWithResource(this, if (enabled) R.drawable.ic_sun else R.drawable.ic_moon)
+        tile.icon = Icon.createWithResource(this, if (enabled) R.drawable.ic_qs_sun else R.drawable.ic_qs_moon)
         tile.updateTile()
     }
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Never Sleep</string>
     <string name="keep_screen_on">Keep screen on</string>
+    <string name="tile_state_description">Keep screen on. %1$s</string>
     <string name="mode_on">ON</string>
     <string name="mode_off">OFF</string>
     <string name="mode_on_description">On. Screen stays awake.</string>

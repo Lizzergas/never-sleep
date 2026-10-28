@@ -76,7 +76,7 @@ android {
         // === Versioning for Google Play ===
         // Increment versionCode (integer) for EVERY release / upload to Play Store.
         // versionName is the user-visible string (use semantic versioning).
-        versionCode = 4
+        versionCode = 5
         versionName = "1.0.0"
 
         manifestPlaceholders["admobAppId"] = defaultAdmobAppId
