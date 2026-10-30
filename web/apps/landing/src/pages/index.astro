@@ -6,15 +6,16 @@ import AppToggleMock from "../components/AppToggleMock.astro";
 
 <SiteLayout
     title="Keep your Android screen on | Never Sleep"
-    description="Keep your screen on with one tap. Never Sleep for Android."
+    description="Keep your Android screen on, even when you switch apps. Turn Never Sleep off to restore your usual screen timeout."
 >
     <section class="landing-hero" aria-labelledby="page-title">
         <div class="hero-copy">
-            <h1 id="page-title"><span class="headline-night">Never sleep.</span><br /><span class="headline-day">Always awake.</span></h1>
-            <p class="lede">Keep your screen on with one tap.</p>
+            <h1 id="page-title">Keep your<br />screen on.</h1>
+            <p class="lede">Keep your Android awake, even when you switch apps.</p>
             <div class="actions">
                 <GooglePlayBadge />
             </div>
+            <p class="hero-note">Switch it off to restore your usual screen timeout.</p>
         </div>
         <AppToggleMock aria-label="Try Never Sleep: tap the control to turn it on or off" />
     </section>
